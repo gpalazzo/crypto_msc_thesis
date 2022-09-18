@@ -33,8 +33,9 @@ CONFIG_LOADER_CLASS = TemplatedConfigLoader
 CONFIG_LOADER_ARGS = {
     "globals_pattern": "*globals.yml",
     "globals_dict": {
-        "start_date": "2017-01-01",
-        "end_date": "2022-09-16"
+        "start_date": "2020-09-19", # should always have 2 days of difference from `current_date`
+                                    # it's yahoo finance's API limitation
+        "end_date": "2022-09-17"
     }
 }
 

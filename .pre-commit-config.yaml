@@ -9,8 +9,8 @@ repos:
       - id: sort-simple-yaml
       - id: check-toml
       - id: check-docstring-first
-      - id: check-added-large-files
-        args: ["--maxkb=1200"]
+    #   - id: check-added-large-files
+    #     args: ["--maxkb=1200"]
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: fix-encoding-pragma
