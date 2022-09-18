@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  s_crypto_thesis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: c_crypto_thesis
+    ports:
+      - "9999:8888"
+    volumes:
+      - .:/home/kedro
+    restart: always
+    networks:
+      - n_crypto_thesis
+
+networks:
+  n_crypto_thesis:
+    driver: bridge
