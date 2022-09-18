@@ -4,13 +4,11 @@
 # ignore all local configuration
 conf/local/**
 !conf/local/.gitkeep
-.telemetry
 
 # ignore potentially sensitive credentials files
 conf/**/*credentials*
 
 # ignore everything in the following folders
-data/**
 logs/**
 
 # except their sub-folders
@@ -143,8 +141,8 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
+**/**.env
 .env
-.envrc
 .venv
 env/
 venv/
@@ -157,3 +155,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# others
+.bash_history
+.python_history
+.local
+.jupyter
+.config
