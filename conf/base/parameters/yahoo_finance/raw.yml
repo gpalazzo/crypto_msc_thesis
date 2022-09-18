@@ -1,0 +1,29 @@
+# retrieve data
+raw_yahoo_finance_get_data:
+  tickers:
+    # equities
+      # BR
+    PETR4.SA: "petrobras"
+    VALE3.SA: "vale"
+    CSNA3.SA: "csn"
+    GGBR4.SA: "gerdau"
+    CSAN3.SA: "cosan"
+    TAEE3.SA: "taesa"
+    ABEV3.SA: "ambev"
+      # US
+    MSFT: "microsoft"
+    AAPL: "apple"
+    # index
+      # BR
+    ^BVSP: "ibov"
+      # US
+    ^GSPC: "sp500"
+    ^NDX: "nasdaq"
+    # FX Rate
+    USDBRL=X: "usdbrl_fx"
+    USDEUR=X: "usdeur_fx"
+    USDJPY=X: "usdjpy_fx"
+    # commodity
+    BZ=F: "brent_crude_oil"
+  start_date: "${start_date}"
+  end_date: "${end_date}"

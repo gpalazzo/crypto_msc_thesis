@@ -1,0 +1,4 @@
+# all parameters here are dummy
+# they will be overwritten when building the Kedro Session
+start_date: "0000-00-00"
+end_date: "0000-00-00"
