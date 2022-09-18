@@ -23,7 +23,7 @@ def yahoo_finance_raw(raw_yahoo_finance_get_data: Dict[str, Any]) -> pd.DataFram
         auto_adjust=True
     )
 
-    df = df.stack().reset_index().rename(columns={"level_1": "ticker"})
+    df = df.stack().reset_index().rename(columns={"level_0": "date", "level_1": "ticker"})
 
     assert (
         len(raw_yahoo_finance_get_data["tickers"]) == df["ticker"].nunique()
