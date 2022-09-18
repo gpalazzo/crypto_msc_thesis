@@ -1,0 +1,44 @@
+repos:
+
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: sort-simple-yaml
+      - id: check-toml
+      - id: check-docstring-first
+      - id: check-added-large-files
+        args: ["--maxkb=1200"]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: fix-encoding-pragma
+      - id: debug-statements
+
+-   repo: https://gitlab.com/bmares/check-json5
+    rev: v1.0.0
+    hooks:
+    -   id: check-json5
+
+-   repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    -   id: black
+        name: "Black"
+        types: [file, python]
+        files: "^src/de_local_kedro_etl/|^src/tests/"
+        entry: black
+
+-   repo: https://github.com/pycqa/isort
+    rev: 5.8.0
+    hooks:
+    -   id: isort
+        name: "Sort imports"
+        args: ["--profile", "black", "--filter-files"]
+
+-   repo: https://github.com/hadialqattan/pycln
+    rev: v1.1.0 # Possible releases: https://github.com/hadialqattan/pycln/tags
+    hooks:
+    -   id: pycln
+        args: [--config=pyproject.toml]
