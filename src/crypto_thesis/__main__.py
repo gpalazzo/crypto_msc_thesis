@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """crypto_thesis file for ensuring the package is executable
 as `crypto_thesis` and `python -m crypto_thesis`
 """
