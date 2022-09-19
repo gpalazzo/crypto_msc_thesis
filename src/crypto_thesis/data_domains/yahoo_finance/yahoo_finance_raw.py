@@ -19,8 +19,8 @@ def yahoo_finance_raw(raw_yahoo_finance_get_data: Dict[str, Any]) -> pd.DataFram
         tickers=tickers,
         start=raw_yahoo_finance_get_data["start_date"],
         end=_end_date_plusone_fmt,
-        interval="1h",
-        auto_adjust=True
+        interval="1d",
+        auto_adjust=True #it automatically adjust prices for corporate events
     )
 
     df = df.stack().reset_index().rename(columns={"level_0": "date", "level_1": "ticker"})

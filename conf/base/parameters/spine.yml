@@ -1,0 +1,4 @@
+spine_preprocessing:
+  target_name: "BTCUSDT"
+  # size of volume bar to generate the time windows
+  volume_bar_size: 450000

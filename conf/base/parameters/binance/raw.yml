@@ -1,0 +1,19 @@
+# all crypto pairs against USDT to have the same standard
+raw_binance_get_data:
+  tickers:
+    # top 10 coins ordered descendingly considering marketcap
+    # excluding USDT from top 10
+    - BTCUSDT #Bitcoin
+    - ETHUSDT #Ethereum
+    - USDCUSDT #USD Coin
+    - BNBUSDT #BNB
+    - BUSDUSDT #Binance USD
+    - XRPUSDT #Ripple
+    - ADAUSDT #Cardano
+    - SOLUSDT #Solana
+    - DOGEUSDT #Dogecoin
+    # other relevant coins
+    - LTCUSDT #Litecoin
+    - XMRUSDT #Monero
+  start_date: "${start_date}"
+  end_date: "${end_date}"

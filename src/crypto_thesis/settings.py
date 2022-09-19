@@ -25,7 +25,6 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # Directory that holds configuration.
 # CONF_SOURCE = "conf"
 
-from datetime import datetime, timedelta
 
 # Class that manages how configuration is loaded.
 from kedro.config import TemplatedConfigLoader
@@ -35,10 +34,8 @@ CONFIG_LOADER_CLASS = TemplatedConfigLoader
 CONFIG_LOADER_ARGS = {
     "globals_pattern": "*globals.yml",
     "globals_dict": {
-        "start_date": str(datetime.now().date() - timedelta(days=728)),
-                                    # should always have 2 days of difference from `current_date`
-                                    # it's yahoo finance's API limitation
-        "end_date": str(datetime.now().date())
+        "start_date": "2017-01-01", #last 5 years of data (arbitrary)
+        "end_date": "2021-12-31"
     }
 }
 

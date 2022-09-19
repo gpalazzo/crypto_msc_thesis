@@ -1,0 +1,7 @@
+raw_binance:
+  type: pandas.ParquetDataSet
+  filepath: data/01_raw/binance_raw.parquet
+
+prm_binance:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/binance_prm.parquet
