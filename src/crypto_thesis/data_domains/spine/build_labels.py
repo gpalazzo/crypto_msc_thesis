@@ -1,3 +1,7 @@
 # -*- coding: utf-8 -*-
-def spine_build_target_labels():
-    return None
+import pandas as pd
+
+
+def spine_build_target_labels(df: pd.DataFrame) -> pd.DataFrame:
+    # breakpoint()
+    pass
