@@ -2,6 +2,10 @@ spine_preprocessing:
   type: pandas.ParquetDataSet
   filepath: data/05_model_input/spine_preprocessing.parquet
 
+spine_log_ret:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/spine_log_return.parquet
+
 spine_labeled:
   type: pandas.ParquetDataSet
   filepath: data/05_model_input/spine_labeled.parquet

@@ -14,6 +14,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
 
     _target_name = preproc_params["target_name"]
     _volume_bar_size = preproc_params["volume_bar_size"]
+    bars_ahead_predict = preproc_params["bar_ahead_predict"]
 
     preproc_df = prm_binance[prm_binance["symbol"] == _target_name]
     preproc_df = preproc_df[["close_time", "close", "volume"]]
@@ -27,14 +28,15 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     if preproc_df["volume"].min() > _volume_bar_size or preproc_df["volume"].max() > _volume_bar_size:
         raise RuntimeError("Specified volume bar size isn't correct, please review.")
 
-    df = build_log_return(df=preproc_df)
+    df_log_ret = build_log_return(df=preproc_df)
 
-    df, idxs = _build_threshold_flag(preproc_df=df, _volume_bar_size=_volume_bar_size)
-    df = _build_flag_time_window(df=df, idxs=idxs)
+    df, idxs = _build_threshold_flag(preproc_df=df_log_ret, _volume_bar_size=_volume_bar_size)
+    df = _build_flag_time_window(df=df, idxs=idxs, bars_ahead=bars_ahead_predict)
+    df = _get_target_time_log_return(df=df, bars_ahead=bars_ahead_predict)
 
     df = df[["open_time", "close_time", "target_time", "log_return"]]
 
-    return df
+    return df, df_log_ret[["close_time", "log_return"]]
 
 
 def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int, float]) -> pd.DataFrame:
@@ -59,7 +61,7 @@ def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int,
     return preproc_df, idxs
 
 
-def _build_flag_time_window(df: pd.DataFrame, idxs: List[int]) -> pd.DataFrame:
+def _build_flag_time_window(df: pd.DataFrame, idxs: List[int], bars_ahead: int) -> pd.DataFrame:
 
     final_df = pd.DataFrame()
 
@@ -68,7 +70,7 @@ def _build_flag_time_window(df: pd.DataFrame, idxs: List[int]) -> pd.DataFrame:
         if i == 0:
             _open_time = df.iloc[0].close_time
         else:
-            _target_idx = idxs[i-1] + 1
+            _target_idx = idxs[i-1] + bars_ahead
             _open_time = df.iloc[_target_idx].close_time
 
         try:
@@ -87,3 +89,16 @@ def _build_flag_time_window(df: pd.DataFrame, idxs: List[int]) -> pd.DataFrame:
     final_df = final_df[final_df["target_time"].notnull()]
 
     return final_df
+
+
+def _get_target_time_log_return(df: pd.DataFrame, bars_ahead: int) -> pd.DataFrame:
+
+    df = df.sort_values(by="close_time")
+    df.loc[:, "next_log_return"] = df["log_return"].shift(-bars_ahead)
+
+    # remove last data point
+    df = df[df["next_log_return"].notnull()]
+
+    df = df.drop(columns=["log_return"]).rename(columns={"next_log_return": "log_return"})
+
+    return df
