@@ -1,0 +1,3 @@
+master_table:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/master_table.parquet
