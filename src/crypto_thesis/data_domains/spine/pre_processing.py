@@ -28,6 +28,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     if preproc_df["volume"].min() > _volume_bar_size or preproc_df["volume"].max() > _volume_bar_size:
         raise RuntimeError("Specified volume bar size isn't correct, please review.")
 
+    preproc_df = preproc_df.sort_values(by="close_time")
     df_log_ret = build_log_return(df=preproc_df)
 
     df, idxs = _build_threshold_flag(preproc_df=df_log_ret, _volume_bar_size=_volume_bar_size)
