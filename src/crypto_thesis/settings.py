@@ -34,8 +34,8 @@ CONFIG_LOADER_CLASS = TemplatedConfigLoader
 CONFIG_LOADER_ARGS = {
     "globals_pattern": "*globals.yml",
     "globals_dict": {
-        "start_date": "2021-10-31", #last 5 years of data (arbitrary)
-        "end_date": "2022-10-31"
+        "start_date": "2017-01-01",
+        "end_date": "2023-01-31"
     }
 }
 
