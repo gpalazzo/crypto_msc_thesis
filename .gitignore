@@ -12,15 +12,11 @@ conf/**/*credentials*
 logs/**
 
 # except their sub-folders
-!data/**/
+data/**/
 !logs/**/
 
 # also keep all .gitkeep files
 !.gitkeep
-
-# also keep the example dataset
-!data/01_raw/iris.csv
-
 
 ##########################
 # Common files
