@@ -6,6 +6,7 @@ from kedro.pipeline import Pipeline, pipeline
 
 from crypto_thesis.pipelines.binance import binance_pipeline
 from crypto_thesis.pipelines.master_table import master_table_pipeline
+from crypto_thesis.pipelines.modeling import ml_models_pipeline
 from crypto_thesis.pipelines.spine import spine_pipeline
 from crypto_thesis.pipelines.yahoo_finance import yahoo_finance_pipeline
 
@@ -19,4 +20,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
     return {"__default__": pipeline([yahoo_finance_pipeline() +
                                     binance_pipeline() +
                                     spine_pipeline() +
-                                    master_table_pipeline()])}
+                                    master_table_pipeline() +
+                                    ml_models_pipeline()])}

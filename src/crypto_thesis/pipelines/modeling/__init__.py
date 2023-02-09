@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-from .xgboost_pipeline import xgboost_model_pipeline
+from .models_pipeline import ml_models_pipeline

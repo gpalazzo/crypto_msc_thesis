@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from kedro.pipeline import Pipeline, node, pipeline
 
+from crypto_thesis.data_domains.modeling import xgboost_model
 
-def xgboost_model_pipeline():
 
-    _xgboost_pipeline = pipeline(
+def ml_models_pipeline():
+
+    xgboost_pipeline = pipeline(
         Pipeline([
             node(func=xgboost_model,
                 inputs="master_table",
@@ -13,4 +15,4 @@ def xgboost_model_pipeline():
         ],
         tags=["xgboost_pipeline"]))
 
-    return _xgboost_pipeline
+    return xgboost_pipeline
