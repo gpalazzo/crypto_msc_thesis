@@ -9,7 +9,7 @@ def ml_models_pipeline():
     xgboost_pipeline = pipeline(
         Pipeline([
             node(func=xgboost_model,
-                inputs="master_table",
+                inputs=["master_table", "params:bars_window_size"],
                 outputs="xgboost",
                 name="run_xgboost")
         ],

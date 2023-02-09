@@ -1,29 +1,33 @@
 # -*- coding: utf-8 -*-
+from typing import Dict
+
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
-TARGET_COLS = ["target_time", "label"]
+TARGET_COLS = ["label"]
 # these cols were useful so far, but not anymore
-USELESS_COLS = ["open_time", "close_time"]
+USELESS_COLS = ["window_nbr"]
 
-def xgboost_model(master_table: pd.DataFrame) -> pd.DataFrame:
+def xgboost_model(master_table: pd.DataFrame, bars_window_params: Dict[str, int]) -> pd.DataFrame:
 
-    # breakpoint()
+    master_table = master_table.replace({"top": 1, "bottom": 0})
 
-    for window_nbr in master_table["window_nbr"]:
-        df_filter = master_table[master_table["close_time"].between(start, end)]
+    lookbehind_window = bars_window_params["bars_accum_lookbehind"]
+    lookahead_predict = bars_window_params["bars_predict_ahead"]
 
-        X = df_filter.drop(columns=TARGET_COLS + USELESS_COLS)
-        y = df_filter[TARGET_COLS]
+    X = master_table[master_table["window_nbr"] <= lookbehind_window]
+    y = master_table[master_table["window_nbr"] == (lookbehind_window + lookahead_predict)]
 
-        # breakpoint()
+    X_train = X.drop(columns=TARGET_COLS + USELESS_COLS)
+    y_train = X[TARGET_COLS]
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+    X_test = y.drop(columns=TARGET_COLS + USELESS_COLS)
+    y_test = y[TARGET_COLS]
 
-        # breakpoint()
+    model = XGBClassifier(use_label_encoder=False, eval_metric="mlogloss")
+    model.fit(X_train, y_train)
 
-        model = XGBClassifier(use_label_encoder=False, eval_metric="mlogloss")
-        model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
 
-        # breakpoint()
+    accuracy = accuracy_score(y_test, y_pred)
