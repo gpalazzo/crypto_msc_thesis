@@ -35,7 +35,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     df = _build_flag_time_window(df=df, idxs=idxs, bars_ahead=bars_ahead_predict)
     df = _get_target_time_log_return(df=df, bars_ahead=bars_ahead_predict)
 
-    df = df[["open_time", "close_time", "target_time", "log_return"]]
+    df = df[["open_time", "close_time", "window_pos", "target_time", "log_return"]]
 
     return df, df_log_ret[["close_time", "log_return"]]
 
@@ -83,6 +83,7 @@ def _build_flag_time_window(df: pd.DataFrame, idxs: List[int], bars_ahead: int) 
         df_aux = df.filter(items=[idx], axis=0)
         df_aux.loc[:, "open_time"] = _open_time
         df_aux.loc[:, "target_time"] = _target_time
+        df_aux.loc[:, "window_pos"] = i+1 #enumerate window position
 
         final_df = pd.concat([final_df, df_aux])
 

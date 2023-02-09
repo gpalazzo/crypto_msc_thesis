@@ -1,7 +1,7 @@
 spine_preprocessing:
   target_name: "BTCUSDT"
   # size of volume bar to generate the time windows
-  volume_bar_size: 450000
+  volume_bar_size: 50000
   # number of volume bars ahead to predict
   bar_ahead_predict: 1
 
