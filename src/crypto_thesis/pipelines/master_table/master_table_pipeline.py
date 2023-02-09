@@ -11,7 +11,7 @@ def master_table_pipeline():
             node(func=build_master_table,
                 inputs=["fte_binance",
                         "spine_labeled"],
-                outputs="master_table",
+                outputs=["master_table", "window_nbr_lookup"],
                 name="run_master_table")
         ],
         tags=["master_table_pipeline"]))

@@ -1,3 +1,7 @@
 master_table:
   type: pandas.ParquetDataSet
   filepath: data/05_model_input/master_table.parquet
+
+window_nbr_lookup:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/window_nbr_lookup.parquet
