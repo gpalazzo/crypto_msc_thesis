@@ -1,7 +1,0 @@
-raw_yahoo_finance:
-  type: pandas.ParquetDataSet
-  filepath: data/01_raw/yahoo_finance_raw.parquet
-
-prm_yahoo_finance:
-  type: pandas.ParquetDataSet
-  filepath: data/03_primary/yahoo_finance_prm.parquet
