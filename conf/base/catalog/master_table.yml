@@ -1,7 +1,7 @@
 master_table:
   type: pandas.ParquetDataSet
-  filepath: data/05_model_input/master_table.parquet
+  filepath: data/05_model_input/${binance_data_interval}/master_table.parquet
 
 window_nbr_lookup:
   type: pandas.ParquetDataSet
-  filepath: data/05_model_input/window_nbr_lookup.parquet
+  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup.parquet
