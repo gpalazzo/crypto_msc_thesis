@@ -26,6 +26,7 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # CONF_SOURCE = "conf"
 
 # define all possible interval minutes for data collecting
+# raise error if the selected interval is not within the possibilities
 ALL_INTERVAL_OPTS = ["1m", "3m", "5m", "15m"]
 selected_interval = "15m"
 assert selected_interval in ALL_INTERVAL_OPTS, "Review selected interval for collecting Binance data"
