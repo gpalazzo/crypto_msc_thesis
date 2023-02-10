@@ -47,6 +47,7 @@ jupyterlab = "^3.2.8"
 scikit-learn = "^1.0.2"
 python-binance = "^1.0.16"
 xgboost = "^1.7.3"
+aiohttp = "^3.8.3"
 
 [tool.poetry.dev-dependencies]
 black = "^21.7b0"
