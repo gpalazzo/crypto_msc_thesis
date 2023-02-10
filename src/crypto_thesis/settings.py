@@ -25,6 +25,11 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # Directory that holds configuration.
 # CONF_SOURCE = "conf"
 
+# define all possible interval minutes for data collecting
+# raise error if the selected interval is not within the possibilities
+ALL_INTERVAL_OPTS = ["1m", "3m", "5m", "15m"]
+selected_interval = "15m"
+assert selected_interval in ALL_INTERVAL_OPTS, "Review selected interval for collecting Binance data"
 
 # Class that manages how configuration is loaded.
 from kedro.config import TemplatedConfigLoader
@@ -35,7 +40,8 @@ CONFIG_LOADER_ARGS = {
     "globals_pattern": "*globals.yml",
     "globals_dict": {
         "start_date": "2017-01-01",
-        "end_date": "2023-01-31"
+        "end_date": "2023-01-31",
+        "binance_data_interval": selected_interval
     }
 }
 

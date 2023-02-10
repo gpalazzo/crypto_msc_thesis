@@ -17,3 +17,4 @@ raw_binance_get_data:
     - XMRUSDT #Monero
   start_date: "${start_date}"
   end_date: "${end_date}"
+  binance_data_interval: "${binance_data_interval}"
