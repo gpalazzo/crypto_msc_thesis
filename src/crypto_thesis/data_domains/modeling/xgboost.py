@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from typing import Tuple
 
 import pandas as pd
@@ -36,11 +37,21 @@ def xgboost_model_predict(model: XGBClassifier, X_test: pd.DataFrame) -> pd.Data
     return pd.DataFrame({"y_pred": y_pred})
 
 
-def xgboost_model_reporting(model: XGBClassifier, y_test: pd.DataFrame, y_pred: pd.DataFrame) -> pd.DataFrame:
+def xgboost_model_reporting(model: XGBClassifier,
+                            X_test: pd.DataFrame,
+                            y_test: pd.DataFrame,
+                            y_pred: pd.DataFrame,
+                            model_data_interval: str) -> pd.DataFrame:
 
+    # get model's accuracy
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)
+
+    # get model's parameters
     params = model.get_xgb_params()
 
-    reporting_df = pd.DataFrame({"accuracy": acc, "model_params": str(params)}, index=[0])
+    reporting_df = pd.DataFrame({"runtime_brtz": str(datetime.now()),
+                                "accuracy": acc,
+                                "model_params": str(params),
+                                "data_interval": model_data_interval}, index=[0])
 
     return reporting_df
