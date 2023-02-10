@@ -15,8 +15,7 @@ def binance_fte(binance_prm: pd.DataFrame, spine_preproc: pd.DataFrame, spine_pa
 
     final_df = pd.DataFrame()
 
-    _target_name = spine_params.get("target_name")
-    binance_prm = binance_prm[binance_prm["symbol"] != _target_name]
+    binance_prm = binance_prm[binance_prm["symbol"] != spine_params.get("target_name")]
     binance_prm = binance_prm.sort_values(by=["symbol", "open_time"])
 
     df_log_ret = build_log_return(df=binance_prm)

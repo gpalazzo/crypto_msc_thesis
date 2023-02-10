@@ -14,7 +14,7 @@ def build_master_table(fte_df: pd.DataFrame, spine: pd.DataFrame) -> pd.DataFram
     print(f"Total rows dropped: {master_table.shape[0] - master_table_dropped.shape[0]}")
 
     # drop useless columns (they're in spine layer if any troubleshooting needed)
-    master_table_dropped = master_table_dropped.drop(columns=["log_return", "std"])
+    master_table_dropped = master_table_dropped.drop(columns=["target_time_log_return", "std"])
     master_table_numbered = _build_window_numbers(df=master_table_dropped)
 
     window_nbr_lookup = master_table_numbered[["window_nbr", "open_time", "close_time", "target_time"]]

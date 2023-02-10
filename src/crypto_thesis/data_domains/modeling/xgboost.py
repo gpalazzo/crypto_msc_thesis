@@ -1,33 +1,46 @@
 # -*- coding: utf-8 -*-
-from typing import Dict
+
+from typing import Tuple
 
 import pandas as pd
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 
-TARGET_COLS = ["label"]
+TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
 USELESS_COLS = ["window_nbr"]
 
-def xgboost_model(master_table: pd.DataFrame, bars_window_params: Dict[str, int]) -> pd.DataFrame:
 
+def xgboost_model_fit(master_table: pd.DataFrame) -> Tuple[XGBClassifier,
+                                                        pd.DataFrame, pd.DataFrame,
+                                                        pd.DataFrame, pd.DataFrame]:
+
+    # model adjustment: labeling with 0 and 1
     master_table = master_table.replace({"top": 1, "bottom": 0})
 
-    lookbehind_window = bars_window_params["bars_accum_lookbehind"]
-    lookahead_predict = bars_window_params["bars_predict_ahead"]
+    X = master_table.drop(columns=TARGET_COL + USELESS_COLS)
+    y = master_table[TARGET_COL]
 
-    X = master_table[master_table["window_nbr"] <= lookbehind_window]
-    y = master_table[master_table["window_nbr"] == (lookbehind_window + lookahead_predict)]
-
-    X_train = X.drop(columns=TARGET_COLS + USELESS_COLS)
-    y_train = X[TARGET_COLS]
-
-    X_test = y.drop(columns=TARGET_COLS + USELESS_COLS)
-    y_test = y[TARGET_COLS]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
     model = XGBClassifier(use_label_encoder=False, eval_metric="mlogloss")
     model.fit(X_train, y_train)
 
-    y_pred = model.predict(X_test)
+    return model, X_train, y_train, X_test, y_test
 
-    accuracy = accuracy_score(y_test, y_pred)
+
+def xgboost_model_predict(model: XGBClassifier, X_test: pd.DataFrame) -> pd.DataFrame:
+
+    y_pred = model.predict(X_test)
+    return pd.DataFrame({"y_pred": y_pred})
+
+
+def xgboost_model_reporting(model: XGBClassifier, y_test: pd.DataFrame, y_pred: pd.DataFrame) -> pd.DataFrame:
+
+    acc = accuracy_score(y_true=y_test, y_pred=y_pred)
+    params = model.get_xgb_params()
+
+    reporting_df = pd.DataFrame({"accuracy": acc, "model_params": str(params)}, index=[0])
+
+    return reporting_df

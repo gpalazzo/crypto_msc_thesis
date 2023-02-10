@@ -1,5 +1,0 @@
-bars_window_size:
-  # number of volume bars to accumulate as look-behind window
-  bars_accum_lookbehind: 130
-  # number of bars to predict from a given point
-  bars_predict_ahead: 1
