@@ -15,8 +15,8 @@ def binance_raw(raw_binance_get_data: Dict[str, Any]) -> pd.DataFrame:
     api_secret = os.getenv("BINANCE_SECRET_KEY")
     client = Client(api_key, api_secret)
 
-    interval = "15m"
-    Client.KLINE_INTERVAL_15MINUTE
+    interval = "15m" #interval = "5m"
+    Client.KLINE_INTERVAL_15MINUTE #Client.KLINE_INTERVAL_5MINUTE
 
     final_df = pd.DataFrame()
 

@@ -22,10 +22,9 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     if preproc_df.empty:
         raise RuntimeError(f"Target name {_target_name} doesn't have any data.")
 
-    # given the fact it's a daily dataframe, if the minimum or maximum volume is higher than the
-        # selected threshold, then we would need intraday data to build the volume bar size
-        # therefore, let's break the code for now
-    if preproc_df["volume"].min() > _volume_bar_size or preproc_df["volume"].max() > _volume_bar_size:
+    # if the min volume is less than the volume bar size, then we can't accumulate it
+    # therefore, every data point is gonna be a predict point which isn't good for our use case
+    if preproc_df["volume"].min() > _volume_bar_size:
         raise RuntimeError("Specified volume bar size isn't correct, please review.")
 
     preproc_df = preproc_df.sort_values(by="close_time")
@@ -35,7 +34,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     df = _build_flag_time_window(df=df, idxs=idxs, bars_ahead=bars_ahead_predict)
     df = _get_target_time_log_return(df=df, bars_ahead=bars_ahead_predict)
 
-    df = df[["open_time", "close_time", "target_time", "log_return"]]
+    df = df[["open_time", "close_time", "target_time", "target_time_log_return"]]
 
     return df, df_log_ret[["close_time", "log_return"]]
 
@@ -100,6 +99,6 @@ def _get_target_time_log_return(df: pd.DataFrame, bars_ahead: int) -> pd.DataFra
     # remove last data point
     df = df[df["next_log_return"].notnull()]
 
-    df = df.drop(columns=["log_return"]).rename(columns={"next_log_return": "log_return"})
+    df = df.drop(columns=["log_return"]).rename(columns={"next_log_return": "target_time_log_return"})
 
     return df
