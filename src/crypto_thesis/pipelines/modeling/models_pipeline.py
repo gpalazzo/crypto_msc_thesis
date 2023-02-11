@@ -25,7 +25,11 @@ def ml_models_pipeline():
                 name="run_xgboost_predicting")
 
             , node(func=xgboost_model_reporting,
-                inputs=["xgboost_fitted_model", "xgboost_target_test", "xgboost_model_predict"],
+                inputs=["xgboost_fitted_model",
+                        "xgboost_features_test",
+                        "xgboost_target_test",
+                        "xgboost_model_predict",
+                        "params:model_data_interval"],
                 outputs="xgboost_model_reporting",
                 name="run_xgboost_reporting")
         ],
