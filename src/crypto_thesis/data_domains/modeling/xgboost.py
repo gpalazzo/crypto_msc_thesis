@@ -10,7 +10,7 @@ from xgboost import XGBClassifier
 
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
-USELESS_COLS = ["window_nbr"]
+INDEX_COL = "window_nbr"
 
 
 def xgboost_model_fit(master_table: pd.DataFrame) -> Tuple[XGBClassifier,
@@ -19,8 +19,9 @@ def xgboost_model_fit(master_table: pd.DataFrame) -> Tuple[XGBClassifier,
 
     # model adjustment: labeling with 0 and 1
     master_table = master_table.replace({"top": 1, "bottom": 0})
+    master_table = master_table.set_index(INDEX_COL)
 
-    X = master_table.drop(columns=TARGET_COL + USELESS_COLS)
+    X = master_table.drop(columns=TARGET_COL)
     y = master_table[TARGET_COL]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
@@ -33,8 +34,9 @@ def xgboost_model_fit(master_table: pd.DataFrame) -> Tuple[XGBClassifier,
 
 def xgboost_model_predict(model: XGBClassifier, X_test: pd.DataFrame) -> pd.DataFrame:
 
+    idxs = X_test.index.tolist()
     y_pred = model.predict(X_test)
-    return pd.DataFrame({"y_pred": y_pred})
+    return pd.DataFrame(data={"y_pred": y_pred}, index=idxs)
 
 
 def xgboost_model_reporting(model: XGBClassifier,
@@ -49,9 +51,16 @@ def xgboost_model_reporting(model: XGBClassifier,
     # get model's parameters
     params = model.get_xgb_params()
 
+    # get model's probability
+    idxs = X_test.index.tolist()
+    probas = model.predict_proba(X_test)
+    probas_df = pd.DataFrame(data=probas, index=idxs, columns=["proba_label_0", "proba_label_1"])
+
     reporting_df = pd.DataFrame({"runtime_brtz": str(datetime.now()),
                                 "accuracy": acc,
                                 "model_params": str(params),
-                                "data_interval": model_data_interval}, index=[0])
+                                "data_interval": model_data_interval,
+                                "probas": str(probas_df.to_dict(orient="index"))
+                                }, index=[0])
 
     return reporting_df
