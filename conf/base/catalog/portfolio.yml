@@ -1,0 +1,3 @@
+portfolio_pnl:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/portfolio_pnl.parquet
