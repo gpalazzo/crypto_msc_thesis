@@ -17,6 +17,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     bars_ahead_predict = preproc_params["bar_ahead_predict"]
 
     preproc_df = prm_binance[prm_binance["symbol"] == _target_name]
+    # don't change this df structure because it will be used later on
     preproc_df = preproc_df[["close_time", "close", "volume"]]
 
     if preproc_df.empty:
@@ -32,11 +33,18 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
 
     df, idxs = _build_threshold_flag(preproc_df=df_log_ret, _volume_bar_size=_volume_bar_size)
     df = _build_flag_time_window(df=df, idxs=idxs, bars_ahead=bars_ahead_predict)
-    df = _get_target_time_log_return(df=df, bars_ahead=bars_ahead_predict)
+    df = _get_target_time_values(df=df, bars_ahead=bars_ahead_predict)
 
-    df = df[["open_time", "close_time", "target_time", "target_time_log_return"]]
+    # get close time price for return calculation in labeling
+    df = df[["open_time", "close_time", "target_time", "target_time_close", "target_time_log_return"]]
+    df_tgt_px = df.merge(preproc_df[["close_time", "close"]] \
+                            .rename(columns={"close": "close_time_close"}),
+                        on="close_time",
+                        how="inner")
 
-    return df, df_log_ret[["close_time", "log_return"]]
+    assert df_tgt_px.shape[0] == df.shape[0], "Data loss when joining to get close_time price, review."
+
+    return df_tgt_px, df_log_ret[["close_time", "log_return"]]
 
 
 def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int, float]) -> pd.DataFrame:
@@ -91,14 +99,16 @@ def _build_flag_time_window(df: pd.DataFrame, idxs: List[int], bars_ahead: int) 
     return final_df
 
 
-def _get_target_time_log_return(df: pd.DataFrame, bars_ahead: int) -> pd.DataFrame:
+def _get_target_time_values(df: pd.DataFrame, bars_ahead: int) -> pd.DataFrame:
 
     df = df.sort_values(by="close_time")
     df.loc[:, "next_log_return"] = df["log_return"].shift(-bars_ahead)
+    df.loc[:, "next_close"] = df["close"].shift(-bars_ahead)
 
     # remove last data point
     df = df[df["next_log_return"].notnull()]
 
-    df = df.drop(columns=["log_return"]).rename(columns={"next_log_return": "target_time_log_return"})
+    df = df.drop(columns=["log_return"]).rename(columns={"next_log_return": "target_time_log_return",
+                                                        "next_close": "target_time_close"})
 
     return df

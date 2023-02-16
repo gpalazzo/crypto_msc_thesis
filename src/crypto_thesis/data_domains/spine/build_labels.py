@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Dict
 
+import numpy as np
 import pandas as pd
 
 
@@ -11,7 +12,15 @@ def spine_build_target_labels(df: pd.DataFrame, df_log_ret: pd.DataFrame, label_
 
     assert df.shape[0] == final_df.shape[0], "Data loss, please review."
 
-    final_df.loc[:, "label"] = final_df.apply(lambda col: "top" if col["target_time_log_return"] >= col["std"] * label_params["tau"] else "bottom", axis=1)
+    # build log return between close_time price and target_time price
+    final_df.loc[:, "close_to_tgt_time_logret"] = np.log(final_df["target_time_close"] \
+                                                            / final_df["close_time_close"])
+
+    final_df.loc[:, "label"] = final_df.apply(lambda col: "top" \
+                                                if col["close_to_tgt_time_logret"] >= \
+                                                    col["std"] * (1 + label_params["tau"]) \
+                                                else "bottom" \
+                                            , axis=1)
 
     return final_df
 
