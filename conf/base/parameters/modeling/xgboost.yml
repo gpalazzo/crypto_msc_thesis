@@ -1,0 +1,4 @@
+xgboost_model_params:
+  use_label_encoder: False
+  eval_metric: "mlogloss"
+  n_estimators: 1000

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 import pandas as pd
 from sklearn.metrics import accuracy_score
@@ -12,7 +11,9 @@ TARGET_COL = ["label"]
 INDEX_COL = "window_nbr"
 
 
-def xgboost_model_fit(master_table: pd.DataFrame, train_test_cutoff_date: str) -> Tuple[XGBClassifier,
+def xgboost_model_fit(master_table: pd.DataFrame,
+                    train_test_cutoff_date: str,
+                    model_params: Dict[str, Any]) -> Tuple[XGBClassifier,
                                                         pd.DataFrame, pd.DataFrame,
                                                         pd.DataFrame, pd.DataFrame]:
 
@@ -34,7 +35,7 @@ def xgboost_model_fit(master_table: pd.DataFrame, train_test_cutoff_date: str) -
     X_test = master_table_test.drop(columns=TARGET_COL)
     y_test = master_table_test[TARGET_COL]
 
-    model = XGBClassifier(use_label_encoder=False, eval_metric="mlogloss", n_estimators=1000)
+    model = XGBClassifier(**model_params)
     model.fit(X_train, y_train)
 
     return model, X_train, y_train, X_test, y_test
@@ -51,7 +52,11 @@ def xgboost_model_reporting(model: XGBClassifier,
                             X_test: pd.DataFrame,
                             y_test: pd.DataFrame,
                             y_pred: pd.DataFrame,
-                            model_data_interval: str) -> pd.DataFrame:
+                            model_data_interval: str,
+                            spine_preproc_params: Dict[str, Any],
+                            spine_label_params: Dict[str, Any],
+                            train_test_cutoff_date: str,
+                            model_params: Dict[str, Any]) -> pd.DataFrame:
 
     # get model's accuracy
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)
@@ -67,12 +72,17 @@ def xgboost_model_reporting(model: XGBClassifier,
     # get features' importance
     fte_imps = model.get_booster().get_score(importance_type="weight")
 
-    reporting_df = pd.DataFrame({"runtime_brtz": str(datetime.now()),
-                                "accuracy": acc,
+    reporting_df = pd.DataFrame({"accuracy": acc,
                                 "model_params": str(params),
                                 "data_interval": model_data_interval,
                                 "probas": str(probas_df.to_dict(orient="index")),
-                                "fte_importance": str(fte_imps)
+                                "fte_importance": str(fte_imps),
+                                "target_name": spine_preproc_params["target_name"],
+                                "volume_bar_size": spine_preproc_params["volume_bar_size"],
+                                "bar_ahead_predict": spine_preproc_params["bar_ahead_predict"],
+                                "labeling_tau": spine_label_params["tau"],
+                                "train_test_cutoff_date": train_test_cutoff_date,
+                                "model_params": str(model_params)
                                 }, index=[0])
 
     return reporting_df
