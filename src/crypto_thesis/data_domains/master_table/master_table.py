@@ -18,7 +18,9 @@ def build_master_table(fte_df: pd.DataFrame, spine: pd.DataFrame) -> pd.DataFram
     master_table_numbered = _build_window_numbers(df=master_table_dropped)
 
     window_nbr_lookup = master_table_numbered[["window_nbr", "open_time", "close_time", "target_time"]]
-    master_table_numbered = master_table_numbered.drop(columns=["open_time", "close_time", "target_time"])
+    master_table_numbered = master_table_numbered.drop(columns=["open_time", "target_time",
+                                                        "target_time_close", "close_time_close",
+                                                        "close_to_tgt_time_logret"])
 
     return master_table_numbered, window_nbr_lookup
 
