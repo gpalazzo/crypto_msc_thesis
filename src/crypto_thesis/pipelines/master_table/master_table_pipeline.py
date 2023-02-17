@@ -10,7 +10,8 @@ def master_table_pipeline():
         Pipeline([
             node(func=build_master_table,
                 inputs=["fte_binance",
-                        "spine_labeled"],
+                        "spine_labeled",
+                        "params:class_bounds"],
                 outputs=["master_table", "window_nbr_lookup"],
                 name="run_master_table")
         ],
