@@ -9,3 +9,4 @@ prm_binance:
 fte_binance:
   type: pandas.ParquetDataSet
   filepath: data/04_feature/${binance_data_interval}/binance_fte.parquet
+  versioned: true
