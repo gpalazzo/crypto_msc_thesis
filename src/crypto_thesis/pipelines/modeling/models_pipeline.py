@@ -13,7 +13,7 @@ def ml_models_pipeline():
     xgboost_pipeline = pipeline(
         Pipeline([
             node(func=xgboost_model_fit,
-                inputs="master_table",
+                inputs=["master_table", "params:train_test_cutoff_date"],
                 outputs=["xgboost_fitted_model",
                         "xgboost_features_train", "xgboost_target_train",
                         "xgboost_features_test", "xgboost_target_test"],
