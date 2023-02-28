@@ -30,13 +30,17 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
 
     preproc_df = preproc_df.sort_values(by="close_time")
     df_log_ret = build_log_return(df=preproc_df)
+    # fill first null data point with 0 to avoid having NaN at first volume window
+    df_log_ret.loc[:, "log_return"] = df_log_ret["log_return"].fillna(0)
 
+    # TODO: should the log return in each window open_time start with 0? This way we would treat
+    # each window as a new entity without any relation to data outside the window range
     df, idxs = _build_threshold_flag(preproc_df=df_log_ret, _volume_bar_size=_volume_bar_size)
     df = _build_flag_time_window(df=df, idxs=idxs, bars_ahead=bars_ahead_predict)
     df = _get_target_time_values(df=df, bars_ahead=bars_ahead_predict)
 
-    # get close time price for return calculation in labeling
-    df = df[["open_time", "close_time", "target_time", "target_time_close", "target_time_log_return"]]
+    # get useful columns for calculation in labeling
+    df = df[["open_time", "close_time", "target_time", "logret_cumsum", "target_time_close", "target_time_log_return"]]
     df_tgt_px = df.merge(preproc_df[["close_time", "close"]] \
                             .rename(columns={"close": "close_time_close"}),
                         on="close_time",
@@ -51,19 +55,25 @@ def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int,
 
     preproc_df = preproc_df.sort_values(by="close_time", ascending=True)
 
-    ls = []
+    volume_ls = []
+    logret_ls = []
     idxs = []
-    cumsum = 0
+    volume_cumsum = 0
+    logret_cumsum = 0
 
     for i, row in preproc_df.iterrows():
-        if cumsum + row.volume <= _volume_bar_size:
-            cumsum += row.volume
+        if volume_cumsum + row.volume <= _volume_bar_size:
+            volume_cumsum += row.volume
+            logret_cumsum += row.log_return
         else:
             idxs.append(i - 1) #when it goes here, it means the last index reach the `_volume_bar_size`
-            cumsum = row.volume
-        ls.append(cumsum)
+            volume_cumsum = row.volume
+            logret_cumsum = row.log_return
+        volume_ls.append(volume_cumsum)
+        logret_ls.append(logret_cumsum)
 
-    preproc_df["cumsum"] = ls
+    preproc_df["volume_cumsum"] = volume_ls
+    preproc_df["logret_cumsum"] = logret_ls
     preproc_df.loc[idxs, "reach_threshold"] = True
 
     return preproc_df, idxs

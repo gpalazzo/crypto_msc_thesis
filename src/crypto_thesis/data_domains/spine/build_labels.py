@@ -18,7 +18,7 @@ def spine_build_target_labels(df: pd.DataFrame, df_log_ret: pd.DataFrame, label_
 
     final_df.loc[:, "label"] = final_df.apply(lambda col: "top" \
                                                 if col["close_to_tgt_time_logret"] >= \
-                                                    col["std"] * (1 + label_params["tau"]) \
+                                                    col["logret_cumsum"] * col["std"] * (1 + label_params["tau"]) \
                                                 else "bottom" \
                                             , axis=1)
 
