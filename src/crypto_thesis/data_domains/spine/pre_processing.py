@@ -116,9 +116,10 @@ def _get_target_time_values(df: pd.DataFrame, bars_ahead: int) -> pd.DataFrame:
     df.loc[:, "next_close"] = df["close"].shift(-bars_ahead)
 
     # remove last data point
-    df = df[df["next_log_return"].notnull()]
+    df_drop = df[df["next_log_return"].notnull()]
+    assert df_drop.shape[0] == df.shape[0] - 1, "More than 1 data point was removed, review."
 
-    df = df.drop(columns=["log_return"]).rename(columns={"next_log_return": "target_time_log_return",
+    df_drop = df_drop.drop(columns=["log_return"]).rename(columns={"next_log_return": "target_time_log_return",
                                                         "next_close": "target_time_close"})
 
-    return df
+    return df_drop
