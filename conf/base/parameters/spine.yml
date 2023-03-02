@@ -5,5 +5,7 @@ spine_preprocessing:
   # number of volume bars ahead to predict
   bar_ahead_predict: 1
 
+# confidence threshold
+# this will be multiplied by the stdev and sum to the accumulated log return
 spine_labeling:
   tau: 0.05
