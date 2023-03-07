@@ -21,7 +21,7 @@ def build_master_table(fte_df: pd.DataFrame,
     window_nbr_lookup = master_table_numbered[["window_nbr", "open_time", "close_time", "target_time"]]
     master_table_numbered = master_table_numbered.drop(columns=["open_time", "target_time",
                                                         "target_time_close", "close_time_close",
-                                                        "close_to_tgt_time_logret"])
+                                                        "close_to_tgt_time_logret", "logret_cumsum"])
 
     _check_master_table_quality(df=master_table_numbered, class_bounds=class_bounds)
 

@@ -86,9 +86,11 @@ def xgboost_model_reporting(model: XGBClassifier,
             tickers.append(splitted[1])
         except IndexError:
             pass
+    tickers = list(set(tickers))
 
     # confusion matrix
-    cm = confusion_matrix(y_true=y_test, y_pred=y_pred)
+    # normalize = all means over rows and columns
+    cm = confusion_matrix(y_true=y_test, y_pred=y_pred, normalize="all")
 
     reporting_df = pd.DataFrame({"model_accuracy": acc,
                                 "model_params": str(params),
@@ -105,7 +107,7 @@ def xgboost_model_reporting(model: XGBClassifier,
                                 "topN_features_slct_qty": slct_topN_features,
                                 "selected_tickers": str({"tickers": tickers}),
                                 "min_historical_data_window_years": min_years_existence,
-                                "confusion_matrix": str(cm)
+                                "confusion_matrix": repr(cm)
                                 }, index=[0])
 
     return reporting_df
