@@ -32,7 +32,10 @@ def binance_raw(raw_binance_get_data: Dict[str, Any]) -> pd.DataFrame:
 
         logging.info(f"Pulling data for {symbol}... {i} out of {_total_tickers}")
 
-        klines = client.get_historical_klines(symbol, interval, raw_binance_get_data["start_date"])
+        klines = client.get_historical_klines(symbol,
+                                            interval,
+                                            raw_binance_get_data["start_date"],
+                                            raw_binance_get_data["end_date"])
         data = pd.DataFrame(klines)
 
         # create colums name

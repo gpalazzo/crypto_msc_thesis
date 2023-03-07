@@ -14,7 +14,9 @@ def binance_pipeline():
                 name="run_binance_raw"),
 
             node(func=binance_prm,
-                inputs="raw_binance",
+                inputs=["raw_binance",
+                        "params:min_years_existence",
+                        "params:raw_binance_get_data.end_date"],
                 outputs="prm_binance",
                 name="run_binance_prm"),
 

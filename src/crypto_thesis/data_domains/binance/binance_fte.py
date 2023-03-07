@@ -18,7 +18,7 @@ def binance_fte(binance_prm: pd.DataFrame, spine_preproc: pd.DataFrame, spine_pa
     binance_prm = binance_prm[binance_prm["symbol"] != spine_params.get("target_name")]
     binance_prm = binance_prm.sort_values(by=["symbol", "open_time"])
 
-    df_log_ret = build_log_return(df=binance_prm)
+    df_log_ret = binance_prm.groupby("symbol").apply(build_log_return)
     df_log_ret = df_log_ret[["open_time", "symbol", "log_return", "volume"]]
 
     # accumulate data within the volume bar window
