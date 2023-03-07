@@ -13,7 +13,8 @@ def master_table_pipeline():
                         "spine_labeled",
                         "params:class_bounds"],
                 outputs=["master_table", "window_nbr_lookup"],
-                name="run_master_table")
+                name="run_master_table",
+                tags=["all_except_raw"])
         ],
         tags=["master_table_pipeline"]))
 

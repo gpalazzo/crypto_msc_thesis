@@ -17,12 +17,14 @@ def ml_models_pipeline():
                 outputs=["xgboost_fitted_model",
                         "xgboost_features_train", "xgboost_target_train",
                         "xgboost_features_test", "xgboost_target_test"],
-                name="run_xgboost_fitting")
+                name="run_xgboost_fitting",
+                tags=["all_except_raw"])
 
             , node(func=xgboost_model_predict,
                 inputs=["xgboost_fitted_model", "xgboost_features_test"],
                 outputs="xgboost_model_predict",
-                name="run_xgboost_predicting")
+                name="run_xgboost_predicting",
+                tags=["all_except_raw"])
 
             , node(func=xgboost_model_reporting,
                 inputs=["xgboost_fitted_model",
@@ -35,7 +37,8 @@ def ml_models_pipeline():
                         "params:train_test_cutoff_date",
                         "params:xgboost_model_params"],
                 outputs="xgboost_model_reporting",
-                name="run_xgboost_reporting")
+                name="run_xgboost_reporting",
+                tags=["all_except_raw"])
         ],
         tags=["xgboost_pipeline"]))
 
