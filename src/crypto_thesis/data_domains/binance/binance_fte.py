@@ -7,7 +7,7 @@ from typing import Dict, List, Union
 import numpy as np
 import pandas as pd
 from scipy import stats
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.feature_selection import SelectKBest, mutual_info_classif
 
 from crypto_thesis.utils import build_log_return
 
@@ -164,20 +164,10 @@ def _apply_feature_selection(df_ftes: pd.DataFrame,
     df.loc[:, TARGET_COL] = df[TARGET_COL].replace({"top": 1, "bottom": 0})
 
     X_train_ftes = df.drop(columns=[TARGET_COL])
-    fte_names = X_train_ftes.columns.tolist()
-
     y_train_ftes = df[[TARGET_COL]]
 
-    rf = RandomForestRegressor(random_state=0)
-    rf.fit(X_train_ftes, y_train_ftes)
+    selector = SelectKBest(mutual_info_classif, k=topN_features)
+    selector.fit_transform(X_train_ftes, y_train_ftes)
+    cols_idx = selector.get_support(indices=True)
 
-    fte_imp = {fte_name: fte_imp for fte_name, fte_imp in zip(fte_names, rf.feature_importances_)}
-    # this sorting transform the dict into tuples of (key, value)
-    fte_imp_sorted = sorted(fte_imp.items(), key=lambda x: x[1], reverse=True)
-    selected_ftes = [fte[0] for fte in fte_imp_sorted[:topN_features]]
-
-    # TODO: avaliar o benefício desse cross-validation
-    # rfe = RFECV(rf, cv=5, scoring="neg_mean_squared_error")
-    # rfe.fit(X_train_ftes, y_train_ftes)
-
-    return selected_ftes
+    return X_train_ftes.iloc[:, cols_idx].columns.tolist()
