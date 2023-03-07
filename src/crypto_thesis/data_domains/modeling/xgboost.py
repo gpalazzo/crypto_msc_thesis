@@ -3,7 +3,7 @@
 from typing import Any, Dict, Tuple
 
 import pandas as pd
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from xgboost import XGBClassifier
 
 TARGET_COL = ["label"]
@@ -52,11 +52,14 @@ def xgboost_model_reporting(model: XGBClassifier,
                             X_test: pd.DataFrame,
                             y_test: pd.DataFrame,
                             y_pred: pd.DataFrame,
+                            master_table: pd.DataFrame,
                             model_data_interval: str,
                             spine_preproc_params: Dict[str, Any],
                             spine_label_params: Dict[str, Any],
                             train_test_cutoff_date: str,
-                            model_params: Dict[str, Any]) -> pd.DataFrame:
+                            model_params: Dict[str, Any],
+                            slct_topN_features: int,
+                            min_years_existence: int) -> pd.DataFrame:
 
     # get model's accuracy
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)
@@ -72,17 +75,37 @@ def xgboost_model_reporting(model: XGBClassifier,
     # get features' importance
     fte_imps = model.get_booster().get_score(importance_type="weight")
 
-    reporting_df = pd.DataFrame({"accuracy": acc,
+    # get label class balance
+    label_class_balance = (master_table["label"].value_counts() / master_table.shape[0]).to_dict()
+
+    # get selected tickers
+    tickers = []
+    for col in master_table.columns.tolist():
+        splitted = col.split("__")
+        try:
+            tickers.append(splitted[1])
+        except IndexError:
+            pass
+
+    # confusion matrix
+    cm = confusion_matrix(y_true=y_test, y_pred=y_pred)
+
+    reporting_df = pd.DataFrame({"model_accuracy": acc,
                                 "model_params": str(params),
-                                "data_interval": model_data_interval,
-                                "probas": str(probas_df.to_dict(orient="index")),
+                                "data_interval_collect": model_data_interval,
+                                "test_probas": str(probas_df.to_dict(orient="index")),
                                 "fte_importance": str(fte_imps),
                                 "target_name": spine_preproc_params["target_name"],
                                 "volume_bar_size": spine_preproc_params["volume_bar_size"],
                                 "bar_ahead_predict": spine_preproc_params["bar_ahead_predict"],
                                 "labeling_tau": spine_label_params["tau"],
                                 "train_test_cutoff_date": train_test_cutoff_date,
-                                "model_params": str(model_params)
+                                "model_params": str(model_params),
+                                "label_class_balance": str(label_class_balance),
+                                "topN_features_slct_qty": slct_topN_features,
+                                "selected_tickers": str({"tickers": tickers}),
+                                "min_historical_data_window_years": min_years_existence,
+                                "confusion_matrix": str(cm)
                                 }, index=[0])
 
     return reporting_df
