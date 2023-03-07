@@ -17,6 +17,8 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     bars_ahead_predict = preproc_params["bar_ahead_predict"]
 
     preproc_df = prm_binance[prm_binance["symbol"] == _target_name]
+    assert preproc_df["symbol"].nunique() == 1, "More than 1 symbol selected as target, review."
+
     # don't change this df structure because it will be used later on
     preproc_df = preproc_df[["close_time", "close", "volume"]]
 
