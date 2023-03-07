@@ -18,12 +18,18 @@ def binance_pipeline():
                         "params:min_years_existence",
                         "params:raw_binance_get_data.end_date"],
                 outputs="prm_binance",
-                name="run_binance_prm"),
+                name="run_binance_prm",
+                tags=["all_except_raw"]),
 
             node(func=binance_fte,
-                inputs=["prm_binance", "spine_preprocessing", "params:spine_preprocessing"],
+                inputs=["prm_binance",
+                        "spine_labeled",
+                        "params:spine_preprocessing",
+                        "params:train_test_cutoff_date",
+                        "params:slct_topN_features"],
                 outputs="fte_binance",
-                name="run_binance_fte")
+                name="run_binance_fte",
+                tags=["all_except_raw"])
             ],
         tags=["binance_pipeline"]))
 

@@ -30,7 +30,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     if preproc_df["volume"].min() > _volume_bar_size:
         raise RuntimeError("Specified volume bar size isn't correct, please review.")
 
-    preproc_df = preproc_df.sort_values(by="close_time")
+    preproc_df = preproc_df.sort_values(by="close_time").reset_index(drop=True)
     df_log_ret = build_log_return(df=preproc_df)
     # fill first null data point with 0 to avoid having NaN at first volume window
     df_log_ret.loc[:, "log_return"] = df_log_ret["log_return"].fillna(0)
