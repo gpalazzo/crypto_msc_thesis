@@ -14,7 +14,7 @@ def master_table_pipeline():
                         "params:class_bounds"],
                 outputs=["master_table", "window_nbr_lookup"],
                 name="run_master_table",
-                tags=["all_except_raw"])
+                tags=["all_except_raw", "all_except_binance"])
         ],
         tags=["master_table_pipeline"]))
 

@@ -7,5 +7,7 @@ spine_preprocessing:
 
 # confidence threshold
 # this will be multiplied by the stdev and sum to the accumulated log return
+# the number vary from 0 to infinity (but numbers greater than 3 doesn't make a lot of sense due
+#   to normal distribution assumptions)
 spine_labeling:
   tau: 0.05

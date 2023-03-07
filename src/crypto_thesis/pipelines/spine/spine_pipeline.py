@@ -16,13 +16,13 @@ def spine_pipeline():
                         "params:spine_preprocessing"],
                 outputs=["spine_preprocessing", "spine_log_ret"],
                 name="run_spine_preprocessing",
-                tags=["all_except_raw"]),
+                tags=["all_except_raw", "all_except_binance"]),
 
             node(func=spine_build_target_labels,
                 inputs=["spine_preprocessing", "spine_log_ret", "params:spine_labeling"],
                 outputs="spine_labeled",
                 name="run_spine_label",
-                tags=["all_except_raw"])
+                tags=["all_except_raw", "all_except_binance"])
         ],
         tags=["spine_pipeline"]))
 

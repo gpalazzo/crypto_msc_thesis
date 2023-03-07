@@ -15,7 +15,7 @@ def portfolio_pipeline():
                         "params:spine_preprocessing.target_name"],
                 outputs="portfolio_pnl",
                 name="run_portfolio_pnl",
-                tags=["all_except_raw"])
+                tags=["all_except_raw", "all_except_binance"])
 
             # , node(func=build_portfolio_metrics,
             #     inputs=["portfolio_pnl",

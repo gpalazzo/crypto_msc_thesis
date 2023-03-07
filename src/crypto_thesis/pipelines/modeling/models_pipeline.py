@@ -18,13 +18,13 @@ def ml_models_pipeline():
                         "xgboost_features_train", "xgboost_target_train",
                         "xgboost_features_test", "xgboost_target_test"],
                 name="run_xgboost_fitting",
-                tags=["all_except_raw"])
+                tags=["all_except_raw", "all_except_binance"])
 
             , node(func=xgboost_model_predict,
                 inputs=["xgboost_fitted_model", "xgboost_features_test"],
                 outputs="xgboost_model_predict",
                 name="run_xgboost_predicting",
-                tags=["all_except_raw"])
+                tags=["all_except_raw", "all_except_binance"])
 
             , node(func=xgboost_model_reporting,
                 inputs=["xgboost_fitted_model",
@@ -38,7 +38,7 @@ def ml_models_pipeline():
                         "params:xgboost_model_params"],
                 outputs="xgboost_model_reporting",
                 name="run_xgboost_reporting",
-                tags=["all_except_raw"])
+                tags=["all_except_raw", "all_except_binance"])
         ],
         tags=["xgboost_pipeline"]))
 
