@@ -1,0 +1,9 @@
+benchmark_pnl:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/benchmark_pnl.parquet
+  versioned: true
+
+benchmark_metrics:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/benchmark_metrics.parquet
+  versioned: true
