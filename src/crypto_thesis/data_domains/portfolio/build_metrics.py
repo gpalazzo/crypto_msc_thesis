@@ -104,7 +104,6 @@ def _build_perf_metrics(df_top: pd.DataFrame,
         df_px_aux = df_target_prices[df_target_prices["close_time"].between(start, end)]
         final_df = pd.concat([final_df, df_px_aux])
 
-    # not sure about annualization
     # periods = 360 because crypto trades 24/7
     sharpe = qs.stats.sharpe(returns=df_pnl["pctchg_sell_pos"], periods=360, annualize=True)
     profit_factor = qs.stats.profit_factor(returns=df_pnl["pctchg_sell_pos"]) #profit factor = win/loss
