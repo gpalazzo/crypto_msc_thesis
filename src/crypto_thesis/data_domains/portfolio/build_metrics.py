@@ -3,6 +3,7 @@ import logging
 import math
 from typing import Union
 
+import numpy as np
 import pandas as pd
 import quantstats as qs
 
@@ -31,9 +32,7 @@ def build_portfolio_metrics(df_predict: pd.DataFrame,
                                 target_name=target_name,
                                 portfolio_initial_money=portfolio_initial_money)
 
-    df_perf_metr = _build_perf_metrics(df_top=df_top,
-                                    prices_df=prices_df,
-                                    target_name=target_name)
+    df_perf_metr = _build_perf_metrics(df_pnl=df_pnl)
 
     return df_pnl, df_perf_metr
 
@@ -74,6 +73,7 @@ def _build_portfolio_pnl(df_top: pd.DataFrame,
             df_merged_prices.loc[i:i, "buy_nominal_pos"] = df_merged_prices.iloc[i]["stock_qty"] * df_merged_prices.iloc[i]["close_time_price"]
             df_merged_prices.loc[i:i, "sell_nominal_pos"] = df_merged_prices.iloc[i]["stock_qty"] * df_merged_prices.iloc[i]["target_time_price"]
             df_merged_prices.loc[i:i, "residual_value"] = portfolio_initial_money - df_merged_prices.iloc[i]["buy_nominal_pos"]
+            df_merged_prices.loc[i:i, "pctchg_pos"] = df_merged_prices.iloc[i]["sell_nominal_pos"] / df_merged_prices.iloc[i]["buy_nominal_pos"] - 1
         else:
             _total_curr_money = df_merged_prices.iloc[i-1].sell_nominal_pos + df_merged_prices.iloc[i-1].residual_value
             df_merged_prices.loc[i:i, "stock_qty"] = _round_decimals_down(_total_curr_money / row.close_time_price)
@@ -81,41 +81,38 @@ def _build_portfolio_pnl(df_top: pd.DataFrame,
             df_merged_prices.loc[i:i, "buy_nominal_pos"] = df_merged_prices.iloc[i]["stock_qty"] * df_merged_prices.iloc[i]["close_time_price"]
             df_merged_prices.loc[i:i, "sell_nominal_pos"] = df_merged_prices.iloc[i]["stock_qty"] * df_merged_prices.iloc[i]["target_time_price"]
             df_merged_prices.loc[i:i, "residual_value"] = _total_curr_money - df_merged_prices.iloc[i]["buy_nominal_pos"]
+            df_merged_prices.loc[i:i, "pctchg_pos"] = df_merged_prices.iloc[i]["sell_nominal_pos"] / df_merged_prices.iloc[i]["buy_nominal_pos"] - 1
 
     return df_merged_prices
 
 
-def _build_perf_metrics(df_top: pd.DataFrame,
-                        prices_df: pd.DataFrame,
-                        target_name: str):
+def _build_perf_metrics(df_pnl: pd.DataFrame):
 
-    final_df = pd.DataFrame()
-
-    df_target_prices = prices_df[prices_df["symbol"] == target_name] \
-        [["open_time", "close"]].rename(columns={"open_time": "close_time"})
-    df_target_prices.loc[:, "pct_chg"] = df_target_prices["close"].pct_change().fillna(0)
-
-    for start, end in zip(df_top["open_time"], df_top["close_time"]):
-        df_px_aux = df_target_prices[df_target_prices["close_time"].between(start, end)]
-        final_df = pd.concat([final_df, df_px_aux])
-
-    # not sure about annualization
     # periods = 360 because crypto trades 24/7
-    sharpe_annual = qs.stats.sharpe(returns=final_df["pct_chg"], periods=360, annualize=True)
-    profit_factor = qs.stats.profit_factor(returns=final_df["pct_chg"]) #profit factor = win/loss
-    sortino_annual = qs.stats.sortino(returns=final_df["pct_chg"], periods=360, annualize=True)
-    max_drawdown = qs.stats.max_drawdown(prices=final_df["close"])
-    consecutive_wins = qs.stats.consecutive_wins(returns=final_df["pct_chg"])
-    consecutive_losses = qs.stats.consecutive_losses(returns=final_df["pct_chg"])
+    sharpe = qs.stats.sharpe(returns=df_pnl["pctchg_pos"], periods=360, annualize=True)
+    profit_factor = qs.stats.profit_factor(returns=df_pnl["pctchg_pos"]) #profit factor = win/loss
+    sortino = qs.stats.sortino(returns=df_pnl["pctchg_pos"], periods=360, annualize=True)
+    consecutive_wins = qs.stats.consecutive_wins(returns=df_pnl["pctchg_pos"])
+    consecutive_losses = qs.stats.consecutive_losses(returns=df_pnl["pctchg_pos"])
 
-    df_metrics = pd.DataFrame({"annual_sharpe": sharpe_annual,
+    max_drawdown = _get_max_drawdown(df=df_pnl)
+    nominal_profit = df_pnl["op_full_profit"].sum()
+
+    df_metrics = pd.DataFrame({"annual_sharpe": sharpe,
                             "profit_factor_pct": profit_factor,
-                            "annual_sortino": sortino_annual,
+                            "nominal_profit": nominal_profit,
+                            "annual_sortino": sortino,
                             "max_drawdown_pct": max_drawdown,
                             "consecutive_wins": consecutive_wins,
                             "consecutive_losses": consecutive_losses}, index=[0])
 
     return df_metrics
+
+
+def _get_max_drawdown(df: pd.DataFrame) -> float:
+    df.loc[:, "logret_pos"] = np.log(1 + df["pctchg_pos"])
+    min_accum_value = df["logret_pos"].min()
+    return np.exp(min_accum_value) - 1
 
 
 def _round_decimals_down(number: float, decimals: int = 4):
