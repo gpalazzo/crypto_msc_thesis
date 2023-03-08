@@ -1,0 +1,2 @@
+# assuming the portfolio cash is in the same currency as the target coin
+portfolio_initial_money: 150000

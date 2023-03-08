@@ -2,3 +2,8 @@ portfolio_pnl:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/portfolio_pnl.parquet
   versioned: true
+
+portfolio_metrics:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/portfolio_metrics.parquet
+  versioned: true

@@ -29,7 +29,7 @@ def binance_pipeline():
                         "params:slct_topN_features"],
                 outputs="fte_binance",
                 name="run_binance_fte",
-                tags=["all_except_raw"])
+                tags=["all_except_raw", "all_except_raw_prm"])
             ],
         tags=["binance_pipeline"]))
 

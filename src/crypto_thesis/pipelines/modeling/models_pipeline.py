@@ -41,7 +41,7 @@ def ml_models_pipeline():
                         "params:min_years_existence"],
                 outputs="xgboost_model_reporting",
                 name="run_xgboost_reporting",
-                tags=["all_except_raw", "all_except_binance"])
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["xgboost_pipeline"]))
 

@@ -48,6 +48,6 @@ def _find_symbol_date_criterium(df: pd.DataFrame,
     max_date = str(max_date.date())
 
     # apply rule
-    df_aux = df_aux[(df_aux["date_min"] >= cutoff_3y) | (df_aux["date_max"] <= max_date)]
+    df_aux = df_aux[(df_aux["date_min"] >= cutoff_3y) | (df_aux["date_max"] < max_date)]
 
     return df_aux["symbol"].unique().tolist()
