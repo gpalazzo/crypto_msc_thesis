@@ -16,7 +16,7 @@ def portfolio_pipeline():
                         "params:portfolio_initial_money"],
                 outputs=["portfolio_pnl", "portfolio_metrics"],
                 name="run_portfolio_metrics",
-                tags=["all_except_raw", "all_except_binance"])
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["portfolio_pipeline"]))
 

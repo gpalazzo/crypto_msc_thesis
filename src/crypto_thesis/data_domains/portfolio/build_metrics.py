@@ -109,9 +109,9 @@ def _build_perf_metrics(df_top: pd.DataFrame,
     consecutive_losses = qs.stats.consecutive_losses(returns=final_df["pct_chg"])
 
     df_metrics = pd.DataFrame({"annual_sharpe": sharpe_annual,
-                            "profit_factor": profit_factor,
+                            "profit_factor_pct": profit_factor,
                             "annual_sortino": sortino_annual,
-                            "max_drawdown": max_drawdown,
+                            "max_drawdown_pct": max_drawdown,
                             "consecutive_wins": consecutive_wins,
                             "consecutive_losses": consecutive_losses}, index=[0])
 
