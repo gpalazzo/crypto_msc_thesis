@@ -14,7 +14,7 @@ def portfolio_pipeline():
                         "prm_binance",
                         "params:spine_preprocessing.target_name",
                         "params:portfolio_initial_money"],
-                outputs="portfolio_pnl",
+                outputs=["portfolio_pnl", "portfolio_metrics"],
                 name="run_portfolio_metrics",
                 tags=["all_except_raw", "all_except_binance"])
         ],
