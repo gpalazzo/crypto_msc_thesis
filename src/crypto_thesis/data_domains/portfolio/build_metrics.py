@@ -83,8 +83,6 @@ def _build_portfolio_pnl(df_top: pd.DataFrame,
             df_merged_prices.loc[i:i, "residual_value"] = _total_curr_money - df_merged_prices.iloc[i]["buy_nominal_pos"]
             df_merged_prices.loc[i:i, "pctchg_pos"] = df_merged_prices.iloc[i]["sell_nominal_pos"] / df_merged_prices.iloc[i]["buy_nominal_pos"] - 1
 
-    df_merged_prices.loc[:, "pctchg_portf"] = df_merged_prices["sell_nominal_pos"].pct_change().fillna(0)
-
     return df_merged_prices
 
 
