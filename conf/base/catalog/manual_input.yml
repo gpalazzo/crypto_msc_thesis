@@ -1,0 +1,9 @@
+raw_manual_input:
+  type: pandas.ExcelDataSet
+  filepath: data/01_raw/bgci_index.xlsx
+  load_args:
+    sheet_name: "Sheet1"
+
+prm_manual_input:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/manual_input_prm.parquet
