@@ -1,0 +1,8 @@
+# length to aggregate timestamps
+# since our dataset is already in windows, we should predict the window itself
+lstm_timestamp_seq_length: 1
+
+lstm_model_params:
+  use_label_encoder: False
+  eval_metric: "mlogloss"
+  n_estimators: 1000
