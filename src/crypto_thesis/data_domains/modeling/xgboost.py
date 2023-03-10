@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix
 from xgboost import XGBClassifier
 
+from crypto_thesis.utils import mt_split_train_test
+
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
 INDEX_COL = "window_nbr"
@@ -17,23 +19,10 @@ def xgboost_model_fit(master_table: pd.DataFrame,
                                                         pd.DataFrame, pd.DataFrame,
                                                         pd.DataFrame, pd.DataFrame]:
 
-    # model adjustment: labeling with 0 and 1
-    master_table = master_table.replace({"top": 1, "bottom": 0})
-    master_table = master_table.set_index(INDEX_COL)
-
-    # split into train and test considering time series logic
-    master_table_train = master_table[master_table["close_time"] < train_test_cutoff_date]
-    master_table_test = master_table[master_table["close_time"] >= train_test_cutoff_date]
-
-    # drop not useful columns
-    master_table_train = master_table_train.drop(columns=["close_time"])
-    master_table_test = master_table_test.drop(columns=["close_time"])
-
-    # split into train and test
-    X_train = master_table_train.drop(columns=TARGET_COL)
-    y_train = master_table_train[TARGET_COL]
-    X_test = master_table_test.drop(columns=TARGET_COL)
-    y_test = master_table_test[TARGET_COL]
+    X_train, y_train, X_test, y_test = mt_split_train_test(master_table=master_table,
+                                                            index_col=INDEX_COL,
+                                                            train_test_cutoff_date=train_test_cutoff_date,
+                                                            target_col=TARGET_COL)
 
     model = XGBClassifier(**model_params)
     model.fit(X_train, y_train)
