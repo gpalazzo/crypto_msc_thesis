@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 def lstm_model_fit(master_table: pd.DataFrame,
                     train_test_cutoff_date: str,
-                    model_params: Dict[str, Any],
                     seq_length: int) -> Tuple[Sequential, pd.DataFrame,
                                                 pd.DataFrame, pd.DataFrame,
                                                 pd.DataFrame, pd.DataFrame]:
