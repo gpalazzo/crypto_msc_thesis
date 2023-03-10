@@ -13,6 +13,8 @@ from keras.regularizers import l2
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.preprocessing import StandardScaler
 
+from crypto_thesis.utils import mt_split_train_test
+
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
 INDEX_COL = "window_nbr"
@@ -25,23 +27,10 @@ def lstm_model_fit(master_table: pd.DataFrame,
                                                 pd.DataFrame, pd.DataFrame,
                                                 pd.DataFrame, pd.DataFrame]:
 
-    # model adjustment: labeling with 0 and 1
-    master_table = master_table.replace({"top": 1, "bottom": 0})
-    master_table = master_table.set_index(INDEX_COL)
-
-    # split into train and test considering time series logic
-    master_table_train = master_table[master_table["close_time"] < train_test_cutoff_date]
-    master_table_test = master_table[master_table["close_time"] >= train_test_cutoff_date]
-
-    # drop not useful columns
-    master_table_train = master_table_train.drop(columns=["close_time"])
-    master_table_test = master_table_test.drop(columns=["close_time"])
-
-    # split into train and test
-    X_train = master_table_train.drop(columns=TARGET_COL)
-    y_train = master_table_train[TARGET_COL]
-    X_test = master_table_test.drop(columns=TARGET_COL)
-    y_test = master_table_test[TARGET_COL]
+    X_train, y_train, X_test, y_test = mt_split_train_test(master_table=master_table,
+                                                            index_col=INDEX_COL,
+                                                            train_test_cutoff_date=train_test_cutoff_date,
+                                                            target_col=TARGET_COL)
 
     # scaling features
     scaler = StandardScaler()
@@ -54,11 +43,11 @@ def lstm_model_fit(master_table: pd.DataFrame,
                                     columns=X_test.columns
                                 )
 
-    X_train_scaled_seq, y_train_scaled_seq = _build_lstm_timestamps_seq(y=y_train,
-                                                                        X=X_train_scaled,
+    X_train_scaled_seq, y_train_scaled_seq = _build_lstm_timestamps_seq(X=X_train_scaled,
+                                                                        y=y_train,
                                                                         seq_length=seq_length)
-    X_test_scaled_seq, y_test_scaled_seq = _build_lstm_timestamps_seq(y=y_test,
-                                                                        X=X_test_scaled,
+    X_test_scaled_seq, y_test_scaled_seq = _build_lstm_timestamps_seq(X=X_test_scaled,
+                                                                        y=y_test,
                                                                         seq_length=seq_length)
 
     # parameters
@@ -134,10 +123,19 @@ def lstm_model_fit(master_table: pd.DataFrame,
     return model, lstm_epoch_train_history, X_train_scaled, y_train, X_test_scaled, y_test
 
 
-def lstm_model_predict(model: pd.DataFrame, X_test: pd.DataFrame) -> pd.DataFrame:
+def lstm_model_predict(model: Sequential,
+                        X_test_scaled: pd.DataFrame,
+                        y_test: pd.DataFrame,
+                        seq_length: int) -> pd.DataFrame:
 
-    idxs = X_test.index.tolist()
-    y_pred = model.predict(X_test)
+    idxs = X_test_scaled.index.tolist()
+    X_test_scaled_seq, _ = _build_lstm_timestamps_seq(X=X_test_scaled, y=y_test, seq_length=seq_length)
+    M_TEST = X_test_scaled_seq.shape[0]
+
+    y_pred = np.argmax(model.predict(x=X_test_scaled_seq, batch_size=M_TEST, verbose=1), axis=1)
+
+    # breakpoint()
+
     return pd.DataFrame(data={"y_pred": y_pred}, index=idxs)
 
 
@@ -206,7 +204,7 @@ def lstm_model_reporting(model: pd.DataFrame,
     return reporting_df
 
 
-def _build_lstm_timestamps_seq(y: pd.DataFrame, X: pd.DataFrame, seq_length: int):
+def _build_lstm_timestamps_seq(X: pd.DataFrame, y: pd.DataFrame, seq_length: int):
 
     _X, _y = [], []
 

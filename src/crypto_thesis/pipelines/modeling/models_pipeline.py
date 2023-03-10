@@ -3,6 +3,7 @@ from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.modeling import (
     lstm_model_fit,
+    lstm_model_predict,
     xgboost_model_fit,
     xgboost_model_predict,
     xgboost_model_reporting,
@@ -59,11 +60,14 @@ def ml_models_pipeline():
                 name="run_lstm_fitting",
                 tags=["all_except_raw", "all_except_binance"])
 
-            # , node(func=lstm_model_predict,
-            #     inputs=["lstm_fitted_model", "lstm_features_test"],
-            #     outputs="lstm_model_predict",
-            #     name="run_lstm_predicting",
-            #     tags=["all_except_raw", "all_except_binance"])
+            , node(func=lstm_model_predict,
+                inputs=["lstm_fitted_model",
+                        "lstm_features_test",
+                        "lstm_target_test",
+                        "params:lstm_timestamp_seq_length"],
+                outputs="lstm_model_predict",
+                name="run_lstm_predicting",
+                tags=["all_except_raw", "all_except_binance"])
 
             # , node(func=lstm_model_reporting,
             #     inputs=["lstm_fitted_model",
