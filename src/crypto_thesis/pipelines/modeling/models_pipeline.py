@@ -5,6 +5,9 @@ from crypto_thesis.data_domains.modeling import (
     lstm_model_fit,
     lstm_model_predict,
     lstm_model_reporting,
+    transformers_model_fit,
+    transformers_model_predict,
+    transformers_model_reporting,
     xgboost_model_fit,
     xgboost_model_predict,
     xgboost_model_reporting,
@@ -88,4 +91,42 @@ def ml_models_pipeline():
         ],
         tags=["lstm_pipeline"]))
 
-    return xgboost_pipeline + lstm_pipeline
+    transformers_pipeline = pipeline(
+        Pipeline([
+            node(func=transformers_model_fit,
+                inputs=["master_table",
+                        "params:train_test_cutoff_date"],
+                outputs=["transformers_fitted_model",
+                        "transformers_features_train", "transformers_target_train",
+                        "transformers_features_test", "transformers_target_test"],
+                name="run_transformers_fitting",
+                tags=["all_except_raw", "all_except_binance"])
+
+            , node(func=transformers_model_predict,
+                inputs=["transformers_fitted_model",
+                        "transformers_features_test",
+                        "transformers_target_test"],
+                outputs="transformers_model_predict",
+                name="run_transformers_predicting",
+                tags=["all_except_raw", "all_except_binance"])
+
+            , node(func=transformers_model_reporting,
+                inputs=["transformers_fitted_model",
+                        "transformers_features_test",
+                        "transformers_target_test",
+                        "transformers_model_predict",
+                        "master_table",
+                        "params:model_data_interval",
+                        "params:spine_preprocessing",
+                        "params:spine_labeling",
+                        "params:train_test_cutoff_date",
+                        # "params:xgboost_model_params",
+                        "params:slct_topN_features",
+                        "params:min_years_existence"],
+                outputs="transformers_model_reporting",
+                name="run_transformers_reporting",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+        ],
+        tags=["transformers_pipeline"]))
+
+    return xgboost_pipeline + lstm_pipeline + transformers_pipeline
