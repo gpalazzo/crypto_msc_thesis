@@ -182,7 +182,6 @@ def lstm_model_reporting(model: Sequential,
                             spine_preproc_params: Dict[str, Any],
                             spine_label_params: Dict[str, Any],
                             train_test_cutoff_date: str,
-                            # model_params: Dict[str, Any],
                             slct_topN_features: int,
                             min_years_existence: int) -> pd.DataFrame:
 
