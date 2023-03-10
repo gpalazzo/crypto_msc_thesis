@@ -53,7 +53,6 @@ def ml_models_pipeline():
             node(func=lstm_model_fit,
                 inputs=["master_table",
                         "params:train_test_cutoff_date",
-                        "params:lstm_model_params",
                         "params:lstm_timestamp_seq_length"],
                 outputs=["lstm_fitted_model", "lstm_epoch_train_history",
                         "lstm_features_train", "lstm_target_train",
