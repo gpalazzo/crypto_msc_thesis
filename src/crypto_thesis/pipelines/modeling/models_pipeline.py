@@ -4,6 +4,7 @@ from kedro.pipeline import Pipeline, node, pipeline
 from crypto_thesis.data_domains.modeling import (
     lstm_model_fit,
     lstm_model_predict,
+    lstm_model_reporting,
     xgboost_model_fit,
     xgboost_model_predict,
     xgboost_model_reporting,
@@ -69,22 +70,22 @@ def ml_models_pipeline():
                 name="run_lstm_predicting",
                 tags=["all_except_raw", "all_except_binance"])
 
-            # , node(func=lstm_model_reporting,
-            #     inputs=["lstm_fitted_model",
-            #             "lstm_features_test",
-            #             "lstm_target_test",
-            #             "lstm_model_predict",
-            #             "master_table",
-            #             "params:model_data_interval",
-            #             "params:spine_preprocessing",
-            #             "params:spine_labeling",
-            #             "params:train_test_cutoff_date",
-            #             "params:xgboost_model_params",
-            #             "params:slct_topN_features",
-            #             "params:min_years_existence"],
-            #     outputs="lstm_model_reporting",
-            #     name="run_lstm_reporting",
-            #     tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+            , node(func=lstm_model_reporting,
+                inputs=["lstm_fitted_model",
+                        "lstm_features_test",
+                        "lstm_target_test",
+                        "lstm_model_predict",
+                        "master_table",
+                        "params:model_data_interval",
+                        "params:spine_preprocessing",
+                        "params:spine_labeling",
+                        "params:train_test_cutoff_date",
+                        # "params:xgboost_model_params",
+                        "params:slct_topN_features",
+                        "params:min_years_existence"],
+                outputs="lstm_model_reporting",
+                name="run_lstm_reporting",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["lstm_pipeline"]))
 

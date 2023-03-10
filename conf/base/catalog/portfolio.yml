@@ -1,9 +1,19 @@
-portfolio_pnl:
+xgboost_portfolio_pnl:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/${binance_data_interval}/portfolio_pnl.parquet
+  filepath: data/08_reporting/${binance_data_interval}/xgboost_portfolio_pnl.parquet
   versioned: true
 
-portfolio_metrics:
+xgboost_portfolio_metrics:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/${binance_data_interval}/portfolio_metrics.parquet
+  filepath: data/08_reporting/${binance_data_interval}/xgboost_portfolio_metrics.parquet
+  versioned: true
+
+lstm_portfolio_pnl:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/lstm_portfolio_pnl.parquet
+  versioned: true
+
+lstm_portfolio_metrics:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/lstm_portfolio_metrics.parquet
   versioned: true

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from typing import Any, Dict, Tuple
 
 import numpy as np
@@ -18,6 +19,8 @@ from crypto_thesis.utils import mt_split_train_test
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
 INDEX_COL = "window_nbr"
+
+logger = logging.getLogger(__name__)
 
 
 def lstm_model_fit(master_table: pd.DataFrame,
@@ -51,54 +54,79 @@ def lstm_model_fit(master_table: pd.DataFrame,
                                                                         seq_length=seq_length)
 
     # parameters
-    LAYERS = [8, 8, 8, 1]                # number of units in hidden and output layers
+    LAYERS = [10, 10, 10, 1] #[10, 10, 10, 1]                # number of units in hidden and output layers
     M_TRAIN = X_train_scaled_seq.shape[0]           # number of training examples (2D)
     M_TEST = X_test_scaled_seq.shape[0]             # number of test examples (2D),full=X_test.shape[0]
     N = X_train_scaled_seq.shape[2]                 # number of features
     BATCH = M_TRAIN                          # batch size
-    EPOCH = 50                           # number of epochs
-    LR = 5e-2                            # learning rate of the gradient descent
-    LAMBD = 3e-2                         # lambda in L2 regularizaion
-    DP = 0.0                             # dropout rate
-    RDP = 0.0                            # recurrent dropout rate
+    EPOCH = 100 #100                   # number of epochs
+    LR = 0.0005 #0.0005                            # learning rate of the gradient descent
+    LAMBD = 0.001 #0.001                         # lambda in L2 regularizaion
+    DP = 0.0 #0.0                             # dropout rate
+    RDP = 0.0 #0.0                            # recurrent dropout rate
 
     # model
     model = Sequential()
-    model.add(LSTM(input_shape=(seq_length, N), units=LAYERS[0],
-                activation='tanh', recurrent_activation='hard_sigmoid',
-                kernel_regularizer=l2(LAMBD), recurrent_regularizer=l2(LAMBD),
-                dropout=DP, recurrent_dropout=RDP,
-                return_sequences=True, return_state=False,
-                stateful=False, unroll=False
+    model.add(LSTM(
+        input_shape=(seq_length, N),
+        units=LAYERS[0],
+        activation='tanh',
+        recurrent_activation='hard_sigmoid',
+        kernel_regularizer=l2(LAMBD),
+        recurrent_regularizer=l2(LAMBD),
+        dropout=DP,
+        recurrent_dropout=RDP,
+        return_sequences=True,
+        return_state=False,
+        stateful=False,
+        unroll=False
                 ))
     model.add(BatchNormalization())
-    model.add(LSTM(units=LAYERS[1],
-                activation='tanh', recurrent_activation='hard_sigmoid',
-                kernel_regularizer=l2(LAMBD), recurrent_regularizer=l2(LAMBD),
-                dropout=DP, recurrent_dropout=RDP,
-                return_sequences=True, return_state=False,
-                stateful=False, unroll=False
+    model.add(LSTM(
+        units=LAYERS[1],
+        activation='tanh',
+        recurrent_activation='hard_sigmoid',
+        kernel_regularizer=l2(LAMBD),
+        recurrent_regularizer=l2(LAMBD),
+        dropout=DP,
+        recurrent_dropout=RDP,
+        return_sequences=True,
+        return_state=False,
+        stateful=False,
+        unroll=False
                 ))
     model.add(BatchNormalization())
-    model.add(LSTM(units=LAYERS[2],
-                activation='tanh', recurrent_activation='hard_sigmoid',
-                kernel_regularizer=l2(LAMBD), recurrent_regularizer=l2(LAMBD),
-                dropout=DP, recurrent_dropout=RDP,
-                return_sequences=False, return_state=False,
-                stateful=False, unroll=False
+    model.add(LSTM(
+        units=LAYERS[2],
+        activation='tanh',
+        recurrent_activation='hard_sigmoid',
+        kernel_regularizer=l2(LAMBD),
+        recurrent_regularizer=l2(LAMBD),
+        dropout=DP,
+        recurrent_dropout=RDP,
+        return_sequences=False,
+        return_state=False,
+        stateful=False,
+        unroll=False
                 ))
     model.add(BatchNormalization())
-    model.add(Dense(units=LAYERS[3], activation='sigmoid'))
+    model.add(Dense(
+        units=LAYERS[3],
+        activation='sigmoid'))
 
     # Compile the model with Adam optimizer
-    model.compile(loss='binary_crossentropy',
-                metrics=['accuracy'],
-                optimizer=Adam(lr=LR))
+    model.compile(
+        loss='binary_crossentropy',
+        metrics=['accuracy'],
+        optimizer=Adam(lr=LR))
 
     # Define a learning rate decay method:
-    lr_decay = ReduceLROnPlateau(monitor='loss',
-                                patience=1, verbose=0,
-                                factor=0.5, min_lr=1e-8)
+    lr_decay = ReduceLROnPlateau(
+                monitor='loss',
+                patience=1,
+                verbose=0,
+                factor=0.5,
+                min_lr=1e-8)
 
     # Define Early Stopping:
     early_stop = EarlyStopping(monitor='val_acc', min_delta=0,
@@ -132,14 +160,21 @@ def lstm_model_predict(model: Sequential,
     X_test_scaled_seq, _ = _build_lstm_timestamps_seq(X=X_test_scaled, y=y_test, seq_length=seq_length)
     M_TEST = X_test_scaled_seq.shape[0]
 
-    y_pred = np.argmax(model.predict(x=X_test_scaled_seq, batch_size=M_TEST, verbose=1), axis=1)
+    predict_probas = model.predict(x=X_test_scaled_seq, batch_size=M_TEST, verbose=1)
+    logger.info(f"********** Min and Max probas:\n{predict_probas.min(), predict_probas.max()}")
 
-    # breakpoint()
+    y_pred = []
+    for predict_proba in predict_probas:
+        if predict_proba > 0.5:
+            y_pred.append(1)
+        else:
+            y_pred.append(0)
+    logger.info(f"********** Class balance prediction:\n{pd.Series(y_pred).value_counts()}")
 
     return pd.DataFrame(data={"y_pred": y_pred}, index=idxs)
 
 
-def lstm_model_reporting(model: pd.DataFrame,
+def lstm_model_reporting(model: Sequential,
                             X_test: pd.DataFrame,
                             y_test: pd.DataFrame,
                             y_pred: pd.DataFrame,
@@ -148,7 +183,7 @@ def lstm_model_reporting(model: pd.DataFrame,
                             spine_preproc_params: Dict[str, Any],
                             spine_label_params: Dict[str, Any],
                             train_test_cutoff_date: str,
-                            model_params: Dict[str, Any],
+                            # model_params: Dict[str, Any],
                             slct_topN_features: int,
                             min_years_existence: int) -> pd.DataFrame:
 
@@ -156,15 +191,15 @@ def lstm_model_reporting(model: pd.DataFrame,
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)
 
     # get model's parameters
-    params = model.get_xgb_params()
+    # params = model.get_xgb_params()
 
     # get model's probability
-    idxs = X_test.index.tolist()
-    probas = model.predict_proba(X_test)
-    probas_df = pd.DataFrame(data=probas, index=idxs, columns=["proba_label_0", "proba_label_1"])
+    # idxs = X_test.index.tolist()
+    # probas = model.predict_proba(X_test)
+    # probas_df = pd.DataFrame(data=probas, index=idxs, columns=["proba_label_0", "proba_label_1"])
 
     # get features' importance
-    fte_imps = model.get_booster().get_score(importance_type="weight")
+    # fte_imps = model.get_booster().get_score(importance_type="weight")
 
     # get label class balance
     label_class_balance = (master_table["label"].value_counts() / master_table.shape[0]).to_dict()
@@ -184,16 +219,16 @@ def lstm_model_reporting(model: pd.DataFrame,
     cm = confusion_matrix(y_true=y_test, y_pred=y_pred, normalize="all")
 
     reporting_df = pd.DataFrame({"model_accuracy": acc,
-                                "model_params": str(params),
+                                # "model_params": str(params),
                                 "data_interval_collect": model_data_interval,
-                                "test_probas": str(probas_df.to_dict(orient="index")),
-                                "fte_importance": str(fte_imps),
+                                # "test_probas": str(probas_df.to_dict(orient="index")),
+                                # "fte_importance": str(fte_imps),
                                 "target_name": spine_preproc_params["target_name"],
                                 "volume_bar_size": spine_preproc_params["volume_bar_size"],
                                 "bar_ahead_predict": spine_preproc_params["bar_ahead_predict"],
                                 "labeling_tau": spine_label_params["tau"],
                                 "train_test_cutoff_date": train_test_cutoff_date,
-                                "model_params": str(model_params),
+                                # "model_params": str(model_params),
                                 "label_class_balance": str(label_class_balance),
                                 "topN_features_slct_qty": slct_topN_features,
                                 "selected_tickers": str({"tickers": tickers}),
