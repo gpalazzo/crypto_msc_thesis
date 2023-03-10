@@ -2,6 +2,9 @@
 from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.modeling import (
+    logistic_regr_model_fit,
+    logistic_regr_model_predict,
+    logistic_regr_model_reporting,
     lstm_model_fit,
     lstm_model_predict,
     lstm_model_reporting,
@@ -39,7 +42,6 @@ def ml_models_pipeline():
                         "params:spine_preprocessing",
                         "params:spine_labeling",
                         "params:train_test_cutoff_date",
-                        "params:xgboost_model_params",
                         "params:slct_topN_features",
                         "params:min_years_existence"],
                 outputs="xgboost_model_reporting",
@@ -79,7 +81,6 @@ def ml_models_pipeline():
                         "params:spine_preprocessing",
                         "params:spine_labeling",
                         "params:train_test_cutoff_date",
-                        # "params:xgboost_model_params",
                         "params:slct_topN_features",
                         "params:min_years_existence"],
                 outputs="lstm_model_reporting",
@@ -88,4 +89,40 @@ def ml_models_pipeline():
         ],
         tags=["lstm_pipeline"]))
 
-    return xgboost_pipeline + lstm_pipeline
+    logistic_regr_pipeline = pipeline(
+        Pipeline([
+            node(func=logistic_regr_model_fit,
+                inputs=["master_table",
+                        "params:train_test_cutoff_date"],
+                outputs=["logistic_regr_fitted_model",
+                        "logistic_regr_features_train", "logistic_regr_target_train",
+                        "logistic_regr_features_test", "logistic_regr_target_test"],
+                name="run_logistic_regr_fitting",
+                tags=["all_except_raw", "all_except_binance"])
+
+            , node(func=logistic_regr_model_predict,
+                inputs=["logistic_regr_fitted_model",
+                        "logistic_regr_features_test"],
+                outputs="logistic_regr_model_predict",
+                name="run_logistic_regr_predicting",
+                tags=["all_except_raw", "all_except_binance"])
+
+            , node(func=logistic_regr_model_reporting,
+                inputs=["logistic_regr_fitted_model",
+                        "logistic_regr_features_test",
+                        "logistic_regr_target_test",
+                        "logistic_regr_model_predict",
+                        "master_table",
+                        "params:model_data_interval",
+                        "params:spine_preprocessing",
+                        "params:spine_labeling",
+                        "params:train_test_cutoff_date",
+                        "params:slct_topN_features",
+                        "params:min_years_existence"],
+                outputs="logistic_regr_model_reporting",
+                name="run_logistic_regr_reporting",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+        ],
+        tags=["logistic_regr_pipeline"]))
+
+    return xgboost_pipeline + lstm_pipeline + logistic_regr_pipeline

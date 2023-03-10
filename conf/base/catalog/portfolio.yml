@@ -17,3 +17,13 @@ lstm_portfolio_metrics:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/lstm_portfolio_metrics.parquet
   versioned: true
+
+logistic_regr_portfolio_pnl:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/logistic_regr_portfolio_pnl.parquet
+  versioned: true
+
+logistic_regr_portfolio_metrics:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/logistic_regr_portfolio_metrics.parquet
+  versioned: true
