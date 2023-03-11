@@ -50,6 +50,7 @@ aiohttp = "^3.8.3"
 QuantStats = "^0.0.59"
 keras = "^2.11.0"
 tensorflow = "^2.11.0"
+statsmodels = "^0.13.5"
 
 [tool.poetry.group.dev.dependencies]
 plotly = "^5.13.0"

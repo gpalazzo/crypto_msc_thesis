@@ -2,6 +2,7 @@
 from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.binance import binance_fte, binance_prm, binance_raw
+from crypto_thesis.utils import apply_mic_fte_slct, apply_vif_fte_slct
 
 
 def binance_pipeline():
@@ -24,11 +25,28 @@ def binance_pipeline():
             node(func=binance_fte,
                 inputs=["prm_binance",
                         "spine_labeled",
-                        "params:spine_preprocessing",
+                        "params:spine_preprocessing"],
+                outputs="fte_binance",
+                name="run_binance_fte",
+                tags=["all_except_raw", "all_except_raw_prm"]),
+
+            node(func=apply_mic_fte_slct,
+                inputs=["fte_binance",
+                        "spine_labeled",
                         "params:train_test_cutoff_date",
                         "params:slct_topN_features"],
-                outputs=["fte_binance", "all_fte_imps_binance"],
-                name="run_binance_fte",
+                outputs=["fte_binance_multic", "all_fte_multic_mic_binance"],
+                name="run_binance_fte_multic",
+                tags=["all_except_raw", "all_except_raw_prm"]),
+
+            node(func=apply_vif_fte_slct,
+                inputs=["fte_binance",
+                        "spine_labeled",
+                        "params:train_test_cutoff_date",
+                        "params:slct_topN_features",
+                        "params:vif_threshold"],
+                outputs=["fte_binance_nonmultic", "all_fte_vif_binance", "all_fte_nonmultic_mic_binance"],
+                name="run_binance_fte_nonmultic",
                 tags=["all_except_raw", "all_except_raw_prm"])
             ],
         tags=["binance_pipeline"]))

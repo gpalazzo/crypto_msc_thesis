@@ -11,7 +11,27 @@ fte_binance:
   filepath: data/04_feature/${binance_data_interval}/binance_fte.parquet
   versioned: true
 
-all_fte_imps_binance:
+all_fte_multic_mic_binance:
   type: pandas.ParquetDataSet
-  filepath: data/04_feature/${binance_data_interval}/binance_all_fte_imps.parquet
+  filepath: data/04_feature/${binance_data_interval}/binance_all_fte_multic_mic.parquet
+  versioned: true
+
+all_fte_nonmultic_mic_binance:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/binance_all_fte_nonmultic_mic.parquet
+  versioned: true
+
+all_fte_vif_binance:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/binance_all_fte_vif.parquet
+  versioned: true
+
+fte_binance_multic:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/binance_fte_multic.parquet
+  versioned: true
+
+fte_binance_nonmultic:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/binance_fte_nonmultic.parquet
   versioned: true
