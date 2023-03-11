@@ -19,7 +19,9 @@ def ml_models_pipeline():
     xgboost_pipeline = pipeline(
         Pipeline([
             node(func=xgboost_model_fit,
-                inputs=["master_table", "params:train_test_cutoff_date", "params:xgboost_model_params"],
+                inputs=["master_table_multic",
+                        "params:train_test_cutoff_date",
+                        "params:xgboost_model_params"],
                 outputs=["xgboost_fitted_model",
                         "xgboost_features_train", "xgboost_target_train",
                         "xgboost_features_test", "xgboost_target_test"],
@@ -37,7 +39,7 @@ def ml_models_pipeline():
                         "xgboost_features_test",
                         "xgboost_target_test",
                         "xgboost_model_predict",
-                        "master_table",
+                        "master_table_multic",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
                         "params:spine_labeling",
@@ -53,7 +55,7 @@ def ml_models_pipeline():
     lstm_pipeline = pipeline(
         Pipeline([
             node(func=lstm_model_fit,
-                inputs=["master_table",
+                inputs=["master_table_multic",
                         "params:train_test_cutoff_date",
                         "params:lstm_timestamp_seq_length"],
                 outputs=["lstm_fitted_model", "lstm_epoch_train_history",
@@ -76,7 +78,7 @@ def ml_models_pipeline():
                         "lstm_features_test",
                         "lstm_target_test",
                         "lstm_model_predict",
-                        "master_table",
+                        "master_table_multic",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
                         "params:spine_labeling",
@@ -92,7 +94,7 @@ def ml_models_pipeline():
     logistic_regr_pipeline = pipeline(
         Pipeline([
             node(func=logistic_regr_model_fit,
-                inputs=["master_table",
+                inputs=["master_table_nonmultic",
                         "params:train_test_cutoff_date"],
                 outputs=["logistic_regr_fitted_model",
                         "logistic_regr_features_train", "logistic_regr_target_train",
@@ -112,7 +114,7 @@ def ml_models_pipeline():
                         "logistic_regr_features_test",
                         "logistic_regr_target_test",
                         "logistic_regr_model_predict",
-                        "master_table",
+                        "master_table_nonmultic",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
                         "params:spine_labeling",

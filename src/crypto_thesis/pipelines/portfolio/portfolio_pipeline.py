@@ -10,7 +10,7 @@ def portfolio_pipeline():
         Pipeline([
             node(func=build_portfolio_metrics,
                 inputs=["xgboost_model_predict",
-                        "window_nbr_lookup",
+                        "window_nbr_lookup_multic",
                         "prm_binance",
                         "params:spine_preprocessing.target_name",
                         "params:portfolio_initial_money"],
@@ -20,7 +20,7 @@ def portfolio_pipeline():
 
             , node(func=build_portfolio_metrics,
                 inputs=["lstm_model_predict",
-                        "window_nbr_lookup",
+                        "window_nbr_lookup_multic",
                         "prm_binance",
                         "params:spine_preprocessing.target_name",
                         "params:portfolio_initial_money"],
@@ -30,7 +30,7 @@ def portfolio_pipeline():
 
             , node(func=build_portfolio_metrics,
                 inputs=["logistic_regr_model_predict",
-                        "window_nbr_lookup",
+                        "window_nbr_lookup_nonmultic",
                         "prm_binance",
                         "params:spine_preprocessing.target_name",
                         "params:portfolio_initial_money"],

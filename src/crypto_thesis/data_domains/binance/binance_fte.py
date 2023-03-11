@@ -2,12 +2,11 @@
 import logging
 import warnings
 from functools import reduce
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-from sklearn.feature_selection import SelectKBest, mutual_info_classif
 
 from crypto_thesis.utils import build_log_return
 
@@ -23,9 +22,7 @@ logger = logging.getLogger(__name__)
 
 def binance_fte(binance_prm: pd.DataFrame,
                 spine_labeled: pd.DataFrame,
-                spine_params: Dict[str, str],
-                train_test_cutoff_date: str,
-                topN_features: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                spine_params: Dict[str, str]) -> pd.DataFrame:
 
     final_df = pd.DataFrame()
 
@@ -55,15 +52,8 @@ def binance_fte(binance_prm: pd.DataFrame,
         df_ts.loc[:, "window_duration_sec"] = (end - start).seconds
         final_df = pd.concat([final_df, df_ts])
 
-    logger.info("Applying feature selection")
-    selected_features, df_all_fte_imps = _apply_feature_selection(df_ftes=final_df,
-                                            spine_labeled=spine_labeled,
-                                            train_test_cutoff_date=train_test_cutoff_date,
-                                            topN_features=topN_features)
+    return final_df
 
-    final_df = final_df[INDEX_COL + selected_features]
-
-    return final_df, df_all_fte_imps
 
 def _null_handler(df: pd.DataFrame) -> pd.DataFrame:
 
@@ -144,36 +134,3 @@ def _build_timeseries(df: pd.DataFrame, index: Union[str, List[str]], cols: List
     df_pivot = df_pivot.reset_index()
 
     return df_pivot
-
-
-def _apply_feature_selection(df_ftes: pd.DataFrame,
-                            spine_labeled: pd.DataFrame,
-                            train_test_cutoff_date: str,
-                            topN_features: int) -> Tuple[List[str], pd.DataFrame]:
-
-    TARGET_COL = "label"
-    df_ftes = df_ftes.dropna()
-
-    spine_labeled = spine_labeled[["open_time", "close_time", TARGET_COL]]
-
-    df = df_ftes.merge(spine_labeled, on=["open_time", "close_time"], how="inner")
-    assert df.shape[0] == df_ftes.shape[0], "Data loss joining spine and ftes for feature selection, review."
-
-    df = df[df["close_time"] < train_test_cutoff_date]
-    df = df.set_index(INDEX_COL)
-    df.loc[:, TARGET_COL] = df[TARGET_COL].replace({"top": 1, "bottom": 0})
-
-    X_train_ftes = df.drop(columns=[TARGET_COL])
-    y_train_ftes = df[[TARGET_COL]]
-
-    selector = SelectKBest(mutual_info_classif, k=topN_features)
-    selector.fit_transform(X_train_ftes, y_train_ftes)
-    cols_idx = selector.get_support(indices=True)
-
-    # build dataframe with all feature scores
-    fte_imps = {}
-    for feature, score in zip(selector.feature_names_in_, selector.scores_):
-        fte_imps[feature] = score
-    df_fte_imps = pd.DataFrame({"features": fte_imps.keys(), "score": fte_imps.values()})
-
-    return X_train_ftes.iloc[:, cols_idx].columns.tolist(), df_fte_imps
