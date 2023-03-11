@@ -11,7 +11,7 @@ def benchmark_pipeline():
             node(func=build_benchmark_metrics,
                 inputs=["prm_manual_input",
                         "xgboost_model_predict",
-                        "window_nbr_lookup",
+                        "window_nbr_lookup_multic",
                         "params:portfolio_initial_money"],
                 outputs=["benchmark_pnl", "benchmark_metrics"],
                 name="run_benchmark_metrics",
