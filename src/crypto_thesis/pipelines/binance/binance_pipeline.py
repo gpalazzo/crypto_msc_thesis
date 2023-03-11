@@ -27,7 +27,7 @@ def binance_pipeline():
                         "params:spine_preprocessing",
                         "params:train_test_cutoff_date",
                         "params:slct_topN_features"],
-                outputs="fte_binance",
+                outputs=["fte_binance", "all_fte_imps_binance"],
                 name="run_binance_fte",
                 tags=["all_except_raw", "all_except_raw_prm"])
             ],

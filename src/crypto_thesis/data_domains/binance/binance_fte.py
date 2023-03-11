@@ -2,7 +2,7 @@
 import logging
 import warnings
 from functools import reduce
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -25,7 +25,7 @@ def binance_fte(binance_prm: pd.DataFrame,
                 spine_labeled: pd.DataFrame,
                 spine_params: Dict[str, str],
                 train_test_cutoff_date: str,
-                topN_features: int) -> pd.DataFrame:
+                topN_features: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     final_df = pd.DataFrame()
 
@@ -56,14 +56,14 @@ def binance_fte(binance_prm: pd.DataFrame,
         final_df = pd.concat([final_df, df_ts])
 
     logger.info("Applying feature selection")
-    selected_features = _apply_feature_selection(df_ftes=final_df,
+    selected_features, df_all_fte_imps = _apply_feature_selection(df_ftes=final_df,
                                             spine_labeled=spine_labeled,
                                             train_test_cutoff_date=train_test_cutoff_date,
                                             topN_features=topN_features)
 
     final_df = final_df[INDEX_COL + selected_features]
 
-    return final_df
+    return final_df, df_all_fte_imps
 
 def _null_handler(df: pd.DataFrame) -> pd.DataFrame:
 
@@ -149,7 +149,7 @@ def _build_timeseries(df: pd.DataFrame, index: Union[str, List[str]], cols: List
 def _apply_feature_selection(df_ftes: pd.DataFrame,
                             spine_labeled: pd.DataFrame,
                             train_test_cutoff_date: str,
-                            topN_features: int) -> List[str]:
+                            topN_features: int) -> Tuple[List[str], pd.DataFrame]:
 
     TARGET_COL = "label"
     df_ftes = df_ftes.dropna()
@@ -170,4 +170,10 @@ def _apply_feature_selection(df_ftes: pd.DataFrame,
     selector.fit_transform(X_train_ftes, y_train_ftes)
     cols_idx = selector.get_support(indices=True)
 
-    return X_train_ftes.iloc[:, cols_idx].columns.tolist()
+    # build dataframe with all feature scores
+    fte_imps = {}
+    for feature, score in zip(selector.feature_names_in_, selector.scores_):
+        fte_imps[feature] = score
+    df_fte_imps = pd.DataFrame({"features": fte_imps.keys(), "score": fte_imps.values()})
+
+    return X_train_ftes.iloc[:, cols_idx].columns.tolist(), df_fte_imps
