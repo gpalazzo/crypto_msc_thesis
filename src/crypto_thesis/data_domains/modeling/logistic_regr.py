@@ -30,8 +30,8 @@ def logistic_regr_model_fit(master_table: pd.DataFrame,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
 
-    solvers = ['newton-cg', 'lbfgs', 'liblinear']
-    penalty = ['l2']
+    solvers = ["newton-cg", "lbfgs", "liblinear"]
+    penalty = ["l2"]
     c_values = [100, 10, 1.0, 0.1, 0.01]
 
     grid = dict(solver=solvers, penalty=penalty, C=c_values)
