@@ -49,7 +49,7 @@ def binance_fte(binance_prm: pd.DataFrame,
         df_ts = _build_timeseries(df=df_ftes, index=["open_time", "close_time"], cols=[IDENTIFIER_COL])
 
         # last feature: only dependant on the window size, regardless of the amount of securities
-        df_ts.loc[:, "window_duration_sec"] = (end - start).seconds
+        df_ts.loc[:, "window_duration_sec"] = (end - start).total_seconds()
         final_df = pd.concat([final_df, df_ts])
 
     return final_df
