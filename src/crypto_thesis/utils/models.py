@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
+from xgboost import XGBClassifier
 
 
 def mt_split_train_test(master_table: pd.DataFrame,
@@ -33,3 +36,25 @@ def mt_split_train_test(master_table: pd.DataFrame,
     y_test = master_table_test[target_col]
 
     return X_train, y_train, X_test, y_test
+
+
+def optimize_params(model: Union[LogisticRegression, XGBClassifier],
+                    grid: Dict[str, Any],
+                    X_train: pd.DataFrame,
+                    y_train: pd.DataFrame,
+                    n_splits: int,
+                    n_repeats: int,
+                    random_state: int = 1,
+                    grid_search_scoring: str = "accuracy") -> Dict[str, str]:
+
+    cv = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
+    grid_search = GridSearchCV(estimator=model,
+                                param_grid=grid,
+                                n_jobs=-1,
+                                cv=cv,
+                                scoring=grid_search_scoring,
+                                error_score=0)
+
+    grid_result = grid_search.fit(X_train, y_train)
+
+    return grid_result

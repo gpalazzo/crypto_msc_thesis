@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from typing import Any, Dict, Tuple
 
 import pandas as pd
@@ -7,6 +8,8 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from xgboost import XGBClassifier
 
 from crypto_thesis.utils import mt_split_train_test
+
+logger = logging.getLogger(__name__)
 
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
@@ -24,7 +27,28 @@ def xgboost_model_fit(master_table: pd.DataFrame,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
 
-    model = XGBClassifier(**model_params)
+    # default parameter
+    default_params = {"use_label_encoder": False}
+    model = XGBClassifier(**default_params)
+
+    # params opt
+    # logger.info("Optimzing parameters")
+    # params_opt = optimize_params(model=model,
+    #                             grid=model_params,
+    #                             X_train=X_train,
+    #                             y_train=y_train,
+    #                             n_splits=10,
+    #                             n_repeats=3)
+
+    # model.set_params(**params_opt.best_params_)
+    model.set_params(**{'eval_metric': 'auc',
+                    'gamma': 0.5,
+                    'learning_rate': 0.01,
+                    'max_depth': 5,
+                    'min_child_weight': 5,
+                    'n_estimators': 500,
+                    'reg_lambda': 0.01,
+                    "use_label_encoder": False})
     model.fit(X_train, y_train)
 
     return model, X_train, y_train, X_test, y_test
