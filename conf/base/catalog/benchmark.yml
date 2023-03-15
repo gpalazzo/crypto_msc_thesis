@@ -1,9 +1,29 @@
-benchmark_pnl:
+benchmark_xgboost_pnl:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_pnl.parquet
+  filepath: data/08_reporting/benchmark_xgboost_pnl.parquet
   versioned: true
 
-benchmark_metrics:
+benchmark_xgboost_metrics:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_metrics.parquet
+  filepath: data/08_reporting/benchmark_xgboost_metrics.parquet
+  versioned: true
+
+benchmark_lstm_pnl:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/benchmark_lstm_pnl.parquet
+  versioned: true
+
+benchmark_lstm_metrics:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/benchmark_lstm_metrics.parquet
+  versioned: true
+
+benchmark_logreg_pnl:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/benchmark_logreg_pnl.parquet
+  versioned: true
+
+benchmark_logreg_metrics:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/benchmark_logreg_metrics.parquet
   versioned: true

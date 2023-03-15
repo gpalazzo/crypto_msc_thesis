@@ -2,7 +2,6 @@
 import math
 from typing import Union
 
-import numpy as np
 import pandas as pd
 import quantstats as qs
 
@@ -78,28 +77,12 @@ def _build_benchmark_pnl(df_top: pd.DataFrame,
 
 def _build_perf_metrics(df_pnl: pd.DataFrame):
 
-    # periods = 252 because the index only trades in biz days
-    sharpe = qs.stats.sharpe(returns=df_pnl["pctchg_pos"], periods=252, annualize=True)
-    profit_factor = qs.stats.profit_factor(returns=df_pnl["pctchg_pos"]) #profit factor = win/loss
-    sortino = qs.stats.sortino(returns=df_pnl["pctchg_pos"], periods=252, annualize=True)
     consecutive_wins = qs.stats.consecutive_wins(returns=df_pnl["pctchg_pos"])
     consecutive_losses = qs.stats.consecutive_losses(returns=df_pnl["pctchg_pos"])
-
-    max_drawdown = _get_max_drawdown(df=df_pnl)
     nominal_profit = df_pnl["op_full_profit"].sum()
 
-    df_metrics = pd.DataFrame({"annual_sharpe": sharpe,
-                            "profit_factor_pct": profit_factor,
-                            "nominal_profit": nominal_profit,
-                            "annual_sortino": sortino,
-                            "max_drawdown_pct": max_drawdown,
+    df_metrics = pd.DataFrame({"nominal_profit": nominal_profit,
                             "consecutive_wins": consecutive_wins,
                             "consecutive_losses": consecutive_losses}, index=[0])
 
     return df_metrics
-
-
-def _get_max_drawdown(df: pd.DataFrame) -> float:
-    df.loc[:, "logret_pos"] = np.log(1 + df["pctchg_pos"])
-    min_accum_value = df["logret_pos"].min()
-    return np.exp(min_accum_value) - 1

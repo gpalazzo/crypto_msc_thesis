@@ -18,7 +18,7 @@ TARGET_COL = ["label"]
 INDEX_COL = "window_nbr"
 
 
-def logistic_regr_model_fit(master_table: pd.DataFrame,
+def logreg_model_fit(master_table: pd.DataFrame,
                     train_test_cutoff_date: str,
                     # model_params: Dict[str, Any]
                     ) -> Tuple[LogisticRegression,
@@ -58,14 +58,14 @@ def logistic_regr_model_fit(master_table: pd.DataFrame,
     return model, X_train, y_train, X_test, y_test
 
 
-def logistic_regr_model_predict(model: LogisticRegression, X_test: pd.DataFrame) -> pd.DataFrame:
+def logreg_model_predict(model: LogisticRegression, X_test: pd.DataFrame) -> pd.DataFrame:
 
     idxs = X_test.index.tolist()
     y_pred = model.predict(X_test)
     return pd.DataFrame(data={"y_pred": y_pred}, index=idxs)
 
 
-def logistic_regr_model_reporting(model: LogisticRegression,
+def logreg_model_reporting(model: LogisticRegression,
                             X_test: pd.DataFrame,
                             y_test: pd.DataFrame,
                             y_pred: pd.DataFrame,

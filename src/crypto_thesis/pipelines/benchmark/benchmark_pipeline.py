@@ -13,9 +13,27 @@ def benchmark_pipeline():
                         "xgboost_model_predict",
                         "window_nbr_lookup_multic",
                         "params:portfolio_initial_money"],
-                outputs=["benchmark_pnl", "benchmark_metrics"],
-                name="run_benchmark_metrics",
+                outputs=["benchmark_xgboost_pnl", "benchmark_xgboost_metrics"],
+                name="run_benchmark_xgboost_metrics",
                 tags=["all_except_raw", "all_except_raw_prm"]),
+
+            node(func=build_benchmark_metrics,
+                inputs=["prm_manual_input",
+                        "lstm_model_predict",
+                        "window_nbr_lookup_multic",
+                        "params:portfolio_initial_money"],
+                outputs=["benchmark_lstm_pnl", "benchmark_lstm_metrics"],
+                name="run_benchmark_lstm_metrics",
+                tags=["all_except_raw", "all_except_raw_prm"]),
+
+            node(func=build_benchmark_metrics,
+                inputs=["prm_manual_input",
+                        "logreg_model_predict",
+                        "window_nbr_lookup_multic",
+                        "params:portfolio_initial_money"],
+                outputs=["benchmark_logreg_pnl", "benchmark_logreg_metrics"],
+                name="run_benchmark_logreg_metrics",
+                tags=["all_except_raw", "all_except_raw_prm"])
             ],
         tags=["benchmark_pipeline"]))
 
