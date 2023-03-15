@@ -1,47 +1,47 @@
-logistic_regr_fitted_model:
+logreg_fitted_model:
   type: pickle.PickleDataSet
-  filepath: data/06_models/${binance_data_interval}/logistic_regr/logistic_regr_fitted_model.pkl
+  filepath: data/06_models/${binance_data_interval}/logreg/logreg_fitted_model.pkl
   versioned: true
   backend: pickle
 
-logistic_regr_features_train:
+logreg_features_train:
   type: pandas.ParquetDataSet
-  filepath: data/06_models/${binance_data_interval}/logistic_regr/logistic_regr_features_train.parquet
+  filepath: data/06_models/${binance_data_interval}/logreg/logreg_features_train.parquet
   versioned: true
   save_args:
     index: True
 
-logistic_regr_target_train:
+logreg_target_train:
   type: pandas.ParquetDataSet
-  filepath: data/06_models/${binance_data_interval}/logistic_regr/logistic_regr_target_train.parquet
+  filepath: data/06_models/${binance_data_interval}/logreg/logreg_target_train.parquet
   versioned: true
   save_args:
     index: True
 
-logistic_regr_features_test:
+logreg_features_test:
   type: pandas.ParquetDataSet
-  filepath: data/06_models/${binance_data_interval}/logistic_regr/logistic_regr_features_test.parquet
+  filepath: data/06_models/${binance_data_interval}/logreg/logreg_features_test.parquet
   versioned: true
   save_args:
     index: True
 
-logistic_regr_target_test:
+logreg_target_test:
   type: pandas.ParquetDataSet
-  filepath: data/06_models/${binance_data_interval}/logistic_regr/logistic_regr_target_test.parquet
+  filepath: data/06_models/${binance_data_interval}/logreg/logreg_target_test.parquet
   versioned: true
   save_args:
     index: True
 
-logistic_regr_model_predict:
+logreg_model_predict:
   type: pandas.ParquetDataSet
-  filepath: data/07_model_output/${binance_data_interval}/logistic_regr/logistic_regr_model_predict.parquet
+  filepath: data/07_model_output/${binance_data_interval}/logreg/logreg_model_predict.parquet
   versioned: true
   save_args:
     index: True
 
-logistic_regr_model_reporting:
+logreg_model_reporting:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/${binance_data_interval}/logistic_regr/logistic_regr_model_reporting.parquet
+  filepath: data/08_reporting/${binance_data_interval}/logreg/logreg_model_reporting.parquet
   versioned: true
   save_args:
     index: True

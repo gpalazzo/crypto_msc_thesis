@@ -2,9 +2,9 @@
 from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.modeling import (
-    logistic_regr_model_fit,
-    logistic_regr_model_predict,
-    logistic_regr_model_reporting,
+    logreg_model_fit,
+    logreg_model_predict,
+    logreg_model_reporting,
     lstm_model_fit,
     lstm_model_predict,
     lstm_model_reporting,
@@ -91,29 +91,29 @@ def ml_models_pipeline():
         ],
         tags=["lstm_pipeline"]))
 
-    logistic_regr_pipeline = pipeline(
+    logreg_pipeline = pipeline(
         Pipeline([
-            node(func=logistic_regr_model_fit,
+            node(func=logreg_model_fit,
                 inputs=["master_table_nonmultic",
                         "params:train_test_cutoff_date"],
-                outputs=["logistic_regr_fitted_model",
-                        "logistic_regr_features_train", "logistic_regr_target_train",
-                        "logistic_regr_features_test", "logistic_regr_target_test"],
-                name="run_logistic_regr_fitting",
+                outputs=["logreg_fitted_model",
+                        "logreg_features_train", "logreg_target_train",
+                        "logreg_features_test", "logreg_target_test"],
+                name="run_logreg_fitting",
                 tags=["all_except_raw", "all_except_binance"])
 
-            , node(func=logistic_regr_model_predict,
-                inputs=["logistic_regr_fitted_model",
-                        "logistic_regr_features_test"],
-                outputs="logistic_regr_model_predict",
-                name="run_logistic_regr_predicting",
+            , node(func=logreg_model_predict,
+                inputs=["logreg_fitted_model",
+                        "logreg_features_test"],
+                outputs="logreg_model_predict",
+                name="run_logreg_predicting",
                 tags=["all_except_raw", "all_except_binance"])
 
-            , node(func=logistic_regr_model_reporting,
-                inputs=["logistic_regr_fitted_model",
-                        "logistic_regr_features_test",
-                        "logistic_regr_target_test",
-                        "logistic_regr_model_predict",
+            , node(func=logreg_model_reporting,
+                inputs=["logreg_fitted_model",
+                        "logreg_features_test",
+                        "logreg_target_test",
+                        "logreg_model_predict",
                         "master_table_nonmultic",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
@@ -121,10 +121,10 @@ def ml_models_pipeline():
                         "params:train_test_cutoff_date",
                         "params:slct_topN_features",
                         "params:min_years_existence"],
-                outputs="logistic_regr_model_reporting",
-                name="run_logistic_regr_reporting",
+                outputs="logreg_model_reporting",
+                name="run_logreg_reporting",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
-        tags=["logistic_regr_pipeline"]))
+        tags=["logreg_pipeline"]))
 
-    return xgboost_pipeline + lstm_pipeline + logistic_regr_pipeline
+    return xgboost_pipeline + lstm_pipeline + logreg_pipeline

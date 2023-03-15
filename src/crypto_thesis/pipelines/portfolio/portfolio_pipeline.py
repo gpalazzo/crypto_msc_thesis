@@ -29,13 +29,13 @@ def portfolio_pipeline():
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
 
             , node(func=build_portfolio_metrics,
-                inputs=["logistic_regr_model_predict",
+                inputs=["logreg_model_predict",
                         "window_nbr_lookup_nonmultic",
                         "prm_binance",
                         "params:spine_preprocessing.target_name",
                         "params:portfolio_initial_money"],
-                outputs=["logistic_regr_portfolio_pnl", "logistic_regr_portfolio_metrics"],
-                name="run_logistic_regr_portfolio_metrics",
+                outputs=["logreg_portfolio_pnl", "logreg_portfolio_metrics"],
+                name="run_logreg_portfolio_metrics",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["portfolio_pipeline"]))
