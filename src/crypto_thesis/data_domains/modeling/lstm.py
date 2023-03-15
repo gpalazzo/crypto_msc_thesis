@@ -53,14 +53,14 @@ def lstm_model_fit(master_table: pd.DataFrame,
                                                                         seq_length=seq_length)
 
     # parameters
-    LAYERS = [10, 10, 10, 1] #[10, 10, 10, 1]                # number of units in hidden and output layers
+    LAYERS = [20, 20, 20, 1] #[10, 10, 10, 1]                # number of units in hidden and output layers
     M_TRAIN = X_train_scaled_seq.shape[0]           # number of training examples (2D)
     M_TEST = X_test_scaled_seq.shape[0]             # number of test examples (2D),full=X_test.shape[0]
     N = X_train_scaled_seq.shape[2]                 # number of features
     BATCH = M_TRAIN                          # batch size
-    EPOCH = 100 #100                   # number of epochs
+    EPOCH = 1000 #100                   # number of epochs
     LR = 0.0005 #0.0005                            # learning rate of the gradient descent
-    LAMBD = 0.001 #0.001                         # lambda in L2 regularizaion
+    LAMBD = 0.005 #0.001                         # lambda in L2 regularizaion
     DP = 0.0 #0.0                             # dropout rate
     RDP = 0.0 #0.0                            # recurrent dropout rate
 
@@ -160,7 +160,6 @@ def lstm_model_predict(model: Sequential,
     M_TEST = X_test_scaled_seq.shape[0]
 
     predict_probas = model.predict(x=X_test_scaled_seq, batch_size=M_TEST, verbose=1)
-    logger.info(f"********** Min and Max probas:\n{predict_probas.min(), predict_probas.max()}")
 
     y_pred = []
     for predict_proba in predict_probas:
@@ -168,7 +167,6 @@ def lstm_model_predict(model: Sequential,
             y_pred.append(1)
         else:
             y_pred.append(0)
-    logger.info(f"********** Class balance prediction:\n{pd.Series(y_pred).value_counts()}")
 
     return pd.DataFrame(data={"y_pred": y_pred}, index=idxs)
 
