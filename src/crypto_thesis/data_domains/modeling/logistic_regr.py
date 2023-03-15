@@ -30,11 +30,22 @@ def logistic_regr_model_fit(master_table: pd.DataFrame,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
 
-    solvers = ["newton-cg", "lbfgs", "liblinear"]
-    penalty = ["l2"]
-    c_values = [100, 10, 1.0, 0.1, 0.01]
+    solvers = [
+        "saga"
+        ]
+    penalty = [
+        "l1",
+        "l2",
+        "elasticnet"]
+    tols = [0.0001, 0.0005, 0.001]
+    c_values = [100, 10, 1.0, 0.1]
+    max_iters = [100, 150]
 
-    grid = dict(solver=solvers, penalty=penalty, C=c_values)
+    grid = dict(solver=solvers,
+                penalty=penalty,
+                C=c_values,
+                tol=tols,
+                max_iter=max_iters)
 
     model = LogisticRegression()
     cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)

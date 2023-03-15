@@ -10,4 +10,4 @@ spine_preprocessing:
 # the number vary from 0 to infinity (but numbers greater than 3 doesn't make a lot of sense due
 #   to normal distribution assumptions)
 spine_labeling:
-  tau: 0.05
+  tau: 1.0
