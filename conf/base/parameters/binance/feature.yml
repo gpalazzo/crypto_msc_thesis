@@ -2,4 +2,4 @@
 slct_topN_features: 30
 
 # define VIF threshold
-vif_threshold: 10
+vif_threshold: 15
