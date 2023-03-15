@@ -31,12 +31,14 @@ def logreg_model_fit(master_table: pd.DataFrame,
                                                             target_col=TARGET_COL)
 
     solvers = [
+        "newton-cg",
         "saga"
         ]
     penalty = [
         "l1",
         "l2",
-        "elasticnet"]
+        # "elasticnet"
+        ]
     tols = [0.0001, 0.0005, 0.001]
     c_values = [100, 10, 1.0, 0.1]
     max_iters = [100, 150]
@@ -62,6 +64,7 @@ def logreg_model_predict(model: LogisticRegression, X_test: pd.DataFrame) -> pd.
 
     idxs = X_test.index.tolist()
     y_pred = model.predict(X_test)
+
     return pd.DataFrame(data={"y_pred": y_pred}, index=idxs)
 
 
