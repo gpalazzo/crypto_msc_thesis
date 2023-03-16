@@ -3,34 +3,11 @@ logreg_default_params:
   n_jobs: -1
 
 logreg_model_params:
-  solver: "liblinear"
-    # - "newton-cg"
-    # - "saga"
-    # - "liblinear"
-    # - "lbfgs"
-    # - "newton-cholesky"
-  penalty: "l1"
-    # - "l1"
-    # - "l2"
-    # - "elasticnet"
+  solver: "saga"
+  penalty: "elasticnet"
   tol: 0.001
-    # - 0.0001
-    # - 0.0005
-    # - 0.001
-    # - 0.01
   C: 1.0
-    # - 100.0
-    # - 10.0
-    # - 1.0
-    # - 0.1
-    # - 0.001
   max_iter: 100
-    # - 100
-    # - 150
-    # - 300
   fit_intercept: true
-    # - true
-    # - false
   class_weight: "balanced"
-    # - null
-    # - "balanced"
+  l1_ratio: 0.1
