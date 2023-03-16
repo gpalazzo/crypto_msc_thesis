@@ -1,4 +1,4 @@
-xgboost_optimize_params: false
+xgboost_optimize_params: true
 xgboost_default_params:
   n_jobs: -1
   use_label_encoder: false
@@ -7,7 +7,7 @@ xgboost_model_params:
   eval_metric: "auc"
     # - "auc"
     # - "error"
-  # n_estimators: # 500
+  n_estimators: 500
     # - 500
     # - 1000
     # - 1500
@@ -16,8 +16,12 @@ xgboost_model_params:
     # - 5
     # - 6
     # - 10
-  # reg_lambda: # 0.01
+  reg_lambda: 0.05
+    # - 0.001
     # - 0.01
+    # - 0.05
+    # - 0.1
+    # - 0.5
   gamma: 0.01
     # - 0.01
     # - 0.1
