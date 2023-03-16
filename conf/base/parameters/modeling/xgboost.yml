@@ -1,51 +1,68 @@
-xgboost_optimize_params: true
+xgboost_optimize_params: false
 xgboost_default_params:
   n_jobs: -1
   use_label_encoder: false
 
+# parameters not being considered so far:
+# max_delta_step, colsample_bylevel, colsample_bynode, reg_alpha, scale_pos_weight, updater
+# refresh_leaf, process_type, grow_policy, max_leaves, max_bin, predictor, num_parallel_tree
+# monotone_constraints, interaction_constraints
+
 xgboost_model_params:
-  eval_metric: "auc"
-    # - "auc"
+  eval_metric: # "auc"
+    - "auc"
     # - "error"
-  n_estimators: 500
-    # - 500
-    # - 1000
-    # - 1500
-  max_depth: 3
-    # - 3
-    # - 5
-    # - 6
-    # - 10
-  reg_lambda: 0.05
-    # - 0.001
-    # - 0.01
-    # - 0.05
-    # - 0.1
-    # - 0.5
-  gamma: 0.01
-    # - 0.01
-    # - 0.1
-    # - 0.5
-    # - 1.0
-  min_child_weight: 2
-    # - 1
-    # - 2
-    # - 5
-    # - 7
-    # - 10
-  learning_rate: 0.05
-    # - 0.01
-    # - 0.05
-    # - 0.1
-    # - 0.2
-  subsample: 0.7
-    # - 0.5
-    # - 0.7
-    # - 1.0
-  colsample_bytree: 0.5
-    # - 0.5
-    # - 0.7
-    # - 1.0
-  objective: "binary:logistic"
-    # - "reg:squarederror"
-    # - "binary:logistic"
+  n_estimators: # 500
+    - 500
+    - 1000
+    - 1500
+  max_depth: # 3
+    - 2
+    - 3
+    - 5
+    - 6
+  reg_lambda: # 0.05
+    - 0.05
+    - 0.7
+    - 1.0
+    - 1.5
+    - 5.0
+  gamma: # 0.01
+    - 0.01
+    - 0.1
+    - 1.0
+    - 5.0
+    - 10.0
+  min_child_weight: # 2
+    - 0.01
+    - 0.1
+    - 1.0
+    - 2.0
+  learning_rate: # 0.05
+    - 0.05
+    - 0.3
+    - 0.5
+    - 0.7
+    - 0.9
+  subsample: # 0.7
+    - 0.1
+    - 0.5
+    - 0.7
+    - 0.9
+    - 1.0
+  colsample_bytree: # 0.5
+    - 0.1
+    - 0.5
+    - 0.7
+    - 0.9
+    - 1.0
+  objective: # "binary:logistic"
+    - "reg:squarederror"
+    - "binary:logistic"
+  sampling_method: # "uniform"
+    - "uniform"
+    - "gradient_based"
+  tree_method: # "auto"
+    - "auto"
+    # - "approx"
+    # - "hist"
