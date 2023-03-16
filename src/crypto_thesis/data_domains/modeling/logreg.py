@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import math
 import warnings
 from typing import Any, Dict, Tuple
@@ -7,10 +8,10 @@ from typing import Any, Dict, Tuple
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 
-from crypto_thesis.utils import mt_split_train_test
+from crypto_thesis.utils import mt_split_train_test, optimize_params
 
+logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore")
 
 TARGET_COL = ["label"]
@@ -20,7 +21,9 @@ INDEX_COL = "window_nbr"
 
 def logreg_model_fit(master_table: pd.DataFrame,
                     train_test_cutoff_date: str,
-                    # model_params: Dict[str, Any]
+                    model_params: Dict[str, Any],
+                    logreg_optimize_params: bool,
+                    logreg_default_params: Dict[str, Any]
                     ) -> Tuple[LogisticRegression,
                                 pd.DataFrame, pd.DataFrame,
                                 pd.DataFrame, pd.DataFrame]:
@@ -30,34 +33,29 @@ def logreg_model_fit(master_table: pd.DataFrame,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
 
-    solvers = [
-        "newton-cg",
-        "saga"
-        ]
-    penalty = [
-        "l1",
-        "l2",
-        # "elasticnet"
-        ]
-    tols = [0.0001, 0.0005, 0.001]
-    c_values = [100, 10, 1.0, 0.1]
-    max_iters = [100, 150]
+    model = LogisticRegression(**logreg_default_params)
 
-    grid = dict(solver=solvers,
-                penalty=penalty,
-                C=c_values,
-                tol=tols,
-                max_iter=max_iters)
+    if logreg_optimize_params:
+        # params opt
+        logger.info("Optimzing parameters")
+        params_opt = optimize_params(model=model,
+                                    grid=model_params,
+                                    X_train=X_train,
+                                    y_train=y_train,
+                                    n_splits=10,
+                                    n_repeats=3)
+        params_opt = params_opt.best_params_
 
-    model = LogisticRegression()
-    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
-    grid_search = GridSearchCV(estimator=model, param_grid=grid, n_jobs=-1, cv=cv, scoring='accuracy',error_score=0)
-    grid_result = grid_search.fit(X_train, y_train)
+    else:
+        params_opt = model_params.copy()
 
-    model.set_params(**grid_result.best_params_)
+    params_opt.update(logreg_default_params)
+    model.set_params(**params_opt)
     model.fit(X_train, y_train)
 
-    return model, X_train, y_train, X_test, y_test
+    df_params_opt = pd.DataFrame(params_opt, index=[0])
+
+    return model, df_params_opt, X_train, y_train, X_test, y_test
 
 
 def logreg_model_predict(model: LogisticRegression, X_test: pd.DataFrame) -> pd.DataFrame:

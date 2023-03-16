@@ -95,8 +95,11 @@ def ml_models_pipeline():
         Pipeline([
             node(func=logreg_model_fit,
                 inputs=["master_table_nonmultic",
-                        "params:train_test_cutoff_date"],
-                outputs=["logreg_fitted_model",
+                        "params:train_test_cutoff_date",
+                        "params:logreg_model_params",
+                        "params:logreg_optimize_params",
+                        "params:logreg_default_params"],
+                outputs=["logreg_fitted_model", "logreg_optimized_params",
                         "logreg_features_train", "logreg_target_train",
                         "logreg_features_test", "logreg_target_test"],
                 name="run_logreg_fitting",

@@ -4,6 +4,11 @@ logreg_fitted_model:
   versioned: true
   backend: pickle
 
+logreg_optimized_params:
+  type: pandas.ParquetDataSet
+  filepath: data/06_models/${binance_data_interval}/logreg/logreg_optimized_params.parquet
+  versioned: true
+
 logreg_features_train:
   type: pandas.ParquetDataSet
   filepath: data/06_models/${binance_data_interval}/logreg/logreg_features_train.parquet
