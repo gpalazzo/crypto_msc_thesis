@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix
 from xgboost import XGBClassifier
 
-from crypto_thesis.utils import mt_split_train_test
+from crypto_thesis.utils import mt_split_train_test, optimize_params
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,9 @@ INDEX_COL = "window_nbr"
 
 def xgboost_model_fit(master_table: pd.DataFrame,
                     train_test_cutoff_date: str,
-                    model_params: Dict[str, Any]) -> Tuple[XGBClassifier,
+                    model_params: Dict[str, Any],
+                    xgboost_optimize_params: bool,
+                    xgboost_default_params: Dict[str, Any]) -> Tuple[XGBClassifier,
                                                         pd.DataFrame, pd.DataFrame,
                                                         pd.DataFrame, pd.DataFrame]:
 
@@ -28,30 +30,29 @@ def xgboost_model_fit(master_table: pd.DataFrame,
                                                             target_col=TARGET_COL)
 
     # default parameter
-    default_params = {"use_label_encoder": False}
-    model = XGBClassifier(**default_params)
+    model = XGBClassifier(**xgboost_default_params)
 
-    # params opt
-    # logger.info("Optimzing parameters")
-    # params_opt = optimize_params(model=model,
-    #                             grid=model_params,
-    #                             X_train=X_train,
-    #                             y_train=y_train,
-    #                             n_splits=10,
-    #                             n_repeats=3)
+    if xgboost_optimize_params:
+        # params opt
+        logger.info("Optimzing parameters")
+        params_opt = optimize_params(model=model,
+                                    grid=model_params,
+                                    X_train=X_train,
+                                    y_train=y_train,
+                                    n_splits=10,
+                                    n_repeats=3)
+        params_opt = params_opt.best_params_
 
-    # model.set_params(**params_opt.best_params_)
-    model.set_params(**{'eval_metric': 'auc',
-                    'gamma': 0.5,
-                    'learning_rate': 0.01,
-                    'max_depth': 5,
-                    'min_child_weight': 5,
-                    'n_estimators': 500,
-                    'reg_lambda': 0.01,
-                    "use_label_encoder": False})
-    model.fit(X_train, y_train)
+    else:
+        params_opt = model_params.copy()
 
-    return model, X_train, y_train, X_test, y_test
+    params_opt.update(xgboost_default_params)
+    model.set_params(**params_opt)
+    model.fit(X=X_train, y=y_train)
+
+    df_params_opt = pd.DataFrame(params_opt, index=[0])
+
+    return model, df_params_opt, X_train, y_train, X_test, y_test
 
 
 def xgboost_model_predict(model: XGBClassifier, X_test: pd.DataFrame) -> pd.DataFrame:
