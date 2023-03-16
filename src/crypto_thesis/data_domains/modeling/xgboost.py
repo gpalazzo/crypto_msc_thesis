@@ -34,7 +34,7 @@ def xgboost_model_fit(master_table: pd.DataFrame,
 
     if xgboost_optimize_params:
         # params opt
-        logger.info("Optimzing parameters")
+        logger.info("Optimizing parameters")
         params_opt = optimize_params(model=model,
                                     grid=model_params,
                                     X_train=X_train,
