@@ -19,7 +19,10 @@ def spine_pipeline():
                 tags=["all_except_raw", "all_except_binance"]),
 
             node(func=spine_build_target_labels,
-                inputs=["spine_preprocessing", "spine_log_ret", "params:spine_labeling"],
+                inputs=["spine_preprocessing",
+                        "spine_log_ret",
+                        "params:spine_labeling",
+                        "params:spine_class_bounds"],
                 outputs="spine_labeled",
                 name="run_spine_label",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])

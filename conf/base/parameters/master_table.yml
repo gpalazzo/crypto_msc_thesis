@@ -1,5 +1,0 @@
-# lower and upper bounds for class balance
-# if any label is outside this range, then target is unbalanced
-class_bounds:
-  lower: 0.45 #percent
-  upper: 0.55 #percent
