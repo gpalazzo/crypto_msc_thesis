@@ -11,3 +11,9 @@ spine_preprocessing:
 #   to normal distribution assumptions)
 spine_labeling:
   tau: 0.35
+
+# lower and upper bounds for class balance
+# if any label is outside this range, then target is unbalanced
+spine_class_bounds:
+  lower: 0.45 #percent
+  upper: 0.55 #percent
