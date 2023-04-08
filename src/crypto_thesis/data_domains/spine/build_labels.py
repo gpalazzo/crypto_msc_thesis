@@ -25,17 +25,19 @@ def spine_build_target_labels(df: pd.DataFrame,
     # build log return between close_time price and target_time price
     final_df.loc[:, "close_to_tgt_time_logret"] = np.log(final_df["target_time_close"] \
                                                             / final_df["close_time_close"])
+    # transform log rets into percent change
+    final_df[["pctchg_cumsum", "close_to_tgt_time_pctchg"]] = final_df[["logret_cumsum", "close_to_tgt_time_logret"]].applymap(lambda row: np.exp(row) - 1)
 
     # by construction, every time the `close_to_tgt_time_logret` is negative, it means the price in
     # target_time is lower than close_time, so it's automatically a bottom label
     final_df = final_df.reset_index(drop=True)
-    final_df_neg = final_df[final_df["close_to_tgt_time_logret"] < 0.0]
+    final_df_neg = final_df[final_df["close_to_tgt_time_pctchg"] < 0.0]
     final_df_neg.loc[:, "label"] = "bottom"
     final_df_pos = final_df.drop(final_df_neg.index)
 
     final_df_pos.loc[:, "label"] = final_df_pos.apply(lambda col: "top" \
-                                                if col["close_to_tgt_time_logret"] >= \
-                                                    col["logret_cumsum"] + col["std"] * label_params["tau"] \
+                                                if col["close_to_tgt_time_pctchg"] >= \
+                                                    col["pctchg_cumsum"] + col["std"] * label_params["tau"] \
                                                 else "bottom" \
                                             , axis=1)
 
@@ -56,7 +58,7 @@ def _build_stdev_by_window(df: pd.DataFrame, df_log_ret: pd.DataFrame) -> pd.Dat
     for start, end in zip(df["open_time"], df["close_time"]):
         df_filter = df_log_ret[df_log_ret["close_time"].between(start, end)]
 
-        _std = df_filter["log_return"].std(ddof=1) #sampled stdev
+        _std = df_filter["pctchg"].std(ddof=1) #sampled stdev
         df_aux = pd.DataFrame({"open_time": start, "close_time": end, "std": _std}, index=[0])
 
         std_df = pd.concat([std_df, df_aux])

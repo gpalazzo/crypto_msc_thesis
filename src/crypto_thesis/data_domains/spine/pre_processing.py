@@ -31,9 +31,10 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
         raise RuntimeError("Specified volume bar size isn't correct, please review.")
 
     preproc_df = preproc_df.sort_values(by="close_time").reset_index(drop=True)
+    preproc_df.loc[:, "pctchg"] = preproc_df["close"].pct_change()
     df_log_ret = build_log_return(df=preproc_df)
     # fill first null data point with 0 to avoid having NaN at first volume window
-    df_log_ret.loc[:, "log_return"] = df_log_ret["log_return"].fillna(0)
+    df_log_ret.loc[:, ["pctchg", "log_return"]] = df_log_ret[["pctchg", "log_return"]].fillna(0)
 
     # TODO: should the log return in each window open_time start with 0? This way we would treat
     # each window as a new entity without any relation to data outside the window range
@@ -50,7 +51,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
 
     assert df_tgt_px.shape[0] == df.shape[0], "Data loss when joining to get close_time price, review."
 
-    return df_tgt_px, df_log_ret[["close_time", "log_return"]]
+    return df_tgt_px, df_log_ret[["close_time", "pctchg"]]
 
 
 def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int, float]) -> pd.DataFrame:
