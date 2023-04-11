@@ -30,7 +30,10 @@ def binance_fte(binance_prm: pd.DataFrame,
     binance_prm = binance_prm.sort_values(by=[IDENTIFIER_COL, "open_time"])
 
     df_log_ret = binance_prm.groupby(IDENTIFIER_COL).apply(build_log_return)
-    df_log_ret = df_log_ret[["open_time", IDENTIFIER_COL, "log_return", "volume"]]
+    df_log_ret.loc[:, "pctchg"] = df_log_ret \
+                                    .groupby(IDENTIFIER_COL)["log_return"] \
+                                    .apply(lambda row: np.exp(row) - 1)
+    df_log_ret = df_log_ret[["open_time", IDENTIFIER_COL, "pctchg", "log_return", "volume"]]
 
     # accumulate data within the volume bar window
     for start, end in zip(spine_labeled["open_time"], spine_labeled["close_time"]):
@@ -57,7 +60,7 @@ def binance_fte(binance_prm: pd.DataFrame,
 
 def _null_handler(df: pd.DataFrame) -> pd.DataFrame:
 
-    df.loc[:, "log_return"] = df["log_return"].fillna(0)
+    df.loc[:, ["pctchg", "log_return"]] = df[["pctchg", "log_return"]].fillna(0)
     assert df.isna().sum().sum() == 0, "There are null values even after null handling, review."
 
     return df
@@ -99,6 +102,11 @@ def _build_agg_ftes(df: pd.DataFrame,
     df_agg_ftes = reduce(lambda left, right: pd.merge(left, right, on=IDENTIFIER_COL, how="inner"), dfs_agg)
     df_agg_ftes.loc[:, ["open_time", "close_time"]] = [window_start, window_end]
 
+    # adjust columns to add pctchg and remove logret
+    df_agg_ftes.loc[:, "pctchg_accum"] = np.exp(df_agg_ftes["log_return_accum"]) - 1
+    _cols = [col for col in df_agg_ftes.columns if col.startswith("log_return_")]
+    df_agg_ftes = df_agg_ftes.drop(columns=_cols)
+
     return df_agg_ftes
 
 
@@ -107,7 +115,7 @@ def _build_business_ftes(df: pd.DataFrame,
                         window_end: pd.Timestamp) -> pd.DataFrame:
 
     def __get_last_zscore(df: pd.DataFrame) -> float:
-        df.loc[:, "zscore"] = df.groupby(IDENTIFIER_COL)["log_return"].transform(lambda x:
+        df.loc[:, "zscore"] = df.groupby(IDENTIFIER_COL)["pctchg"].transform(lambda x:
                                                                     stats.zscore(x,
                                                                         axis=0,
                                                                         ddof=1,

@@ -32,7 +32,6 @@ def logreg_model_fit(master_table: pd.DataFrame,
                                                             index_col=INDEX_COL,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
-
     model = LogisticRegression(**logreg_default_params)
 
     if logreg_optimize_params:

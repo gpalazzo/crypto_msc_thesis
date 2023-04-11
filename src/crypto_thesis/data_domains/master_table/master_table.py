@@ -11,15 +11,19 @@ def build_master_table(fte_df: pd.DataFrame,
 
     master_table_dropped = master_table.dropna()
 
-    # drop useless columns (they're in spine layer if any troubleshooting needed)
-    master_table_dropped = master_table_dropped.drop(columns=["target_time_log_return", "std"])
     master_table_numbered = _build_window_numbers(df=master_table_dropped)
-
     window_nbr_lookup = master_table_numbered[["window_nbr", "open_time", "close_time", "target_time"]]
-    master_table_numbered = master_table_numbered.drop(columns=["open_time", "target_time",
-                                                        "target_time_close", "close_time_close",
-                                                        "close_to_tgt_time_logret", "logret_cumsum"])
-
+    # drop useless columns (they're in spine layer if any troubleshooting needed)
+    master_table_numbered = master_table_numbered.drop(columns=["target_time_log_return",
+                                                                "std",
+                                                                "logret_cumsum",
+                                                                "target_time_close",
+                                                                "close_time_close",
+                                                                "close_to_tgt_time_logret",
+                                                                "pctchg_cumsum",
+                                                                "close_to_tgt_time_pctchg",
+                                                                "open_time",
+                                                                "target_time"])
     _check_master_table_quality(df=master_table_numbered)
 
     return master_table_numbered, window_nbr_lookup

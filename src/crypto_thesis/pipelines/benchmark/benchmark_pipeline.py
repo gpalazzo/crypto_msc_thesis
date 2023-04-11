@@ -29,7 +29,7 @@ def benchmark_pipeline():
             node(func=build_benchmark_metrics,
                 inputs=["prm_manual_input",
                         "logreg_model_predict",
-                        "window_nbr_lookup_multic",
+                        "window_nbr_lookup_nonmultic",
                         "params:portfolio_initial_money"],
                 outputs=["benchmark_logreg_pnl", "benchmark_logreg_metrics"],
                 name="run_benchmark_logreg_metrics",
