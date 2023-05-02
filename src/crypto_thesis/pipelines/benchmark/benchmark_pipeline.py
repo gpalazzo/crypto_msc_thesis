@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from kedro.pipeline import Pipeline, node, pipeline
-
-from crypto_thesis.data_domains.benchmark import build_benchmark_metrics, buy_and_hold_strategy
+from crypto_thesis.data_domains.benchmark import build_benchmark_metrics, buy_and_hold_strategy, trend_following_strategy
+from crypto_thesis.data_domains.portfolio import build_portfolio_metrics
 
 
 def benchmark_pipeline():
@@ -14,17 +14,28 @@ def benchmark_pipeline():
                         "params:spine_preprocessing.target_name"],
                 outputs="benchmark_buyhold_strat",
                 name="run_benchmark_buyhold_strat",
+                tags=["all_except_raw", "all_except_raw_prm"]),
+
+            node(func=trend_following_strategy,
+                inputs=["spine_preprocessing",
+                        "window_nbr_lookup_multic"],
+                outputs="benchmark_trendfollowing_strat",
+                name="run_benchmark_trendfollowing_strat",
                 tags=["all_except_raw", "all_except_raw_prm"])
             ],
         tags=["benchmark_strategies_pipeline"]))
 
     _benchmark_metrics = pipeline(
+        # buy and hold strategy doesn't have calculated metrics here, only in the notebook
         Pipeline([
-            node(func=build_benchmark_metrics,
-                inputs=["benchmark_buyhold_strat",
+            node(func=build_portfolio_metrics,
+                inputs=["benchmark_trendfollowing_strat",
+                        "window_nbr_lookup_multic",
+                        "prm_binance",
+                        "params:spine_preprocessing.target_name",
                         "params:portfolio_initial_money"],
-                outputs=["benchmark_buyhold_pnl", "benchmark_buyhold_metrics"],
-                name="run_benchmark_buyhold_portfolio",
+                outputs=["benchmark_trendfollowing_pnl", "benchmark_trendfollowing_metrics"],
+                name="run_benchmark_trendfollowing_portfolio",
                 tags=["all_except_raw", "all_except_raw_prm"])
             ],
         tags=["benchmark_metrics_pipeline"]))

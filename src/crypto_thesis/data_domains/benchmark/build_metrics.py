@@ -7,13 +7,15 @@ import quantstats as qs
 
 
 def build_benchmark_metrics(
-                df_benchmark: pd.DataFrame,
-                portfolio_initial_money: Union[int, float]) -> pd.DataFrame:
+        df_benchmark: pd.DataFrame,
+        portfolio_initial_money: Union[int, float]) -> pd.DataFrame:
 
     df_pnl = _build_benchmark_pnl(prices_df=df_benchmark,
                                 portfolio_initial_money=portfolio_initial_money)
 
     df_perf_metr = _build_perf_metrics(df_pnl=df_pnl)
+
+    breakpoint()
 
     return df_pnl, df_perf_metr
 
@@ -24,31 +26,23 @@ def _build_benchmark_pnl(prices_df: pd.DataFrame,
     and collect the benchmark prices. Then let's assume each subsequential is a target time
     """
 
-    prices_df = prices_df.drop(columns=["pctchg", "log_return"])
-    prices_df = prices_df.rename(columns={"date": "close_time", "close_px": "close_time_price"})
     prices_df = prices_df.sort_values(by="close_time").reset_index(drop=True)
-
-    prices_df.loc[:, "target_time"] = prices_df["close_time"].shift(-1)
-    prices_df.loc[:, "target_time_price"] = prices_df["close_time_price"].shift(-1)
-    prices_df = prices_df.dropna()
-
-    prices_df.loc[:, "op_unit_profit"] = prices_df["target_time_price"] - \
-                                                 prices_df["close_time_price"]
+    prices_df.loc[:, "op_unit_profit"] = prices_df["target_px"] - prices_df["close_px"]
 
     for i, row in prices_df.iterrows():
         if i == 0: #first trade
-            prices_df.loc[i:i, "stock_qty"] = math.floor(portfolio_initial_money / row.close_time_price)
+            prices_df.loc[i:i, "stock_qty"] = math.floor(portfolio_initial_money / row.close_px)
             prices_df.loc[i:i, "op_full_profit"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["op_unit_profit"]
-            prices_df.loc[i:i, "buy_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["close_time_price"]
-            prices_df.loc[i:i, "sell_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["target_time_price"]
+            prices_df.loc[i:i, "buy_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["close_px"]
+            prices_df.loc[i:i, "sell_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["target_px"]
             prices_df.loc[i:i, "residual_value"] = portfolio_initial_money - prices_df.iloc[i]["buy_nominal_pos"]
             prices_df.loc[i:i, "pctchg_pos"] = prices_df.iloc[i]["sell_nominal_pos"] / prices_df.iloc[i]["buy_nominal_pos"] - 1
         else:
             _total_curr_money = prices_df.iloc[i-1].sell_nominal_pos + prices_df.iloc[i-1].residual_value
-            prices_df.loc[i:i, "stock_qty"] = math.floor(_total_curr_money / row.close_time_price)
+            prices_df.loc[i:i, "stock_qty"] = math.floor(_total_curr_money / row.close_px)
             prices_df.loc[i:i, "op_full_profit"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["op_unit_profit"]
-            prices_df.loc[i:i, "buy_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["close_time_price"]
-            prices_df.loc[i:i, "sell_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["target_time_price"]
+            prices_df.loc[i:i, "buy_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["close_px"]
+            prices_df.loc[i:i, "sell_nominal_pos"] = prices_df.iloc[i]["stock_qty"] * prices_df.iloc[i]["target_px"]
             prices_df.loc[i:i, "residual_value"] = _total_curr_money - prices_df.iloc[i]["buy_nominal_pos"]
             prices_df.loc[i:i, "pctchg_pos"] = prices_df.iloc[i]["sell_nominal_pos"] / prices_df.iloc[i]["buy_nominal_pos"] - 1
 

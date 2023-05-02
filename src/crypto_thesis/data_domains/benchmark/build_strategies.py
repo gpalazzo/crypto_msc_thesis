@@ -23,3 +23,29 @@ def buy_and_hold_strategy(df_window_nbr: pd.DataFrame,
                         .rename(columns={"open_time": "date", "close": "close_px"})
 
     return df_trades
+
+
+def trend_following_strategy(spine_preproc: pd.DataFrame,
+                             df_window_nbr: pd.DataFrame) -> pd.DataFrame:
+    
+    spine_preproc = spine_preproc[["open_time", "close_time", "close_time_close"]] \
+                                .rename(columns={"close_time_close": "close_px"})
+    
+    spine_preproc.loc[:, "prev2_close_px"] = spine_preproc["close_px"].shift(2)
+    spine_preproc.loc[:, "prev_close_px"] = spine_preproc["close_px"].shift()
+    df_drop = spine_preproc.dropna() #drop first data point due to shift null
+    assert df_drop.shape[0] == spine_preproc.shape[0] - 2, "More than 2 data points were dropped, review"
+
+    df_drop.loc[:, "y_pred"] = df_drop.apply(lambda col: 1 \
+                                            if col["prev2_close_px"] <= col["prev_close_px"] <= col["close_px"] \
+                                            else 0 \
+                                        , axis=1)
+
+    df = df_drop.merge(df_window_nbr, 
+                             on=["open_time", "close_time"], 
+                             how="inner")
+    assert df.shape[0] == df_window_nbr.shape[0], "Mismatch between spine preproc and window numbers"
+
+    df = df.set_index("window_nbr")[["y_pred"]]
+
+    return df
