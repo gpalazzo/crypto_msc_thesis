@@ -23,12 +23,13 @@ def benchmark_pipeline():
                 name="run_benchmark_trendfollowing_strat",
                 tags=["all_except_raw", "all_except_raw_prm"]),
 
-            node(func=pc1_index_strategy,
-                inputs=["window_nbr_lookup_multic",
-                        "prm_binance"],
-                outputs="benchmark_pc1_index_strat",
-                name="run_benchmark_pc1_index_strat",
-                tags=["all_except_raw", "all_except_raw_prm"])
+            # ******* WORK IN PROGRESS *******
+            # node(func=pc1_index_strategy,
+            #     inputs=["window_nbr_lookup_multic",
+            #             "prm_binance"],
+            #     outputs="benchmark_pc1_index_strat",
+            #     name="run_benchmark_pc1_index_strat",
+            #     tags=["all_except_raw", "all_except_raw_prm"])
             ],
         tags=["benchmark_strategies_pipeline"]))
 
