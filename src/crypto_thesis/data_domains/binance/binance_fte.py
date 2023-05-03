@@ -2,13 +2,13 @@
 import logging
 import warnings
 from functools import reduce
-from typing import Dict, List, Union
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-from crypto_thesis.utils import build_log_return
+from crypto_thesis.utils import build_log_return, build_timeseries
 
 warnings.filterwarnings("ignore")
 
@@ -49,7 +49,7 @@ def binance_fte(binance_prm: pd.DataFrame,
                                                     how="inner"),
                     [df_agg, df_biz_fte])
 
-        df_ts = _build_timeseries(df=df_ftes, index=["open_time", "close_time"], cols=[IDENTIFIER_COL])
+        df_ts = build_timeseries(df=df_ftes, index=["open_time", "close_time"], cols=[IDENTIFIER_COL])
 
         # last feature: only dependant on the window size, regardless of the amount of securities
         df_ts.loc[:, "window_duration_sec"] = (end - start).total_seconds()
@@ -131,14 +131,3 @@ def _build_business_ftes(df: pd.DataFrame,
     df_zscore.loc[:, ["open_time", "close_time"]] = [window_start, window_end]
 
     return df_zscore
-
-
-def _build_timeseries(df: pd.DataFrame, index: Union[str, List[str]], cols: List[str]) -> pd.DataFrame:
-
-    df_pivot = df.pivot(index, cols)
-    _single_index_cols = df_pivot.columns.map("__".join)
-
-    df_pivot.columns = _single_index_cols
-    df_pivot = df_pivot.reset_index()
-
-    return df_pivot

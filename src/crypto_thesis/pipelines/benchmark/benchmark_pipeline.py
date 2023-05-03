@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from kedro.pipeline import Pipeline, node, pipeline
-from crypto_thesis.data_domains.benchmark import build_benchmark_metrics, buy_and_hold_strategy, trend_following_strategy
+from crypto_thesis.data_domains.benchmark import buy_and_hold_strategy, trend_following_strategy, pc1_index_strategy
 from crypto_thesis.data_domains.portfolio import build_portfolio_metrics
 
 
@@ -21,6 +21,13 @@ def benchmark_pipeline():
                         "window_nbr_lookup_multic"],
                 outputs="benchmark_trendfollowing_strat",
                 name="run_benchmark_trendfollowing_strat",
+                tags=["all_except_raw", "all_except_raw_prm"]),
+
+            node(func=pc1_index_strategy,
+                inputs=["window_nbr_lookup_multic",
+                        "prm_binance"],
+                outputs="benchmark_pc1_index_strat",
+                name="run_benchmark_pc1_index_strat",
                 tags=["all_except_raw", "all_except_raw_prm"])
             ],
         tags=["benchmark_strategies_pipeline"]))

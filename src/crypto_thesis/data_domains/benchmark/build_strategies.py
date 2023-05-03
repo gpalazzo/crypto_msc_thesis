@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+from crypto_thesis.utils import build_log_return, build_timeseries
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 
 def buy_and_hold_strategy(df_window_nbr: pd.DataFrame,
@@ -49,3 +52,32 @@ def trend_following_strategy(spine_preproc: pd.DataFrame,
     df = df.set_index("window_nbr")[["y_pred"]]
 
     return df
+
+
+def pc1_index_strategy(window_nbr: pd.DataFrame,
+                       binance_prm: pd.DataFrame) -> pd.DataFrame:
+
+    binance_prm = binance_prm.sort_values(by=["symbol", "open_time"])
+    df_log_ret = binance_prm.groupby("symbol").apply(build_log_return)
+
+    df_log_ret.loc[:, "pctchg"] = df_log_ret \
+                                    .groupby("symbol")["log_return"] \
+                                    .apply(lambda row: np.exp(row) - 1)
+    df_log_ret = df_log_ret[["open_time", "symbol", "pctchg"]]
+    df_ts = build_timeseries(df=df_log_ret, index=["open_time"], cols=["symbol"])
+    df_ts = df_ts.dropna()
+
+    for start, end in zip(window_nbr["open_time"], window_nbr["close_time"]):
+        df_aux = df_ts[df_ts["open_time"].between(start, end)].set_index("open_time")
+        cols = df_aux.columns
+
+        scaler = StandardScaler()
+        df_aux = pd.DataFrame(scaler.fit_transform(df_aux), columns=cols)
+        pca = PCA(n_components=1)
+        pca.fit(df_aux)
+        comps = pd.DataFrame(pca.components_, columns=cols)
+
+        comps_norm = comps / comps.values.sum()
+        comps_norm.columns = comps_norm.columns.str.replace("pctchg", "weight")
+        comps_norm.loc[:, ["open_time", "close_time"]] = start, end
+        breakpoint()
