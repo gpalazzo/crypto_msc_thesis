@@ -1,29 +1,19 @@
-benchmark_xgboost_pnl:
+benchmark_buyhold_strat:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_xgboost_pnl.parquet
+  filepath: data/07_model_output/${binance_data_interval}/benchmark/benchmark_buyhold_strategy.parquet
   versioned: true
 
-benchmark_xgboost_metrics:
+benchmark_trendfollowing_strat:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_xgboost_metrics.parquet
+  filepath: data/07_model_output/${binance_data_interval}/benchmark/benchmark_trendfollowing_strategy.parquet
   versioned: true
 
-benchmark_lstm_pnl:
+benchmark_trendfollowing_pnl:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_lstm_pnl.parquet
+  filepath: data/08_reporting/${binance_data_interval}/benchmark/benchmark_trendfollowing_pnl.parquet
   versioned: true
 
-benchmark_lstm_metrics:
+benchmark_trendfollowing_metrics:
   type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_lstm_metrics.parquet
-  versioned: true
-
-benchmark_logreg_pnl:
-  type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_logreg_pnl.parquet
-  versioned: true
-
-benchmark_logreg_metrics:
-  type: pandas.ParquetDataSet
-  filepath: data/08_reporting/benchmark_logreg_metrics.parquet
+  filepath: data/08_reporting/${binance_data_interval}/benchmark/benchmark_trendfollowing_metrics.parquet
   versioned: true
