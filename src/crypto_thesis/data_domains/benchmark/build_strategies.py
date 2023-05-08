@@ -1,8 +1,11 @@
 import pandas as pd
 import numpy as np
-from crypto_thesis.utils import build_log_return, build_timeseries
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
+from crypto_thesis.utils import mt_split_train_test
+
+
+TARGET_COL = ["label"]
+# these cols were useful so far, but not anymore
+INDEX_COL = "window_nbr"
 
 
 def buy_and_hold_strategy(df_window_nbr: pd.DataFrame,
@@ -29,13 +32,21 @@ def buy_and_hold_strategy(df_window_nbr: pd.DataFrame,
 
 
 def trend_following_strategy(spine_preproc: pd.DataFrame,
-                             df_window_nbr: pd.DataFrame) -> pd.DataFrame:
+                             df_window_nbr: pd.DataFrame,
+                             train_test_cutoff_date: str,
+                             master_table: pd.DataFrame) -> pd.DataFrame:
+
+    _, _, X_test, _ = mt_split_train_test(master_table=master_table,
+                                                            index_col=INDEX_COL,
+                                                            train_test_cutoff_date=train_test_cutoff_date,
+                                                            target_col=TARGET_COL)
 
     spine_preproc = spine_preproc[["open_time", "close_time", "logret_cumsum"]]
     df = spine_preproc.merge(df_window_nbr, 
                              on=["open_time", "close_time"], 
                              how="inner")
-    assert df.shape[0] == df_window_nbr.shape[0], "Mismatch between spine preproc and window numbers"
+    df = df[df["window_nbr"].isin(X_test.index)]
+    assert df.shape[0] == len(X_test.index), "Mismatch between spine preproc, window numbers and X_test index"
 
     df = df.drop(columns=["open_time", "close_time", "target_time"]).set_index("window_nbr").sort_index()
 
@@ -51,32 +62,3 @@ def trend_following_strategy(spine_preproc: pd.DataFrame,
     df = df_drop[["y_pred"]]
 
     return df
-
-
-def pc1_index_strategy(window_nbr: pd.DataFrame,
-                       binance_prm: pd.DataFrame) -> pd.DataFrame:
-
-    binance_prm = binance_prm.sort_values(by=["symbol", "open_time"])
-    df_log_ret = binance_prm.groupby("symbol").apply(build_log_return)
-
-    df_log_ret.loc[:, "pctchg"] = df_log_ret \
-                                    .groupby("symbol")["log_return"] \
-                                    .apply(lambda row: np.exp(row) - 1)
-    df_log_ret = df_log_ret[["open_time", "symbol", "pctchg"]]
-    df_ts = build_timeseries(df=df_log_ret, index=["open_time"], cols=["symbol"])
-    df_ts = df_ts.dropna()
-
-    for start, end in zip(window_nbr["open_time"], window_nbr["close_time"]):
-        df_aux = df_ts[df_ts["open_time"].between(start, end)].set_index("open_time")
-        cols = df_aux.columns
-
-        scaler = StandardScaler()
-        df_aux = pd.DataFrame(scaler.fit_transform(df_aux), columns=cols)
-        pca = PCA(n_components=1)
-        pca.fit(df_aux)
-        comps = pd.DataFrame(pca.components_, columns=cols)
-
-        comps_norm = comps / comps.values.sum()
-        comps_norm.columns = comps_norm.columns.str.replace("pctchg", "weight")
-        comps_norm.loc[:, ["open_time", "close_time"]] = start, end
-        breakpoint()
