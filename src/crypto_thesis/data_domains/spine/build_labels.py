@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 
 def spine_build_target_labels(df: pd.DataFrame,
                             df_log_ret: pd.DataFrame,
-                            label_params: Dict[str, float],
-                            class_bounds: Dict[str, float]) -> pd.DataFrame:
+                            label_params: Dict[str, float]) -> pd.DataFrame:
 
     std_df = _build_stdev_by_window(df=df, df_log_ret=df_log_ret)
     final_df = df.merge(std_df, on=["open_time", "close_time"], how="inner")
@@ -43,11 +42,6 @@ def spine_build_target_labels(df: pd.DataFrame,
 
     final_df = pd.concat([final_df_neg, final_df_pos])
 
-    logger.info("Checking for class balance")
-    final_df = _balance_classes(df=final_df, class_bounds=class_bounds)
-
-    _check_spine_quality(df=final_df, class_bounds=class_bounds)
-
     return final_df
 
 
@@ -66,9 +60,10 @@ def _build_stdev_by_window(df: pd.DataFrame, df_log_ret: pd.DataFrame) -> pd.Dat
     return std_df
 
 
-def _balance_classes(df: pd.DataFrame,
-                    class_bounds: Dict[str, float]) -> pd.DataFrame:
+def spine_balance_classes(df: pd.DataFrame,
+                        class_bounds: Dict[str, float]) -> pd.DataFrame:
 
+    logger.info("Checking for class balance")
     label0_count, label1_count = df.label.value_counts()
     label0_pct = label0_count / df.shape[0]
 
@@ -92,10 +87,13 @@ def _balance_classes(df: pd.DataFrame,
         else:
             df_top = df_top.tail(n=label0_count)
 
+        df = pd.concat([df_bottom, df_top])
+
     else:
         logger.info("Class are balanced, skipping balancing method")
 
-    df = pd.concat([df_bottom, df_top])
+    logger.info("Checking spine quality")
+    _check_spine_quality(df=df, class_bounds=class_bounds)
 
     return df
 
