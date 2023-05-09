@@ -79,15 +79,18 @@ def _balance_classes(df: pd.DataFrame,
                     class_bounds["upper"]) \
                     [0]: #pull index [0] always works because it's only 1 label
 
-        df = df.reset_index(drop=True)
+        df = df.reset_index(drop=True).sort_values(by="close_time", ascending=True)
         df_top = df[df["label"] == "top"]
         df_bottom = df.drop(df_top.index)
 
         # find out which class in unbalanced
+        # we could be using df.sample, but it changes the labeling every time, so the experiment isn't reproducible
+        # by ordering from close_time and getting tail, we guarantee the same data
+        # possible impact: loosing important information from past data
         if label0_count > label1_count:
-            df_bottom = df_bottom.sample(n=label1_count)
+            df_bottom = df_bottom.tail(n=label1_count)
         else:
-            df_top = df_top.sample(n=label0_count)
+            df_top = df_top.tail(n=label0_count)
 
     else:
         logger.info("Class are balanced, skipping balancing method")
