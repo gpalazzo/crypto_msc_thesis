@@ -114,21 +114,21 @@ def ml_models_pipeline():
                 name="run_logreg_predicting",
                 tags=["all_except_raw", "all_except_binance"])
 
-            , node(func=logreg_model_reporting,
-                inputs=["logreg_fitted_model",
-                        "logreg_features_test",
-                        "logreg_target_test",
-                        "logreg_model_predict",
-                        "master_table_nonmultic",
-                        "params:model_data_interval",
-                        "params:spine_preprocessing",
-                        "params:spine_labeling",
-                        "params:train_test_cutoff_date",
-                        "params:slct_topN_features",
-                        "params:min_years_existence"],
-                outputs="logreg_model_reporting",
-                name="run_logreg_reporting",
-                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+            # , node(func=logreg_model_reporting,
+            #     inputs=["logreg_fitted_model",
+            #             "logreg_features_test",
+            #             "logreg_target_test",
+            #             "logreg_model_predict",
+            #             "master_table_nonmultic",
+            #             "params:model_data_interval",
+            #             "params:spine_preprocessing",
+            #             "params:spine_labeling",
+            #             "params:train_test_cutoff_date",
+            #             "params:slct_topN_features",
+            #             "params:min_years_existence"],
+            #     outputs="logreg_model_reporting",
+            #     name="run_logreg_reporting",
+            #     tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["logreg_pipeline"]))
 
