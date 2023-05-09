@@ -5,6 +5,7 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,6 +43,8 @@ def spine_build_target_labels(df: pd.DataFrame,
 
     final_df = pd.concat([final_df_neg, final_df_pos])
 
+    _check_spine_quality(df=final_df)
+
     return final_df
 
 
@@ -60,52 +63,7 @@ def _build_stdev_by_window(df: pd.DataFrame, df_log_ret: pd.DataFrame) -> pd.Dat
     return std_df
 
 
-def spine_balance_classes(df: pd.DataFrame,
-                        class_bounds: Dict[str, float]) -> pd.DataFrame:
-
-    logger.info("Checking for class balance")
-    label0_count, label1_count = df.label.value_counts()
-    label0_pct = label0_count / df.shape[0]
-
-    # check if any label is outside the desired range
-    # there's no need to check both labels, if 1 is outside the range, the other will also be
-    if not pd.Series(label0_pct). \
-            between(class_bounds["lower"],
-                    class_bounds["upper"]) \
-                    [0]: #pull index [0] always works because it's only 1 label
-
-        df = df.reset_index(drop=True).sort_values(by="close_time", ascending=True)
-        df_top = df[df["label"] == "top"]
-        df_bottom = df.drop(df_top.index)
-
-        # find out which class in unbalanced
-        # we could be using df.sample, but it changes the labeling every time, so the experiment isn't reproducible
-        # by ordering from close_time and getting tail, we guarantee the same data
-        # possible impact: loosing important information from past data
-        if label0_count > label1_count:
-            df_bottom = df_bottom.tail(n=label1_count)
-        else:
-            df_top = df_top.tail(n=label0_count)
-
-        df = pd.concat([df_bottom, df_top])
-
-    else:
-        logger.info("Class are balanced, skipping balancing method")
-
-    logger.info("Checking spine quality")
-    _check_spine_quality(df=df, class_bounds=class_bounds)
-
-    return df
-
-
-def _check_spine_quality(df: pd.DataFrame,
-                        class_bounds: Dict[str, float]) -> None:
-
-    # check label unbalancing
-    labels_pct = (df.label.value_counts() / df.shape[0]).values
-    assert any([(label_pct >= class_bounds["lower"] and \
-                    label_pct <= class_bounds["upper"]) \
-                for label_pct in labels_pct]), "Unbalanced classes, review."
+def _check_spine_quality(df: pd.DataFrame) -> None:
 
     # check nulls
     assert df.isnull().sum().sum() == 0, "Spine contains null, review."

@@ -10,14 +10,18 @@ def master_table_pipeline():
         Pipeline([
             node(func=build_master_table,
                 inputs=["fte_binance_multic",
-                        "spine_labeled_balanced"],
+                        "spine_labeled",
+                        "params:mt_class_bounds",
+                        "params:slct_topN_features"],
                 outputs=["master_table_multic", "window_nbr_lookup_multic"],
                 name="run_master_table_multic",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
 
             node(func=build_master_table,
                 inputs=["fte_binance_nonmultic",
-                        "spine_labeled_balanced"],
+                        "spine_labeled",
+                        "params:mt_class_bounds",
+                        "params:slct_topN_features"],
                 outputs=["master_table_nonmultic", "window_nbr_lookup_nonmultic"],
                 name="run_master_table_nonmultic",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])

@@ -24,7 +24,7 @@ def binance_pipeline():
 
             node(func=binance_fte,
                 inputs=["prm_binance",
-                        "spine_labeled_balanced",
+                        "spine_labeled",
                         "params:spine_preprocessing"],
                 outputs="fte_binance",
                 name="run_binance_fte",
@@ -32,7 +32,7 @@ def binance_pipeline():
 
             node(func=apply_mic_fte_slct,
                 inputs=["fte_binance",
-                        "spine_labeled_balanced",
+                        "spine_labeled",
                         "params:train_test_cutoff_date",
                         "params:slct_topN_features"],
                 outputs=["fte_binance_multic", "all_fte_multic_mic_binance"],
@@ -41,7 +41,7 @@ def binance_pipeline():
 
             node(func=apply_vif_fte_slct,
                 inputs=["fte_binance",
-                        "spine_labeled_balanced",
+                        "spine_labeled",
                         "params:train_test_cutoff_date",
                         "params:slct_topN_features",
                         "params:vif_threshold"],
