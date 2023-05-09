@@ -12,3 +12,8 @@ spine_labeled:
   type: pandas.ParquetDataSet
   filepath: data/04_feature/${binance_data_interval}/spine_labeled.parquet
   versioned: true
+
+spine_labeled_balanced:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/spine_labeled_balanced.parquet
+  versioned: true
