@@ -7,6 +7,8 @@ xgboost_default_params:
 # max_delta_step, colsample_bylevel, colsample_bynode, reg_alpha, scale_pos_weight, updater
 # refresh_leaf, process_type, grow_policy, max_leaves, max_bin, predictor, num_parallel_tree
 # monotone_constraints, interaction_constraints
+
+# if not using `subsample` and `colsample_bytree` the model is deterministic, but increases the chance of overfitting
 xgboost_model_params:
   eval_metric: "auc"
   n_estimators: 500
@@ -15,8 +17,8 @@ xgboost_model_params:
   gamma: 0.01
   min_child_weight: 2.0
   learning_rate: 0.05
-  subsample: 0.7
-  colsample_bytree: 0.5
+  # subsample: 0.7
+  # colsample_bytree: 0.5
   objective: "binary:logistic"
   sampling_method: "uniform"
   tree_method: "auto"
