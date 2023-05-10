@@ -7,7 +7,7 @@ logreg_model_params:
   penalty: "elasticnet"
   tol: 0.001
   C: 1.0
-  max_iter: 100
+  max_iter: 200
   fit_intercept: true
   class_weight: "balanced"
-  l1_ratio: 0.1
+  l1_ratio: 0.01
