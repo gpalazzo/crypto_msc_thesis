@@ -10,4 +10,4 @@ logreg_model_params:
   max_iter: 200
   fit_intercept: true
   class_weight: "balanced"
-  l1_ratio: 0.01
+  l1_ratio: 0.1
