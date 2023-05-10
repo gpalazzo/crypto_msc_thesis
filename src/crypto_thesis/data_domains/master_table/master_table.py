@@ -103,11 +103,14 @@ def mt_balance_classes(df: pd.DataFrame,
 
 def _balance_classes(X: pd.DataFrame, y: pd.DataFrame) -> pd.DataFrame:
 
-    nm = NearMiss()
-    X, y = nm.fit_resample(X, y)
+    nm = NearMiss(version=3)
+    X_res, y_res = nm.fit_resample(X, y)
 
-    mt = X.merge(y, left_index=True, right_index=True, how="inner")
-    
+    idxs = nm.sample_indices_ + 1 #sum 1 because it starts with 0
+    X_res.index, y_res.index = idxs, idxs
+
+    mt = X_res.merge(y_res, left_index=True, right_index=True, how="inner")
+
     return mt
 
 
