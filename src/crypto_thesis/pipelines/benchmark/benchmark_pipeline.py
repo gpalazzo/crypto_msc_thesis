@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Pipeline object having mainly func, inputs and outputs
+`func` is the python function to be executed
+`inputs` are either datasets or parameters defined in the conf/base directory
+`outputs` are datasets defined in the catalog
+    - if the output is not defined in the catalog, then it becomes a MemoryDataSet
+        - MemoryDataSet persists as long as the Session is active
+"""
+
 from kedro.pipeline import Pipeline, node, pipeline
 from crypto_thesis.data_domains.benchmark import buy_and_hold_strategy, trend_following_strategy
 from crypto_thesis.data_domains.portfolio import build_portfolio_metrics
