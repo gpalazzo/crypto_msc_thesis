@@ -6,7 +6,8 @@ There are many parameters to be set in `conf/base/parameters` directory, and I r
 
 The code was developed using Kedro framework, official docs: https://kedro.org and https://docs.kedro.org/en/stable/index.html
 
-## Environment setup
+## Setup
+### Dependencies
 Using your preferrable environment manager, follow the steps below to install dependencies:
 1. create a virtual environment
     - conda example: `conda create -n <name> python=3.8 -y && conda activate <name>`
@@ -15,10 +16,13 @@ Using your preferrable environment manager, follow the steps below to install de
 3. install dependencies in `pyproject.toml` with `poetry`
     - `poetry lock && poetry install`
 
+### Credentials
 To collect raw data you need Binance credentials. The project expects to have 2 environment variables named `BINANCE_API_KEY` and `BINANCE_SECRET_KEY` with Binance's api key and secret, respectively.
 
 ## Assets
-- `assets` directory contains relevant files for the project, such as diagrams
+- `docs/diagrams` directory contains relevant diagrams for the project
+- `docs/build/html/index.html` contains an HTML page with the API documentation for all the code and modules
+    ![API front page example](docs/images/html_api_example.png "API front page example")
 
 ## Data
 - all datasets' types and paths are defined in the catalog at `conf/base/catalog` in yml files where the yml key is the dataset name defined in the pipelines
