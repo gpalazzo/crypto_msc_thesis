@@ -25,7 +25,7 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # Directory that holds configuration.
 # CONF_SOURCE = "conf"
 
-# define all possible interval minutes for data collecting
+# define all possible interval minutes for Binance data collecting
 # raise error if the selected interval is not within the possibilities
 ALL_INTERVAL_OPTS = ["1m", "3m", "5m", "15m"]
 selected_interval = "15m"
@@ -36,6 +36,8 @@ from kedro.config import TemplatedConfigLoader
 
 CONFIG_LOADER_CLASS = TemplatedConfigLoader
 # Keyword arguments to pass to the `CONFIG_LOADER_CLASS` constructor.
+# content here will be injected in the globals.yml file and then can be replicated across yml files
+# keys of `globals_dict` are expected to be found in the globals.yml, otherwise it will fail
 CONFIG_LOADER_ARGS = {
     "globals_pattern": "*globals.yml",
     "globals_dict": {
