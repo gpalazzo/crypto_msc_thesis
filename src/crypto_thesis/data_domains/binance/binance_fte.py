@@ -23,6 +23,16 @@ logger = logging.getLogger(__name__)
 def binance_fte(binance_prm: pd.DataFrame,
                 spine_labeled: pd.DataFrame,
                 spine_params: Dict[str, str]) -> pd.DataFrame:
+    """Calculate all features
+
+    Args:
+        binance_prm (pd.DataFrame): dataframe with standardized data
+        spine_labeled (pd.DataFrame): dataframe with target labels
+        spine_params (Dict[str, str]): parameters to generate the labels
+
+    Returns:
+        pd.DataFrame: dataframe with features calculated
+    """
 
     final_df = pd.DataFrame()
 
@@ -59,6 +69,15 @@ def binance_fte(binance_prm: pd.DataFrame,
 
 
 def _null_handler(df: pd.DataFrame) -> pd.DataFrame:
+    """Handles null data
+    It currently defaults to replace nulls with 0
+
+    Args:
+        df (pd.DataFrame): dataframe potentially with null values
+
+    Returns:
+        pd.DataFrame: dataframe without null values
+    """
 
     df.loc[:, ["pctchg", "log_return"]] = df[["pctchg", "log_return"]].fillna(0)
     assert df.isna().sum().sum() == 0, "There are null values even after null handling, review."
@@ -69,7 +88,17 @@ def _build_agg_ftes(df: pd.DataFrame,
                     grpby_col: str,
                     window_start: pd.Timestamp,
                     window_end: pd.Timestamp) -> pd.DataFrame:
-    """Improve this logic, what if we have 10 columns?
+    """Calculate and aggregate features
+    Improve this logic, what if we have 10 columns?
+
+    Args:
+        df (pd.DataFrame): dataframe to calculate features
+        grpby_col (str): column to use for aggregating dataframe
+        window_start (pd.Timestamp): start time of the calculation window
+        window_end (pd.Timestamp): end time of the calculation window
+
+    Returns:
+        pd.DataFrame: dataframe with features calculated
     """
 
     def __aggregator(df, ref_col, grpby_col):
@@ -92,13 +121,16 @@ def _build_agg_ftes(df: pd.DataFrame,
 
 
     df = df.sort_values(by=[IDENTIFIER_COL, "open_time"])
+    # get only float numeric columns
     _numeric_cols = df.select_dtypes(include=np.float64).columns.tolist()
 
     dfs_agg = []
+    # loop over each column to calculate features
     for _col in _numeric_cols:
         df_aux_agg_ftes = __aggregator(df=df, ref_col=_col, grpby_col=grpby_col)
         dfs_agg.append(df_aux_agg_ftes)
 
+    # join everything together
     df_agg_ftes = reduce(lambda left, right: pd.merge(left, right, on=IDENTIFIER_COL, how="inner"), dfs_agg)
     df_agg_ftes.loc[:, ["open_time", "close_time"]] = [window_start, window_end]
 
@@ -113,6 +145,17 @@ def _build_agg_ftes(df: pd.DataFrame,
 def _build_business_ftes(df: pd.DataFrame,
                         window_start: pd.Timestamp,
                         window_end: pd.Timestamp) -> pd.DataFrame:
+    """Builds features that makes sense from a business perspective
+    It currently only calculates z-score and get the last value of each window
+
+    Args:
+        df (pd.DataFrame): dataframe with variable to calculate z-score
+        window_start (pd.Timestamp): start time of the calculation window
+        window_end (pd.Timestamp): end time of the calculation window
+
+    Returns:
+        pd.DataFrame: dataframe with business features calculated
+    """
 
     def __get_last_zscore(df: pd.DataFrame) -> float:
         df.loc[:, "zscore"] = df.groupby(IDENTIFIER_COL)["pctchg"].transform(lambda x:

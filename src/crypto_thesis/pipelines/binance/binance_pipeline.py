@@ -13,7 +13,7 @@ from crypto_thesis.data_domains.binance import binance_fte, binance_prm, binance
 from crypto_thesis.utils import apply_mic_fte_slct, apply_vif_fte_slct
 
 
-def binance_pipeline():
+def binance_pipeline() -> pipeline:
 
     _binance_pipeline = pipeline(
         Pipeline([

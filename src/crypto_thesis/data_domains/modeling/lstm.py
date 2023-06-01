@@ -27,7 +27,18 @@ def lstm_model_fit(master_table: pd.DataFrame,
                     train_test_cutoff_date: str,
                     seq_length: int) -> Tuple[Sequential, pd.DataFrame,
                                                 pd.DataFrame, pd.DataFrame,
-                                                pd.DataFrame, pd.DataFrame]:
+                                                pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Fits the LSTM model classifier
+
+    Args:
+        master_table (pd.DataFrame): dataframe representing the master table
+        train_test_cutoff_date (str): cutoff date for train/test split
+        seq_length (int): length of the sequence to be predicted
+
+    Returns:
+        Tuple[Sequential, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: trained
+        model object, train epoch's history, features train, target train, features test and target test, respectively
+    """
 
     X_train, y_train, X_test, y_test = mt_split_train_test(master_table=master_table,
                                                             index_col=INDEX_COL,
@@ -154,6 +165,17 @@ def lstm_model_predict(model: Sequential,
                         X_test_scaled: pd.DataFrame,
                         y_test: pd.DataFrame,
                         seq_length: int) -> pd.DataFrame:
+    """LSTM model prediction
+
+    Args:
+        model (Sequential): trained model object
+        X_test_scaled (pd.DataFrame): dataframe with features test
+        y_test (pd.DataFrame): dataframe with target test
+        seq_length (int): length of the sequence to be predicted
+
+    Returns:
+        pd.DataFrame: dataframe with model's prediction
+    """
 
     idxs = X_test_scaled.index.tolist()
     X_test_scaled_seq, _ = _build_lstm_timestamps_seq(X=X_test_scaled, y=y_test, seq_length=seq_length)
@@ -182,6 +204,24 @@ def lstm_model_reporting(model: Sequential,
                             train_test_cutoff_date: str,
                             slct_topN_features: int,
                             min_years_existence: int) -> pd.DataFrame:
+    """LSTM model reporting
+
+    Args:
+        model (Sequential): LSTM trained classifier
+        X_test (pd.DataFrame): dataframe with features test
+        y_test (pd.DataFrame): dataframe with target test
+        y_pred (pd.DataFrame): dataframe with model's prediction
+        master_table (pd.DataFrame): dataframe representing the master table
+        model_data_interval (str): interval which the raw data was collected
+        spine_preproc_params (Dict[str, Any]): parameters for spine pre-processing
+        spine_label_params (Dict[str, Any]): parameters for labeling the target
+        train_test_cutoff_date (str): date to cutoff datasets into train and test
+        slct_topN_features (int): amount of features to keep
+        min_years_existence (int): minimum time, in years, for ticker existence
+
+    Returns:
+        pd.DataFrame: dataframe with model's metrics
+    """
 
     # get model's accuracy
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)
@@ -235,7 +275,17 @@ def lstm_model_reporting(model: Sequential,
     return reporting_df
 
 
-def _build_lstm_timestamps_seq(X: pd.DataFrame, y: pd.DataFrame, seq_length: int):
+def _build_lstm_timestamps_seq(X: pd.DataFrame, y: pd.DataFrame, seq_length: int) -> Tuple[np.array, np.array]:
+    """Build features and target prediction array for a given size of sequence
+
+    Args:
+        X (pd.DataFrame): dataframe with features
+        y (pd.DataFrame): dataframe with target
+        seq_length (int): length of the sequence to be predicted
+
+    Returns:
+        Tuple[np.array, np.array]: arrays of features and target, respectively, considering the prediction horizon
+    """
 
     _X, _y = [], []
 

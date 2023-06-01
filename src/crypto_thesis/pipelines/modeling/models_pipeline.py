@@ -22,7 +22,7 @@ from crypto_thesis.data_domains.modeling import (
 )
 
 
-def ml_models_pipeline():
+def ml_models_pipeline() -> pipeline:
 
     xgboost_pipeline = pipeline(
         Pipeline([

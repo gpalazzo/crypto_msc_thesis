@@ -11,6 +11,16 @@ logger = logging.getLogger(__name__)
 def binance_prm(binance_raw: pd.DataFrame,
                 min_years_existence: int,
                 end_date: str) -> pd.DataFrame:
+    """Standardize data acquired in the raw layer, so all other tasks can use the same data
+
+    Args:
+        binance_raw (pd.DataFrame): dataframe with raw data
+        min_years_existence (int): minimum number, in years, for ticker existence
+        end_date (str): upper bound date to start counting the lookback window
+
+    Returns:
+        pd.DataFrame: dataframe with standardized data
+    """
 
     # in this case it's indifferent to get `open_time` or `close_time`
     binance_prm = binance_raw[["open_time", "open", "high", "low", "close", "volume", "symbol"]]
@@ -35,6 +45,16 @@ def binance_prm(binance_raw: pd.DataFrame,
 def _find_symbol_date_criterium(df: pd.DataFrame,
                                 max_date: str,
                                 min_years_existence: int) -> List[str]:
+    """Find which tickers must be excluded due to dates' criteria violation
+
+    Args:
+        df (pd.DataFrame): dataframe with data to be validated
+        max_date (str): upper bound date to start counting the lookback window
+        min_years_existence (int): minimum number, in years, for ticker existence
+
+    Returns:
+        List[str]: list of tickers to be excluded
+    """
 
     # generate min and max time windows
     df_aux = df.copy()

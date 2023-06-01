@@ -12,7 +12,7 @@ from kedro.pipeline import Pipeline, node, pipeline
 from crypto_thesis.data_domains.master_table import build_master_table
 
 
-def master_table_pipeline():
+def master_table_pipeline() -> pipeline:
 
     _master_table_pipeline = pipeline(
         Pipeline([

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import math
-from typing import Union
+from typing import Union, Tuple
 
 import pandas as pd
 import quantstats as qs
@@ -14,7 +14,19 @@ def build_portfolio_metrics(df_predict: pd.DataFrame,
                 prices_df: pd.DataFrame,
                 target_name: str,
                 portfolio_initial_money: Union[int, float]
-                ) -> pd.DataFrame:
+                ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Builds the portfolio metrics based on positions (predictions)
+
+    Args:
+        df_predict (pd.DataFrame): dataframe with positions (predictions)
+        window_lookup (pd.DataFrame): dataframe as lookup mechanism to retrieve timestamps
+        prices_df (pd.DataFrame): dataframe with prices
+        target_name (str): name of the target coin
+        portfolio_initial_money (Union[int, float]): initial money to start the portfolio
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: dataframe with portfolio's profit and loss, and portfolio's metrics, respectively
+    """
 
     window_lookup = window_lookup.set_index("window_nbr")
     df = df_predict.merge(window_lookup, left_index=True, right_index=True, how="inner")
@@ -40,6 +52,17 @@ def _build_portfolio_pnl(df_top: pd.DataFrame,
                             prices_df: pd.DataFrame,
                             target_name: str,
                             portfolio_initial_money: Union[int, float]) -> pd.DataFrame:
+    """Build portfolio's PnL
+
+    Args:
+        df_top (pd.DataFrame): dataframe only with predictions as `top`
+        prices_df (pd.DataFrame): dataframe with prices
+        target_name (str): name of the target coin
+        portfolio_initial_money (Union[int, float]): initial money to start the portfolio
+
+    Returns:
+        pd.DataFrame: dataframe with portfolio's PnL
+    """
 
     df_target_prices = prices_df[prices_df["symbol"] == target_name] \
         [["open_time", "close"]].rename(columns={"open_time": "close_time"})
@@ -65,6 +88,7 @@ def _build_portfolio_pnl(df_top: pd.DataFrame,
 
     df_merged_prices = df_merged_prices.sort_values(by="close_time").reset_index(drop=True)
 
+    # iterate over each position to compute results
     for i, row in df_merged_prices.iterrows():
         if i == 0: #first trade
             df_merged_prices.loc[i:i, "stock_qty"] = _round_decimals_down(portfolio_initial_money / row.close_time_price)
@@ -85,7 +109,15 @@ def _build_portfolio_pnl(df_top: pd.DataFrame,
     return df_merged_prices
 
 
-def _build_perf_metrics(df_pnl: pd.DataFrame):
+def _build_perf_metrics(df_pnl: pd.DataFrame) -> pd.DataFrame:
+    """Build portfolio's metrics
+
+    Args:
+        df_pnl (pd.DataFrame): dataframe with portfolio's PnL
+
+    Returns:
+        pd.DataFrame: dataframe with portfolio metrics
+    """
 
     consecutive_wins = qs.stats.consecutive_wins(returns=df_pnl["pctchg_pos"])
     consecutive_losses = qs.stats.consecutive_losses(returns=df_pnl["pctchg_pos"])
@@ -98,9 +130,19 @@ def _build_perf_metrics(df_pnl: pd.DataFrame):
     return df_metrics
 
 
-def _round_decimals_down(number: float, decimals: int = 4):
-    """
-    Returns a value rounded down to a specific number of decimal places.
+def _round_decimals_down(number: float, decimals: int = 4) -> float:
+    """Returns a value rounded down to a specific number of decimal places
+
+    Args:
+        number (float): number to be rounded
+        decimals (int, optional): amount of decimals place to round. Defaults to 4.
+
+    Raises:
+        TypeError: if decimal place isn't an integer
+        ValueError: if decimal place is less than 0
+
+    Returns:
+        float: rounded number
     """
 
     if not isinstance(decimals, int):

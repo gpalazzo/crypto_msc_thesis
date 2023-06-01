@@ -15,7 +15,7 @@ from crypto_thesis.data_domains.spine import (
 )
 
 
-def spine_pipeline():
+def spine_pipeline() -> pipeline:
 
     _spine_pipeline = pipeline(
         Pipeline([

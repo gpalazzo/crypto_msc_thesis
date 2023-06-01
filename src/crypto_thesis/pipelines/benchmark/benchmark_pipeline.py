@@ -12,7 +12,7 @@ from crypto_thesis.data_domains.benchmark import buy_and_hold_strategy, trend_fo
 from crypto_thesis.data_domains.portfolio import build_portfolio_metrics
 
 
-def benchmark_pipeline():
+def benchmark_pipeline() -> pipeline:
 
     _benchmark_strategies = pipeline(
         Pipeline([

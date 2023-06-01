@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 def binance_raw(raw_binance_get_data: Dict[str, Any]) -> pd.DataFrame:
+    """Acquires raw data from Binance exchange
+
+    Args:
+        raw_binance_get_data (Dict[str, Any]): parameters for data extraction
+
+    Returns:
+        pd.DataFrame: dataframe with raw data acquired
+    """
 
     api_key = os.getenv("BINANCE_API_KEY")
     api_secret = os.getenv("BINANCE_SECRET_KEY")
@@ -22,6 +30,7 @@ def binance_raw(raw_binance_get_data: Dict[str, Any]) -> pd.DataFrame:
         "5m": Client.KLINE_INTERVAL_5MINUTE,
         "15m": Client.KLINE_INTERVAL_15MINUTE
     }
+    # parse interval from the one defined at src/crypto_thesis/settings.py
     binance_client_interval[interval]
 
     final_df = pd.DataFrame()

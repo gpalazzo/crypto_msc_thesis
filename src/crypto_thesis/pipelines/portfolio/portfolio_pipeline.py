@@ -12,7 +12,7 @@ from kedro.pipeline import Pipeline, node, pipeline
 from crypto_thesis.data_domains.portfolio import build_portfolio_metrics
 
 
-def portfolio_pipeline():
+def portfolio_pipeline() -> pipeline:
 
     _portfolio_pipeline = pipeline(
         Pipeline([
