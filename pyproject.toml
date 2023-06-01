@@ -63,6 +63,7 @@ pytest = "^6.2.5"
 pre-commit = "^2.17.0"
 matplotlib = "^3.6.3"
 jupyterlab = "^3.2.8"
+kedro-viz = "^6.2.0"
 
 [build-system]
 requires = ["poetry>=1.0"]
