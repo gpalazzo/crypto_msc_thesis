@@ -1,3 +1,5 @@
+# ESSE ARQUIVO É ÚTIL, REVISA-LO!
+
 ## Documentation of Data flow and Business Rules
 1. pull crypto pairs from Binance in a pre-defined time interval (1 minute, 5 minutes, 15 minutes, ...)
 2. define the target coin, volume bar size, amount of bars looking ahead to predict and parameter tau for labeling
