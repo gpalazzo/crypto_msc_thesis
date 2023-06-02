@@ -1,5 +1,5 @@
+## Overview
 This project's objective is to predict the directional price movement of cryptocurrencies through Machine Learning (ML) models.
-
 The project currently has 3 working and tested ML models: XGBoost, LSTM and Logistic Regression.
 
 There are many parameters to be set in `conf/base/parameters` directory, and I really encourage people to test different combinations of them, but the ones in the production version are already tested and working.
