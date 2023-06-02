@@ -21,7 +21,7 @@ def apply_mic_fte_slct(df_ftes: pd.DataFrame,
         topN_features (int): amount of features to keep
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: dataframe with remaining features and 
+        Tuple[pd.DataFrame, pd.DataFrame]: dataframe with remaining features and
         dataframe with MIC features' importance value
     """
 
@@ -78,7 +78,7 @@ def apply_vif_fte_slct(df_ftes: pd.DataFrame,
         apply_mic_after_vif (bool, optional): whether or not to apply MIC feature selection after VIF. Defaults to True.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: dataframe with remaining features, 
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: dataframe with remaining features,
         dataframe with VIF values and dataframe with MIC features' importance value
     """
 

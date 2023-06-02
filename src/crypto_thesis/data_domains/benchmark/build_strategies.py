@@ -1,7 +1,8 @@
-import pandas as pd
+# -*- coding: utf-8 -*-
 import numpy as np
-from crypto_thesis.utils import mt_split_train_test
+import pandas as pd
 
+from crypto_thesis.utils import mt_split_train_test
 
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
@@ -63,8 +64,8 @@ def trend_following_strategy(spine_preproc: pd.DataFrame,
                                                             target_col=TARGET_COL)
 
     spine_preproc = spine_preproc[["open_time", "close_time", "logret_cumsum"]]
-    df = spine_preproc.merge(df_window_nbr, 
-                             on=["open_time", "close_time"], 
+    df = spine_preproc.merge(df_window_nbr,
+                             on=["open_time", "close_time"],
                              how="inner")
     df = df[df["window_nbr"].isin(X_test.index)]
     assert df.shape[0] == len(X_test.index), "Mismatch between spine preproc, window numbers and X_test index"

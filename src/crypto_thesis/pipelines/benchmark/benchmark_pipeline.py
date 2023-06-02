@@ -8,7 +8,11 @@
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from crypto_thesis.data_domains.benchmark import buy_and_hold_strategy, trend_following_strategy
+
+from crypto_thesis.data_domains.benchmark import (
+    buy_and_hold_strategy,
+    trend_following_strategy,
+)
 from crypto_thesis.data_domains.portfolio import build_portfolio_metrics
 
 

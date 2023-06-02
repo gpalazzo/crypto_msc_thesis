@@ -11,7 +11,7 @@ from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.spine import (
     spine_build_target_labels,
-    spine_preprocessing
+    spine_preprocessing,
 )
 
 
