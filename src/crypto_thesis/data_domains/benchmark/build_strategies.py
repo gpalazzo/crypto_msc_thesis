@@ -4,7 +4,6 @@ import pandas as pd
 
 from crypto_thesis.utils import mt_split_train_test
 
-abc = ""
 
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
