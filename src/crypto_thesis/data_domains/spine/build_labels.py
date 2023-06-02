@@ -12,6 +12,16 @@ logger = logging.getLogger(__name__)
 def spine_build_target_labels(df: pd.DataFrame,
                             df_log_ret: pd.DataFrame,
                             label_params: Dict[str, float]) -> pd.DataFrame:
+    """Builds the labels for each spine volume bar
+
+    Args:
+        df (pd.DataFrame): dataframe with timestamps defined by each volume bar
+        df_log_ret (pd.DataFrame): dataframe with percent change data accumulated for each volume bar
+        label_params (Dict[str, float]): parameters to consider for the labeling mechanism
+
+    Returns:
+        pd.DataFrame: dataframe with target label's
+    """
 
     std_df = _build_stdev_by_window(df=df, df_log_ret=df_log_ret)
     final_df = df.merge(std_df, on=["open_time", "close_time"], how="inner")
@@ -49,6 +59,15 @@ def spine_build_target_labels(df: pd.DataFrame,
 
 
 def _build_stdev_by_window(df: pd.DataFrame, df_log_ret: pd.DataFrame) -> pd.DataFrame:
+    """Calculates the sampled standard deviation for each window
+
+    Args:
+        df (pd.DataFrame): dataframe with timestamps defined by each volume bar
+        df_log_ret (pd.DataFrame): dataframe with percent change data accumulated for each volume bar
+
+    Returns:
+        pd.DataFrame: dataframe with sampled standard deviation for each volume bar
+    """
 
     std_df = pd.DataFrame()
 
@@ -64,6 +83,14 @@ def _build_stdev_by_window(df: pd.DataFrame, df_log_ret: pd.DataFrame) -> pd.Dat
 
 
 def _check_spine_quality(df: pd.DataFrame) -> None:
+    """Quality checks in the spine
+
+    Args:
+        df (pd.DataFrame): dataframe representing the spine
+    
+    Returns:
+        None. Raises error if criteria isn't met
+    """
 
     # check nulls
     assert df.isnull().sum().sum() == 0, "Spine contains null, review."

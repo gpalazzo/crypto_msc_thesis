@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Pipeline object having mainly func, inputs and outputs
+`func` is the python function to be executed
+`inputs` are either datasets or parameters defined in the conf/base directory
+`outputs` are datasets defined in the catalog
+- if the output is not defined in the catalog, then it becomes a MemoryDataSet
+- MemoryDataSet persists as long as the Session is active
+"""
+
 from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.modeling import (
@@ -14,10 +22,11 @@ from crypto_thesis.data_domains.modeling import (
 )
 
 
-def ml_models_pipeline():
+def ml_models_pipeline() -> pipeline:
 
     xgboost_pipeline = pipeline(
         Pipeline([
+            # model fit
             node(func=xgboost_model_fit,
                 inputs=["master_table_multic",
                         "params:train_test_cutoff_date",
@@ -29,13 +38,15 @@ def ml_models_pipeline():
                         "xgboost_features_test", "xgboost_target_test"],
                 name="run_xgboost_fitting",
                 tags=["all_except_raw", "all_except_binance"])
-
+            
+            # model predict
             , node(func=xgboost_model_predict,
                 inputs=["xgboost_fitted_model", "xgboost_features_test"],
                 outputs="xgboost_model_predict",
                 name="run_xgboost_predicting",
                 tags=["all_except_raw", "all_except_binance"])
 
+            # model evaluate
             , node(func=xgboost_model_reporting,
                 inputs=["xgboost_fitted_model",
                         "xgboost_features_test",
@@ -56,6 +67,7 @@ def ml_models_pipeline():
 
     lstm_pipeline = pipeline(
         Pipeline([
+            # model fit
             node(func=lstm_model_fit,
                 inputs=["master_table_multic",
                         "params:train_test_cutoff_date",
@@ -66,6 +78,7 @@ def ml_models_pipeline():
                 name="run_lstm_fitting",
                 tags=["all_except_raw", "all_except_binance"])
 
+            # model predict
             , node(func=lstm_model_predict,
                 inputs=["lstm_fitted_model",
                         "lstm_features_test",
@@ -75,6 +88,7 @@ def ml_models_pipeline():
                 name="run_lstm_predicting",
                 tags=["all_except_raw", "all_except_binance"])
 
+            # model evaluate
             , node(func=lstm_model_reporting,
                 inputs=["lstm_fitted_model",
                         "lstm_features_test",
@@ -95,6 +109,7 @@ def ml_models_pipeline():
 
     logreg_pipeline = pipeline(
         Pipeline([
+            # model fit
             node(func=logreg_model_fit,
                 inputs=["master_table_nonmultic",
                         "params:train_test_cutoff_date",
@@ -107,6 +122,7 @@ def ml_models_pipeline():
                 name="run_logreg_fitting",
                 tags=["all_except_raw", "all_except_binance"])
 
+            # model predict
             , node(func=logreg_model_predict,
                 inputs=["logreg_fitted_model",
                         "logreg_features_test"],
@@ -114,6 +130,7 @@ def ml_models_pipeline():
                 name="run_logreg_predicting",
                 tags=["all_except_raw", "all_except_binance"])
 
+            # model evaluate
             , node(func=logreg_model_reporting,
                 inputs=["logreg_fitted_model",
                         "logreg_features_test",

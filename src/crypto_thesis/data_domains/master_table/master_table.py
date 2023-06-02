@@ -12,6 +12,17 @@ def build_master_table(fte_df: pd.DataFrame,
                         spine: pd.DataFrame,
                         class_bounds: Dict[str, float],
                         topN_features: int) -> pd.DataFrame:
+    """Builds master table (features and target)
+
+    Args:
+        fte_df (pd.DataFrame): dataframe with features
+        spine (pd.DataFrame): dataframe with target
+        class_bounds (Dict[str, float]): classes bounds value to determine if target is balanced or not
+        topN_features (int): amount of features to select
+
+    Returns:
+        pd.DataFrame: dataframe representing the master table
+    """
 
     master_table = fte_df.merge(spine, on=["open_time", "close_time"], how="inner")
     assert master_table.shape[0] == fte_df.shape[0] == spine.shape[0], \
@@ -49,6 +60,14 @@ def build_master_table(fte_df: pd.DataFrame,
 
 
 def _build_window_numbers(df: pd.DataFrame) -> pd.DataFrame:
+    """Build incremental value representing the index for each window number
+
+    Args:
+        df (pd.DataFrame): dataframe with defined start and end timestamps
+
+    Returns:
+        pd.DataFrame: dataframe with windows numbered
+    """
 
     df = df.sort_values(by="close_time", ascending=True)
     df = df.reset_index(drop=True)
@@ -61,6 +80,15 @@ def _build_window_numbers(df: pd.DataFrame) -> pd.DataFrame:
 
 def _check_master_table_quality(df: pd.DataFrame,
                                 class_bounds: Dict[str, float]) -> None:
+    """Quality checks in the master table
+
+    Args:
+        df (pd.DataFrame): dataframe representing the master table
+        class_bounds (Dict[str, float]): classes bounds value to determine if target is balanced or not
+
+    Returns:
+        None. Raises error if criteria isn't met
+    """
 
     # check label unbalancing
     labels_pct = (df.label.value_counts() / df.shape[0]).values
@@ -75,6 +103,16 @@ def _check_master_table_quality(df: pd.DataFrame,
 def mt_balance_classes(df: pd.DataFrame,
                         class_bounds: Dict[str, float],
                         topN_features: int) -> pd.DataFrame:
+    """Balance master table's classes
+
+    Args:
+        df (pd.DataFrame): dataframe with classes to be balanced
+        class_bounds (Dict[str, float]): classes bounds value to determine if target is balanced or not
+        topN_features (int): amount of features to select
+
+    Returns:
+        pd.DataFrame: dataframe representing balanced master table
+    """
 
     logger.info("Checking for class balance")
     label0_count, _ = df.label.value_counts()
@@ -102,6 +140,15 @@ def mt_balance_classes(df: pd.DataFrame,
 
 
 def _balance_classes(X: pd.DataFrame, y: pd.DataFrame) -> pd.DataFrame:
+    """Balance target classes using NearMiss (kNN) method
+
+    Args:
+        X (pd.DataFrame): dataframe with features
+        y (pd.DataFrame): dataframe with target
+
+    Returns:
+        pd.DataFrame: dataframe representing balanced master table
+    """
 
     nm = NearMiss(version=3)
     X_res, y_res = nm.fit_resample(X, y)
@@ -114,8 +161,17 @@ def _balance_classes(X: pd.DataFrame, y: pd.DataFrame) -> pd.DataFrame:
     return mt
 
 
-def _split_master_table(df: pd.DataFrame, topN_features: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    
+def _split_master_table(df: pd.DataFrame, topN_features: int) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Split master table into train, test and window_nbr
+
+    Args:
+        df (pd.DataFrame): dataframe representing the master table
+        topN_features (int): amount of features to select
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: dataframe with features, target and window_nbr, respectively
+    """
+
     y = df[["window_nbr", "label"]].set_index("window_nbr")
     X = df.drop(columns=["close_time", "label"]).set_index("window_nbr")
 

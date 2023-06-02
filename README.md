@@ -1,122 +1,38 @@
-# crypto_thesis
-
 ## Overview
+This project's objective is to predict the directional price movement of cryptocurrencies through Machine Learning (ML) models.
+The project currently has 3 working and tested ML models: XGBoost, LSTM and Logistic Regression.
 
-This is your new Kedro project, which was generated using `Kedro 0.18.1`.
+There are many parameters to be set in `conf/base/parameters` directory, and I really encourage people to test different combinations of them, but the ones in the production version are already tested and working.
 
-Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
+The code was developed using Kedro framework, official docs: https://kedro.org and https://docs.kedro.org/en/stable/index.html
 
-## Rules and guidelines
+## Setup
+### Dependencies
+Using your preferrable environment manager, follow the steps below to install dependencies:
+1. create and activate a virtual environment
+    - conda example: `conda create -n <name> python=3.8 -y && conda activate <name>`
+2. install `requirements.txt`
+    - `pip install -r requirements.txt`
+3. install dependencies in `pyproject.toml` with `poetry`
+    - `poetry lock && poetry install`
 
-In order to get the best out of the template:
+### Credentials
+To collect raw data you need Binance credentials. The project expects to have 2 environment variables named `BINANCE_API_KEY` and `BINANCE_SECRET_KEY` with Binance's api key and secret, respectively.
 
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a [data engineering convention](https://kedro.readthedocs.io/en/stable/faq/faq.html#what-is-data-engineering-convention)
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
+## Assets
+- `docs/diagrams` directory contains relevant diagrams for the project
+- `docs/build/html/index.html` contains an HTML page with the API documentation for all the code and modules
+    - to regenerate this docs, run in your terminal `kedro build-docs` in the root directory of the project
+    ![API front page example](docs/images/html_api_example.png "API front page example")
+- `docs/images/kedro-pipeline.png` contains the pipeline functions' execution flow
+    - to regenerate this image, run in your terminal `kedro viz` and it will open a webpage where you can download it
+    ![pipeline execution flow](docs/images/kedro-pipeline.png "pipeline execution flow")
 
-## How to install dependencies
+## Data
+- all datasets' types and paths are defined in the catalog at `conf/base/catalog` in yml files
+    - the yml key is the dataset name used by the pipelines
 
-Declare any dependencies in `src/requirements.txt` for `pip` installation and `src/environment.yml` for `conda` installation.
-
-To install them, run:
-
-```
-pip install -r src/requirements.txt
-```
-
-## How to run your Kedro pipeline
-
-You can run your Kedro project with:
-
-```
-kedro run
-```
-
-## How to test your Kedro project
-
-Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
-
-```
-kedro test
-```
-
-To configure the coverage threshold, go to the `.coveragerc` file.
-
-## Project dependencies
-
-To generate or update the dependency requirements for your project:
-
-```
-kedro build-reqs
-```
-
-This will `pip-compile` the contents of `src/requirements.txt` into a new file `src/requirements.lock`. You can see the output of the resolution by opening `src/requirements.lock`.
-
-After this, if you'd like to update your project requirements, please update `src/requirements.txt` and re-run `kedro build-reqs`.
-
-[Further information about project dependencies](https://kedro.readthedocs.io/en/stable/kedro_project_setup/dependencies.html#project-specific-dependencies)
-
-## How to work with Kedro and notebooks
-
-> Note: Using `kedro jupyter` or `kedro ipython` to run your notebook provides these variables in scope: `context`, `catalog`, and `startup_error`.
->
-> Jupyter, JupyterLab, and IPython are already included in the project requirements by default, so once you have run `pip install -r src/requirements.txt` you will not need to take any extra steps before you use them.
-
-### Jupyter
-To use Jupyter notebooks in your Kedro project, you need to install Jupyter:
-
-```
-pip install jupyter
-```
-
-After installing Jupyter, you can start a local notebook server:
-
-```
-kedro jupyter notebook
-```
-
-### JupyterLab
-To use JupyterLab, you need to install it:
-
-```
-pip install jupyterlab
-```
-
-You can also start JupyterLab:
-
-```
-kedro jupyter lab
-```
-
-### IPython
-And if you want to run an IPython session:
-
-```
-kedro ipython
-```
-
-### How to convert notebook cells to nodes in a Kedro project
-You can move notebook code over into a Kedro project structure using a mixture of [cell tagging](https://jupyter-notebook.readthedocs.io/en/stable/changelog.html#release-5-0-0) and Kedro CLI commands.
-
-By adding the `node` tag to a cell and running the command below, the cell's source code will be copied over to a Python file within `src/<package_name>/nodes/`:
-
-```
-kedro jupyter convert <filepath_to_my_notebook>
-```
-> *Note:* The name of the Python file matches the name of the original notebook.
-
-Alternatively, you may want to transform all your notebooks in one go. Run the following command to convert all notebook files found in the project root directory and under any of its sub-folders:
-
-```
-kedro jupyter convert --all
-```
-
-### How to ignore notebook output cells in `git`
-To automatically strip out all output cell contents before committing to `git`, you can run `kedro activate-nbstripout`. This will add a hook in `.git/config` which will run `nbstripout` before anything is committed to `git`.
-
-> *Note:* Your output cells will be retained locally.
-
-## Package your Kedro project
-
-[Further information about building project documentation and packaging your project](https://kedro.readthedocs.io/en/stable/tutorial/package_a_project.html)
+## Parameters
+- all parameters are defined at `conf/base/parameters`
+- parameters with value starting with `$` are defined in runtime when building the Kedro Session
+    - example: `"${start_date}"` receives the start_date from the parameter defined at `src/crypto_thesis/settings.py`

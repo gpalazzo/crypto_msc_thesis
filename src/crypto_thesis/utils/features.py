@@ -12,6 +12,18 @@ def apply_mic_fte_slct(df_ftes: pd.DataFrame,
                             spine_labeled: pd.DataFrame,
                             train_test_cutoff_date: str,
                             topN_features: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Select feature using the Mutual Information Critetion (MIC) method
+
+    Args:
+        df_ftes (pd.DataFrame): dataframe containing the features
+        spine_labeled (pd.DataFrame): spine dataset already with class labels
+        train_test_cutoff_date (str): cutoff date to split dataset into train and test
+        topN_features (int): amount of features to keep
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: dataframe with remaining features and 
+        dataframe with MIC features' importance value
+    """
 
     df_ftes_aux = df_ftes.copy() # do not change original data, it will be reused
 
@@ -54,6 +66,21 @@ def apply_vif_fte_slct(df_ftes: pd.DataFrame,
                             apply_mic_after_vif: bool = True) -> Tuple[pd.DataFrame,
                                                                         pd.DataFrame,
                                                                         pd.DataFrame]:
+    """Select feature using the Variance Inflation Factor (VIF) method
+    Potentially apply MIC after VIF
+
+    Args:
+        df_ftes (pd.DataFrame): dataframe containing the features
+        spine_labeled (pd.DataFrame): spine dataset already with class labels
+        train_test_cutoff_date (str): cutoff date to split dataset into train and test
+        topN_features (int): amount of features to keep
+        vif_threshold (Union[int, float]): threshold value to cutoff features for VIF
+        apply_mic_after_vif (bool, optional): whether or not to apply MIC feature selection after VIF. Defaults to True.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: dataframe with remaining features, 
+        dataframe with VIF values and dataframe with MIC features' importance value
+    """
 
     df_ftes_aux = df_ftes.copy() # do not change original data, it will be reused
     df_ftes_aux = df_ftes_aux.dropna()

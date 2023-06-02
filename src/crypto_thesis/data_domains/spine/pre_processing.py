@@ -1,12 +1,23 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, List, Union
-
+from typing import Dict, List, Union, Tuple
 import pandas as pd
-
 from crypto_thesis.utils import build_log_return
 
 
-def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str]) -> pd.DataFrame:
+def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Pre-process target data to allow label creation
+
+    Args:
+        prm_binance (pd.DataFrame): dataframe with standardized data
+        preproc_params (Dict[str, str]): parameters for pre-processing target data
+
+    Raises:
+        RuntimeError: if any criterium isn't met
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: dataframe with target pre-processed data and percent change on each 
+        timestamp to build labels, respectively
+    """
 
     # crucial step because the dataframe index will be used in this step
     prm_binance = prm_binance.reset_index(drop=True)
@@ -54,7 +65,17 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     return df_tgt_px, df_log_ret[["close_time", "pctchg"]]
 
 
-def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int, float]) -> pd.DataFrame:
+def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int, float]) -> Tuple[pd.DataFrame, List[int]]:
+    """Builds the volume threshold flag for a given size of volume bar
+
+    Args:
+        preproc_df (pd.DataFrame): dataframe with volume data to build the bars
+        _volume_bar_size (Union[int, float]): quantity of volume to consider in each bar
+
+    Returns:
+        Tuple[pd.DataFrame, List[int]]: dataframe with volume threshold flag and list of indices in which the volume
+        threshold was reached, respectively
+    """
 
     preproc_df = preproc_df.sort_values(by="close_time", ascending=True)
 
@@ -83,6 +104,17 @@ def _build_threshold_flag(preproc_df: pd.DataFrame, _volume_bar_size: Union[int,
 
 
 def _build_flag_time_window(df: pd.DataFrame, idxs: List[int], bars_ahead: int) -> pd.DataFrame:
+    """Build the time windows based on the volume threshold flags
+
+    Args:
+        df (pd.DataFrame): dataframe with volume threshold flags
+        idxs (List[int]): list of indices in which the volume threshold was reached
+        bars_ahead (int): amount of volume bars ahead to predict, e.g., if volume bar is 50k and bars ahead is 1,
+        it will predict the next 50k volume
+
+    Returns:
+        pd.DataFrame: dataframe with the prediction timestamps based on volume bar threshold
+    """
 
     final_df = pd.DataFrame()
 
@@ -113,6 +145,16 @@ def _build_flag_time_window(df: pd.DataFrame, idxs: List[int], bars_ahead: int) 
 
 
 def _get_target_time_values(df: pd.DataFrame, bars_ahead: int) -> pd.DataFrame:
+    """Defines the prediction point target values for each volume bar
+
+    Args:
+        df (pd.DataFrame): dataframe with defined prediction points
+        bars_ahead (int): amount of volume bars ahead to predict, e.g., if volume bar is 50k and bars ahead is 1,
+        it will predict the next 50k volume
+
+    Returns:
+        pd.DataFrame: dataframe with prediction points' target value
+    """
 
     df = df.sort_values(by="close_time")
     df.loc[:, "next_log_return"] = df["log_return"].shift(-bars_ahead)

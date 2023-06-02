@@ -23,6 +23,19 @@ def xgboost_model_fit(master_table: pd.DataFrame,
                     xgboost_default_params: Dict[str, Any]) -> Tuple[XGBClassifier,
                                                         pd.DataFrame, pd.DataFrame,
                                                         pd.DataFrame, pd.DataFrame]:
+    """Fits the XGBoost classifier model
+
+    Args:
+        master_table (pd.DataFrame): dataframe representing the master table
+        train_test_cutoff_date (str): cutoff date for train/test split
+        model_params (Dict[str, Any]): current model parameters grid
+        xgboost_optimize_params (bool): whether if it's to optimize or not parameters
+        xgboost_default_params (Dict[str, Any]): xgboost model default parameters
+
+    Returns:
+        Tuple[XGBClassifier, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: trained model object,
+        best model parameters, features train, target train, features test and target test, respectively
+    """
 
     X_train, y_train, X_test, y_test = mt_split_train_test(master_table=master_table,
                                                             index_col=INDEX_COL,
@@ -56,6 +69,15 @@ def xgboost_model_fit(master_table: pd.DataFrame,
 
 
 def xgboost_model_predict(model: XGBClassifier, X_test: pd.DataFrame) -> pd.DataFrame:
+    """XGBoost model prediction
+
+    Args:
+        model (XGBClassifier): XGBoost trained classifier
+        X_test (pd.DataFrame): dataframe with features test
+
+    Returns:
+        pd.DataFrame: dataframe with model's prediction
+    """
 
     idxs = X_test.index.tolist()
     y_pred = model.predict(X_test)
@@ -73,6 +95,24 @@ def xgboost_model_reporting(model: XGBClassifier,
                             train_test_cutoff_date: str,
                             slct_topN_features: int,
                             min_years_existence: int) -> pd.DataFrame:
+    """XGBoost model reporting
+
+    Args:
+        model (XGBClassifier): XGBoost trained classifier
+        X_test (pd.DataFrame): dataframe with features test
+        y_test (pd.DataFrame): dataframe with target test
+        y_pred (pd.DataFrame): dataframe with model's prediction
+        master_table (pd.DataFrame): dataframe representing the master table
+        model_data_interval (str): interval which the raw data was collected
+        spine_preproc_params (Dict[str, Any]): parameters for spine pre-processing
+        spine_label_params (Dict[str, Any]): parameters for labeling the target
+        train_test_cutoff_date (str): date to cutoff datasets into train and test
+        slct_topN_features (int): amount of features to keep
+        min_years_existence (int): minimum time, in years, for ticker existence
+
+    Returns:
+        pd.DataFrame: dataframe with model's metrics
+    """
 
     # get model's accuracy
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)

@@ -1,3 +1,6 @@
+# parameters used for all models
+
 model_data_interval: "${binance_data_interval}"
+
 # date to divide train and test datasets
 train_test_cutoff_date: "2022-09-23"

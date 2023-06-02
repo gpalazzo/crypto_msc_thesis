@@ -1,2 +1,2 @@
-# number of years, at least, with historical data
+# consider tickers with, at least, `min_years_existence` years of existence
 min_years_existence: 3

@@ -1,13 +1,22 @@
 # -*- coding: utf-8 -*-
+"""Pipeline object having mainly func, inputs and outputs
+`func` is the python function to be executed
+`inputs` are either datasets or parameters defined in the conf/base directory
+`outputs` are datasets defined in the catalog
+- if the output is not defined in the catalog, then it becomes a MemoryDataSet
+- MemoryDataSet persists as long as the Session is active
+"""
+
 from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.master_table import build_master_table
 
 
-def master_table_pipeline():
+def master_table_pipeline() -> pipeline:
 
     _master_table_pipeline = pipeline(
         Pipeline([
+            # build master table with multicollinear features
             node(func=build_master_table,
                 inputs=["fte_binance_multic",
                         "spine_labeled",
@@ -17,6 +26,7 @@ def master_table_pipeline():
                 name="run_master_table_multic",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
 
+            # build master table without multicollinear features
             node(func=build_master_table,
                 inputs=["fte_binance_nonmultic",
                         "spine_labeled",

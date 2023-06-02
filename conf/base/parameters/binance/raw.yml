@@ -23,10 +23,10 @@ raw_binance_get_data:
     - UNIUSDT #Uniswap
     - LINKUSDT #Chainlink
     - ATOMUSDT #Cosmos
-    # - WBTCUSDT #Wrapped Bitcoin #ticker não existe
-    # - LEOUSDT #UNUS SED LEO #ticker não existe
-    # - OKBUSDT #OKB #ticker não existe
-    # - TONUSDT #Toncoin #ticker não existe
+    # - WBTCUSDT #Wrapped Bitcoin (ticker doesn't exist)
+    # - LEOUSDT #UNUS SED LEO (ticker doesn't exist)
+    # - OKBUSDT #OKB (ticker doesn't exist)
+    # - TONUSDT #Toncoin (ticker doesn't exist)
     - ETCUSDT #Ethereum Classic
     - XMRUSDT #Monero
     - BCHUSDT #Bitcoin Cash

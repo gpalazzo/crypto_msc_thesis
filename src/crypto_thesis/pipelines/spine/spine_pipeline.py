@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Pipeline object having mainly func, inputs and outputs
+`func` is the python function to be executed
+`inputs` are either datasets or parameters defined in the conf/base directory
+`outputs` are datasets defined in the catalog
+- if the output is not defined in the catalog, then it becomes a MemoryDataSet
+- MemoryDataSet persists as long as the Session is active
+"""
+
 from kedro.pipeline import Pipeline, node, pipeline
 
 from crypto_thesis.data_domains.spine import (
@@ -7,10 +15,11 @@ from crypto_thesis.data_domains.spine import (
 )
 
 
-def spine_pipeline():
+def spine_pipeline() -> pipeline:
 
     _spine_pipeline = pipeline(
         Pipeline([
+            # prepare the dataset
             node(func=spine_preprocessing,
                 inputs=["prm_binance",
                         "params:spine_preprocessing"],
@@ -18,6 +27,7 @@ def spine_pipeline():
                 name="run_spine_preprocessing",
                 tags=["all_except_raw", "all_except_binance"]),
 
+            # generate the labels
             node(func=spine_build_target_labels,
                 inputs=["spine_preprocessing",
                         "spine_log_ret",
