@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+import logging
+from typing import Dict, Tuple
+
 import pandas as pd
 from imblearn.under_sampling import NearMiss
-from typing import Dict, Tuple
-import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ def build_master_table(fte_df: pd.DataFrame,
                                                                 "target_time"])
 
     logger.info("Checking for class unbalancing")
-    master_table_numbered = mt_balance_classes(df=master_table_numbered, 
+    master_table_numbered = mt_balance_classes(df=master_table_numbered,
                                                class_bounds=class_bounds,
                                                topN_features=topN_features)
 
@@ -53,7 +53,7 @@ def build_master_table(fte_df: pd.DataFrame,
     window_nbr_lookup = window_nbr_lookup[window_nbr_lookup["window_nbr"].isin(master_table_numbered["window_nbr"])]
 
     logger.info("Checking master table quality")
-    _check_master_table_quality(df=master_table_numbered, 
+    _check_master_table_quality(df=master_table_numbered,
                                 class_bounds=class_bounds)
 
     return master_table_numbered, window_nbr_lookup

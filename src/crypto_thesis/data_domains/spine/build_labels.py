@@ -5,7 +5,6 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -87,7 +86,7 @@ def _check_spine_quality(df: pd.DataFrame) -> None:
 
     Args:
         df (pd.DataFrame): dataframe representing the spine
-    
+
     Returns:
         None. Raises error if criteria isn't met
     """

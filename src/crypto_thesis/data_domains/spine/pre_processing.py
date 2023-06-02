@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, List, Union, Tuple
+from typing import Dict, List, Tuple, Union
+
 import pandas as pd
+
 from crypto_thesis.utils import build_log_return
 
 
@@ -15,7 +17,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
         RuntimeError: if any criterium isn't met
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: dataframe with target pre-processed data and percent change on each 
+        Tuple[pd.DataFrame, pd.DataFrame]: dataframe with target pre-processed data and percent change on each
         timestamp to build labels, respectively
     """
 

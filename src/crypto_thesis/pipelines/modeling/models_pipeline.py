@@ -38,7 +38,7 @@ def ml_models_pipeline() -> pipeline:
                         "xgboost_features_test", "xgboost_target_test"],
                 name="run_xgboost_fitting",
                 tags=["all_except_raw", "all_except_binance"])
-            
+
             # model predict
             , node(func=xgboost_model_predict,
                 inputs=["xgboost_fitted_model", "xgboost_features_test"],

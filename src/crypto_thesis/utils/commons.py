@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from typing import List, Union
+
 import numpy as np
 import pandas as pd
-from typing import Union, List
 
 
 def build_log_return(df: pd.DataFrame, ref_col: str = "close") -> pd.DataFrame:
@@ -22,7 +23,7 @@ def build_log_return(df: pd.DataFrame, ref_col: str = "close") -> pd.DataFrame:
 
 
 def build_timeseries(df: pd.DataFrame, index: Union[str, List[str]], cols: List[str]) -> pd.DataFrame:
-    """Build timeseries, i.e. one value per date, by pivotting dataframe. It recreates the pivotted columns 
+    """Build timeseries, i.e. one value per date, by pivotting dataframe. It recreates the pivotted columns
     by separating the names with double underscores (__)
 
     Args:

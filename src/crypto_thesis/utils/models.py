@@ -23,7 +23,7 @@ def mt_split_train_test(master_table: pd.DataFrame,
         target_col (List[str]): column with the target value
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: dataframes with features and target for training, 
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: dataframes with features and target for training,
         and features and target for testing, respectively
     """
 
