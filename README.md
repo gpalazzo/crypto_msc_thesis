@@ -9,7 +9,7 @@ The code was developed using Kedro framework, official docs: https://kedro.org a
 ## Setup
 ### Dependencies
 Using your preferrable environment manager, follow the steps below to install dependencies:
-1. create a virtual environment
+1. create and activate a virtual environment
     - conda example: `conda create -n <name> python=3.8 -y && conda activate <name>`
 2. install `requirements.txt`
     - `pip install -r requirements.txt`
@@ -22,12 +22,17 @@ To collect raw data you need Binance credentials. The project expects to have 2 
 ## Assets
 - `docs/diagrams` directory contains relevant diagrams for the project
 - `docs/build/html/index.html` contains an HTML page with the API documentation for all the code and modules
+    - to regenerate this docs, run in your terminal `kedro build-docs` in the root directory of the project
     ![API front page example](docs/images/html_api_example.png "API front page example")
+- `docs/images/kedro-pipeline.png` contains the pipeline functions' execution flow
+    - to regenerate this image, run in your terminal `kedro viz` and it will open a webpage where you can download it
+    ![pipeline execution flow](docs/images/kedro-pipeline.png "pipeline execution flow")
 
 ## Data
-- all datasets' types and paths are defined in the catalog at `conf/base/catalog` in yml files where the yml key is the dataset name defined in the pipelines
+- all datasets' types and paths are defined in the catalog at `conf/base/catalog` in yml files
+    - the yml key is the dataset name used by the pipelines
 
 ## Parameters
 - all parameters are defined at `conf/base/parameters`
 - parameters with value starting with `$` are defined in runtime when building the Kedro Session
-    - example: `"${start_date}"` receives the start_date from parameter defined at `src/crypto_thesis/settings.py`
+    - example: `"${start_date}"` receives the start_date from the parameter defined at `src/crypto_thesis/settings.py`
