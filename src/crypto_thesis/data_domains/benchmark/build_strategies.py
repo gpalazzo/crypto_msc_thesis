@@ -76,11 +76,15 @@ def trend_following_strategy(spine_preproc: pd.DataFrame,
     df_drop = df.dropna() #drop first data point due to shift null
     assert df_drop.shape[0] == df.shape[0] - 1, "More than 1 data point was dropped, review"
 
+    # the value is calculated for window_nbr (i), but it must be assigned to window_nbr (i+1)
     df_drop.loc[:, "y_pred"] = df_drop.apply(lambda col: 1 \
                                             if col["logret_cumsum"] > col["prev_logret_cumsum"] \
                                             else 0 \
                                         , axis=1)
+    df_drop.loc[:, "y_pred"] = df_drop["y_pred"].shift()
+    df_drop_new = df_drop.dropna() #drop first data point due to shift null
+    assert df_drop_new.shape[0] == df_drop.shape[0] - 1, "More than 1 data point was dropped, review"
 
-    df = df_drop[["y_pred"]]
+    df = df_drop_new[["y_pred"]].astype(int)
 
     return df
