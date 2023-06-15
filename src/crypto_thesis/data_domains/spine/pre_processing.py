@@ -56,7 +56,7 @@ def spine_preprocessing(prm_binance: pd.DataFrame, preproc_params: Dict[str, str
     df = _get_target_time_values(df=df, bars_ahead=bars_ahead_predict)
 
     # get useful columns for calculation in labeling
-    df = df[["open_time", "close_time", "target_time", "logret_cumsum", "target_time_close", "target_time_log_return"]]
+    df = df[["open_time", "close_time", "target_time", "logret_cumsum", "target_time_close", "target_time_log_return", "volume_cumsum"]]
     df_tgt_px = df.merge(preproc_df[["close_time", "close"]] \
                             .rename(columns={"close": "close_time_close"}),
                         on="close_time",

@@ -24,6 +24,9 @@ def build_master_table(fte_df: pd.DataFrame,
         pd.DataFrame: dataframe representing the master table
     """
 
+    # drop unnecessary column for this step
+    spine = spine.drop(columns=["volume_cumsum"])
+
     master_table = fte_df.merge(spine, on=["open_time", "close_time"], how="inner")
     assert master_table.shape[0] == fte_df.shape[0] == spine.shape[0], \
             "Mismatch of dates between features and spine, review."
