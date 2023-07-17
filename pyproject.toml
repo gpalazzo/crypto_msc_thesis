@@ -1,0 +1,75 @@
+[tool.kedro]
+package_name = "crypto_thesis"
+project_name = "crypto_thesis"
+project_version = "0.18.1"
+
+[tool.poetry]
+name = "crypto_thesis"
+version = "0.1.0"
+description = "Project to forecast price direction of cryptcurrencies"
+authors = ["Guilherme Palazzo <gpalazzo93@icloud.com>"]
+
+[tool.pycln]
+path = "src/"
+exclude = "(.*init.*py$)"
+all = true
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+known_third_party = "kedro"
+
+[tool.black]
+line-length = 88
+target-version = ['py36', 'py37', 'py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    # The following are specific to Black, you probably don't want those.
+    | blib2to3
+    | tests/data
+    | profiling
+)/
+'''
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/crypto_thesis -ra"""
+
+[tool.poetry.dependencies]
+python = "3.8.16"
+kedro = {extras = ["pandas"], version = "0.18.1"}
+scikit-learn = "^1.0.2"
+python-binance = "^1.0.16"
+xgboost = "^1.7.3"
+aiohttp = "^3.8.3"
+QuantStats = "^0.0.59"
+keras = "^2.11.0"
+statsmodels = "^0.13.5"
+tensorflow-macos = "^2.12.0"
+ipython = "8.12.*"
+imbalanced-learn = "^0.10.1"
+virtualenv = "^20.23.0"
+
+[tool.poetry.group.dev.dependencies]
+plotly = "^5.13.0"
+seaborn = "^0.12.2"
+black = "^21.7b0"
+pytest = "^6.2.5"
+pre-commit = "^2.17.0"
+matplotlib = "^3.6.3"
+jupyterlab = "^3.2.8"
+kedro-viz = "^6.2.0"
+
+[build-system]
+requires = ["poetry>=1.0"]
+build-backend = "poetry.masonry.api"
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]

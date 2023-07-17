@@ -1,0 +1,9 @@
+# all parameters here are dummy
+# they will be overwritten when building the Kedro Session
+
+# date range to collect data
+start_date: "0000-00-00"
+end_date: "0000-00-00"
+
+# Binance data collection interval
+binance_data_interval: "999m"

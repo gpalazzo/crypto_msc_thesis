@@ -1,0 +1,38 @@
+# all crypto pairs against USDT to have the same standard
+raw_binance_get_data:
+  tickers:
+    # top 30 coins ordered descendingly considering marketcap as of 2023-03-04
+    # excluding USDT from top 10
+    - BTCUSDT #Bitcoin
+    - ETHUSDT #Ethereum
+    # - USDT #Tether itself, so we don't use
+    - BNBUSDT #BNB
+    - USDCUSDT #USD Coin
+    - XRPUSDT #Ripple
+    - ADAUSDT #Cardano
+    - DOGEUSDT #Dogecoin
+    - MATICUSDT #Polygon
+    - BUSDUSDT #Binance USD
+    - SOLUSDT #Solana
+    - DOTUSDT #Polkadot
+    - LTCUSDT #Litecoin
+    - SHIBUSDT #Shiba Inu
+    - TRXUSDT #Tron
+    - AVAXUSDT #Avalanche
+    - DAIUSDT #Dai
+    - UNIUSDT #Uniswap
+    - LINKUSDT #Chainlink
+    - ATOMUSDT #Cosmos
+    # - WBTCUSDT #Wrapped Bitcoin (ticker doesn't exist)
+    # - LEOUSDT #UNUS SED LEO (ticker doesn't exist)
+    # - OKBUSDT #OKB (ticker doesn't exist)
+    # - TONUSDT #Toncoin (ticker doesn't exist)
+    - ETCUSDT #Ethereum Classic
+    - XMRUSDT #Monero
+    - BCHUSDT #Bitcoin Cash
+    - FILUSDT #Filecoin
+    - LDOUSDT #Lido DAO
+    - XLMUSDT #Stellar
+  start_date: "${start_date}"
+  end_date: "${end_date}"
+  binance_data_interval: "${binance_data_interval}"

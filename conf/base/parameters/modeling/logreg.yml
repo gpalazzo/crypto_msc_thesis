@@ -1,0 +1,17 @@
+# if `logreg_optimize_params` is true, then the parameters are gonna be optimized in runtime
+logreg_optimize_params: false
+
+# apply these parameters regardless of optimization or not
+logreg_default_params:
+  n_jobs: -1
+
+# if `logreg_optimize_params` is false, then use the parameters defined below
+logreg_model_params:
+  solver: "saga"
+  penalty: "elasticnet"
+  tol: 0.001
+  C: 1.0
+  max_iter: 200
+  fit_intercept: true
+  class_weight: "balanced"
+  l1_ratio: 0.1

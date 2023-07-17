@@ -1,0 +1,14 @@
+spine_preprocessing:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/spine_preprocessing.parquet
+  versioned: true
+
+spine_log_ret:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/spine_log_return.parquet
+  versioned: true
+
+spine_labeled:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/spine_labeled.parquet
+  versioned: true

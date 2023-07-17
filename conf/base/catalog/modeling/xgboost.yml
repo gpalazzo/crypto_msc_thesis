@@ -1,0 +1,52 @@
+xgboost_fitted_model:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/${binance_data_interval}/xgboost/xgboost_fitted_model.pkl
+  versioned: true
+  backend: pickle
+
+xgboost_optimized_params:
+  type: pandas.ParquetDataSet
+  filepath: data/06_models/${binance_data_interval}/xgboost/xgboost_optimized_params.parquet
+  versioned: true
+
+xgboost_features_train:
+  type: pandas.ParquetDataSet
+  filepath: data/06_models/${binance_data_interval}/xgboost/xgboost_features_train.parquet
+  versioned: true
+  save_args:
+    index: True
+
+xgboost_target_train:
+  type: pandas.ParquetDataSet
+  filepath: data/06_models/${binance_data_interval}/xgboost/xgboost_target_train.parquet
+  versioned: true
+  save_args:
+    index: True
+
+xgboost_features_test:
+  type: pandas.ParquetDataSet
+  filepath: data/06_models/${binance_data_interval}/xgboost/xgboost_features_test.parquet
+  versioned: true
+  save_args:
+    index: True
+
+xgboost_target_test:
+  type: pandas.ParquetDataSet
+  filepath: data/06_models/${binance_data_interval}/xgboost/xgboost_target_test.parquet
+  versioned: true
+  save_args:
+    index: True
+
+xgboost_model_predict:
+  type: pandas.ParquetDataSet
+  filepath: data/07_model_output/${binance_data_interval}/xgboost/xgboost_model_predict.parquet
+  versioned: true
+  save_args:
+    index: True
+
+xgboost_model_reporting:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/xgboost/xgboost_model_reporting.parquet
+  versioned: true
+  save_args:
+    index: True

@@ -1,0 +1,2 @@
+# consider tickers with, at least, `min_years_existence` years of existence
+min_years_existence: 3

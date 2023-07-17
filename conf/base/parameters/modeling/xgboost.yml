@@ -1,0 +1,21 @@
+# if `logreg_optixgboost_optimize_paramsmize_params` is true, then the parameters are gonna be optimized in runtime
+xgboost_optimize_params: false
+
+# apply these parameters regardless of optimization or not
+xgboost_default_params:
+  n_jobs: -1
+  use_label_encoder: false
+
+# if `xgboost_optimize_params` is false, then use the parameters defined below
+# if not using `subsample` and `colsample_bytree` parameters the model is deterministic, but increases the chance of overfitting
+xgboost_model_params:
+  eval_metric: "auc"
+  n_estimators: 500
+  max_depth: 3
+  reg_lambda: 0.05
+  gamma: 0.01
+  min_child_weight: 2.0
+  learning_rate: 0.05
+  objective: "binary:logistic"
+  sampling_method: "uniform"
+  tree_method: "auto"
