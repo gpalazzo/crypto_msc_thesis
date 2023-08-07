@@ -62,8 +62,8 @@ def build_portfolio_regr(df: pd.DataFrame) -> List[RegressionResultsWrapper]:
 
     for pair in PAIRS:
         dfaux = df[pair + [CONSTANT_COL]]
-        y = dfaux[pair[0]].copy()
-        X = dfaux.drop(columns=[pair[0]]).copy()
+        y = dfaux[pair[1]].copy()
+        X = dfaux.drop(columns=[pair[1]]).copy()
 
         model = sm.OLS(y, X).fit()
         models.append(model)
