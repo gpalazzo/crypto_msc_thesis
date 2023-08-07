@@ -9,7 +9,11 @@
 
 from kedro.pipeline import Pipeline, node, pipeline
 
-from crypto_thesis.data_domains.portfolio import build_portfolio_metrics
+from crypto_thesis.data_domains.portfolio import (
+    build_portfolio_metrics,
+    build_portfolio_regr,
+    build_regression_dataset,
+)
 
 
 def portfolio_pipeline() -> pipeline:
@@ -51,4 +55,27 @@ def portfolio_pipeline() -> pipeline:
         ],
         tags=["portfolio_pipeline"]))
 
-    return _portfolio_pipeline
+    _portfolios_regr_pipeline = pipeline(
+        Pipeline([
+            # build base dataset
+            node(func=build_regression_dataset,
+                inputs=["benchmark_trendfollowing_pnl",
+                        "xgboost_portfolio_pnl",
+                        "lstm_portfolio_pnl",
+                        "logreg_portfolio_pnl"],
+                outputs="portfolio_regression_data",
+                name="run_build_regression_dataset",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
+            # calculate regressions
+            # the order of input is extremely important to map the output
+            node(func=build_portfolio_regr,
+                inputs="portfolio_regression_data",
+                outputs=["portfolio_regression_xgboost",
+                         "portfolio_regression_lstm",
+                         "portfolio_regression_logreg"],
+                name="run_build_portfolio_regr",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+        ],
+        tags=["portfolios_regr_pipeline"]))
+
+    return _portfolio_pipeline + _portfolios_regr_pipeline

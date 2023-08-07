@@ -27,3 +27,26 @@ logreg_portfolio_metrics:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/logreg_portfolio_metrics.parquet
   versioned: true
+
+portfolio_regression_data:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/portfolio_regression.parquet
+  versioned: true
+
+portfolio_regression_xgboost:
+  type: pickle.PickleDataSet
+  filepath: data/08_reporting/${binance_data_interval}/portfolio_regression_xgboost.pkl
+  versioned: true
+  backend: pickle
+
+portfolio_regression_lstm:
+  type: pickle.PickleDataSet
+  filepath: data/08_reporting/${binance_data_interval}/portfolio_regression_lstm.pkl
+  versioned: true
+  backend: pickle
+
+portfolio_regression_logreg:
+  type: pickle.PickleDataSet
+  filepath: data/08_reporting/${binance_data_interval}/portfolio_regression_logreg.pkl
+  versioned: true
+  backend: pickle
