@@ -5,6 +5,7 @@ xgboost_optimize_params: false
 xgboost_default_params:
   n_jobs: -1
   use_label_encoder: false
+  seed: 0
 
 # if `xgboost_optimize_params` is false, then use the parameters defined below
 # if not using `subsample` and `colsample_bytree` parameters the model is deterministic, but increases the chance of overfitting
