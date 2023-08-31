@@ -5,6 +5,7 @@ from typing import Any, Dict, Tuple
 
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from keras.engine.sequential import Sequential
 from keras.layers import LSTM, BatchNormalization, Dense
@@ -22,6 +23,11 @@ INDEX_COL = "window_nbr"
 
 logger = logging.getLogger(__name__)
 
+# set numpy seed
+np.random.seed(0)
+# set tensorflow seed
+tf.random.set_seed(0)
+SHUFFLE = False
 
 def lstm_model_fit(master_table: pd.DataFrame,
                     train_test_cutoff_date: str,
@@ -139,8 +145,8 @@ def lstm_model_fit(master_table: pd.DataFrame,
                 min_lr=1e-8)
 
     # Define Early Stopping:
-    early_stop = EarlyStopping(monitor='val_acc', min_delta=0,
-                            patience=30, verbose=1, mode='auto',
+    early_stop = EarlyStopping(monitor='val_loss', min_delta=0,
+                            patience=EPOCH, verbose=1, mode='auto',
                             baseline=0, restore_best_weights=True)
 
     train_history = model.fit(X_train_scaled_seq, y_train_scaled_seq,
@@ -148,7 +154,7 @@ def lstm_model_fit(master_table: pd.DataFrame,
                         batch_size=BATCH,
                         validation_split=0.0,
                         validation_data=(X_test_scaled_seq[:M_TEST], y_test_scaled_seq[:M_TEST]),
-                        shuffle=True,verbose=0,
+                        shuffle=SHUFFLE, verbose=0,
                         callbacks=[lr_decay, early_stop])
 
     lstm_epoch_train_history = pd.DataFrame.from_dict(train_history.history)
