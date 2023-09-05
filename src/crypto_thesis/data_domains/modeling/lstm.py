@@ -13,7 +13,6 @@ from keras.models import Sequential
 from keras.optimizers import Adam
 from keras.regularizers import l2
 from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.preprocessing import StandardScaler
 
 from crypto_thesis.utils import mt_split_train_test
 
@@ -46,21 +45,10 @@ def lstm_model_fit(master_table: pd.DataFrame,
         model object, train epoch's history, features train, target train, features test and target test, respectively
     """
 
-    X_train, y_train, X_test, y_test = mt_split_train_test(master_table=master_table,
+    X_train_scaled, y_train, X_test_scaled, y_test = mt_split_train_test(master_table=master_table,
                                                             index_col=INDEX_COL,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
-
-    # scaling features
-    scaler = StandardScaler()
-    X_train_scaled = pd.DataFrame(data=scaler.fit_transform(X_train.values),
-                                    index=X_train.index,
-                                    columns=X_train.columns
-                                )
-    X_test_scaled = pd.DataFrame(data=scaler.fit_transform(X_test.values),
-                                    index=X_test.index,
-                                    columns=X_test.columns
-                                )
 
     X_train_scaled_seq, y_train_scaled_seq = _build_lstm_timestamps_seq(X=X_train_scaled,
                                                                         y=y_train,
@@ -191,7 +179,7 @@ def lstm_model_predict(model: Sequential,
 
     y_pred = []
     for predict_proba in predict_probas:
-        if predict_proba > 0.5:
+        if predict_proba > 0.6:
             y_pred.append(1)
         else:
             y_pred.append(0)

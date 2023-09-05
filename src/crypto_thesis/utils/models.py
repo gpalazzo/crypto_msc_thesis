@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Tuple, Union
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from xgboost import XGBClassifier
 
 
@@ -45,7 +46,31 @@ def mt_split_train_test(master_table: pd.DataFrame,
     X_test = master_table_test.drop(columns=target_col)
     y_test = master_table_test[target_col]
 
+    X_train, X_test = _scale_train_test(X_train=X_train, X_test=X_test)
+
     return X_train, y_train, X_test, y_test
+
+
+def _scale_train_test(X_train: pd.DataFrame,
+                      X_test: pd.DataFrame,
+                      scaler: Union[MinMaxScaler, StandardScaler] = None) \
+                        -> Tuple[pd.DataFrame, pd.DataFrame]:
+
+    if not scaler:
+        scaler = MinMaxScaler()
+
+    X_train_scaled = scaler.fit_transform(X=X_train)
+    X_test_scaled = scaler.transform(X=X_test)
+
+    X_train_scaled = pd.DataFrame(data=X_train_scaled,
+                                  index=X_train.index,
+                                  columns=scaler.feature_names_in_)
+
+    X_test_scaled = pd.DataFrame(data=X_test_scaled,
+                                  index=X_test.index,
+                                  columns=scaler.feature_names_in_)
+
+    return X_train_scaled, X_test_scaled
 
 
 def optimize_params(model: Union[LogisticRegression, XGBClassifier],
