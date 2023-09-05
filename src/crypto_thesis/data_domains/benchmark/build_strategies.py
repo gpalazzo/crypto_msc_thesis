@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from crypto_thesis.utils import mt_split_train_test
+from crypto_thesis.utils import split_window_nbr
 
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
@@ -44,7 +44,6 @@ def buy_and_hold_strategy(df_window_nbr: pd.DataFrame,
 
 def trend_following_strategy(spine_preproc: pd.DataFrame,
                              df_window_nbr: pd.DataFrame,
-                             train_test_cutoff_date: str,
                              master_table: pd.DataFrame) -> pd.DataFrame:
     """Create positions based on trend following strategy
 
@@ -58,10 +57,8 @@ def trend_following_strategy(spine_preproc: pd.DataFrame,
         pd.DataFrame: dataframe with defined positions for the strategy
     """
 
-    _, _, X_test, _ = mt_split_train_test(master_table=master_table,
-                                                            index_col=INDEX_COL,
-                                                            train_test_cutoff_date=train_test_cutoff_date,
-                                                            target_col=TARGET_COL)
+    _, df_test = split_window_nbr(df=master_table, index_col=INDEX_COL)
+    X_test = df_test.drop(columns=TARGET_COL)
 
     spine_preproc = spine_preproc[["open_time", "close_time", "logret_cumsum"]]
     df = spine_preproc.merge(df_window_nbr,

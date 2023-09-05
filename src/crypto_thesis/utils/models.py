@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import math
 from typing import Any, Dict, List, Tuple, Union
 
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from xgboost import XGBClassifier
 
 
@@ -48,6 +50,28 @@ def mt_split_train_test(master_table: pd.DataFrame,
     return X_train, y_train, X_test, y_test
 
 
+def scale_train_test(X_train: pd.DataFrame,
+                      X_test: pd.DataFrame,
+                      scaler: Union[MinMaxScaler, StandardScaler] = None) \
+                        -> Tuple[pd.DataFrame, pd.DataFrame]:
+
+    if not scaler:
+        scaler = MinMaxScaler()
+
+    X_train_scaled = scaler.fit_transform(X=X_train)
+    X_test_scaled = scaler.transform(X=X_test)
+
+    X_train_scaled = pd.DataFrame(data=X_train_scaled,
+                                  index=X_train.index,
+                                  columns=scaler.feature_names_in_)
+
+    X_test_scaled = pd.DataFrame(data=X_test_scaled,
+                                  index=X_test.index,
+                                  columns=scaler.feature_names_in_)
+
+    return X_train_scaled, X_test_scaled
+
+
 def optimize_params(model: Union[LogisticRegression, XGBClassifier],
                     grid: Dict[str, Any],
                     X_train: pd.DataFrame,
@@ -83,3 +107,22 @@ def optimize_params(model: Union[LogisticRegression, XGBClassifier],
     grid_result = grid_search.fit(X_train, y_train)
 
     return grid_result
+
+
+def split_window_nbr(df: pd.DataFrame, index_col: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Essa função é provisória e será deletada com o ajuste de balanceamento entre treino e teste
+    """
+
+    df = df.sort_values(by=index_col) \
+            .reset_index(drop=True)
+    df.index += 1
+
+    idx_threshold = math.floor(df.shape[0] * 0.7)
+
+    train_df = df[df.index <= idx_threshold]
+    test_df = df[df.index > idx_threshold]
+
+    train_df = train_df.set_index(index_col)
+    test_df = test_df.set_index(index_col)
+
+    return train_df, test_df

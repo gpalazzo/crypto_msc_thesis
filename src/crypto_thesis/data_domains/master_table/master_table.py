@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import Dict, Tuple
+from typing import Dict
 
 import pandas as pd
 from imblearn.under_sampling import NearMiss
 
+from crypto_thesis.utils import mt_split_train_test, scale_train_test
+
 logger = logging.getLogger(__name__)
+TARGET_COL = ["label"]
+INDEX_COL = "window_nbr"
 
 
 def build_master_table(fte_df: pd.DataFrame,
                         spine: pd.DataFrame,
                         class_bounds: Dict[str, float],
-                        topN_features: int) -> pd.DataFrame:
+                        topN_features: int,
+                        train_test_cutoff_date: str) -> pd.DataFrame:
     """Builds master table (features and target)
 
     Args:
@@ -47,10 +52,21 @@ def build_master_table(fte_df: pd.DataFrame,
                                                                 "open_time",
                                                                 "target_time"])
 
+    logger.info("Scaling features")
+    X_train, y_train, X_test, y_test = mt_split_train_test(master_table=master_table_numbered,
+                                                            index_col=INDEX_COL,
+                                                            train_test_cutoff_date=train_test_cutoff_date,
+                                                            target_col=TARGET_COL)
+    X_train, X_test = scale_train_test(X_train=X_train, X_test=X_test)
+    train_df = X_train.merge(y_train, left_index=True, right_index=True, how="inner")
+    test_df = X_test.merge(y_test, left_index=True, right_index=True, how="inner")
+    master_table_numbered = pd.concat([train_df, test_df])
+
     logger.info("Checking for class unbalancing")
     master_table_numbered = mt_balance_classes(df=master_table_numbered,
                                                class_bounds=class_bounds,
                                                topN_features=topN_features)
+    master_table_numbered = master_table_numbered.reset_index()
 
     # retrieve window_nbr after class balancing
     window_nbr_lookup = window_nbr_lookup[window_nbr_lookup["window_nbr"].isin(master_table_numbered["window_nbr"])]
@@ -128,13 +144,7 @@ def mt_balance_classes(df: pd.DataFrame,
                     class_bounds["upper"]) \
                     [0]: #pull index [0] always works because it's only 1 label
 
-        X, y, window_nbr_closetime = _split_master_table(df=df,
-                                                        topN_features=topN_features)
-        df = _balance_classes(X=X, y=y)
-
-        df = df.merge(window_nbr_closetime, left_index=True, right_index=True, how="inner") \
-                .reset_index() \
-                .rename(columns={"index": "window_nbr"})
+        df = _balance_classes(df=df)
 
     else:
         logger.info("Class are balanced, skipping balancing method")
@@ -142,7 +152,7 @@ def mt_balance_classes(df: pd.DataFrame,
     return df
 
 
-def _balance_classes(X: pd.DataFrame, y: pd.DataFrame) -> pd.DataFrame:
+def _balance_classes(df: pd.DataFrame) -> pd.DataFrame:
     """Balance target classes using NearMiss (kNN) method
 
     Args:
@@ -153,6 +163,9 @@ def _balance_classes(X: pd.DataFrame, y: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: dataframe representing balanced master table
     """
 
+    y = df[TARGET_COL]
+    X = df.drop(columns=TARGET_COL)
+
     nm = NearMiss(version=3)
     X_res, y_res = nm.fit_resample(X, y)
 
@@ -160,25 +173,6 @@ def _balance_classes(X: pd.DataFrame, y: pd.DataFrame) -> pd.DataFrame:
     X_res.index, y_res.index = idxs, idxs
 
     mt = X_res.merge(y_res, left_index=True, right_index=True, how="inner")
+    mt.index.name = "window_nbr"
 
     return mt
-
-
-def _split_master_table(df: pd.DataFrame, topN_features: int) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Split master table into train, test and window_nbr
-
-    Args:
-        df (pd.DataFrame): dataframe representing the master table
-        topN_features (int): amount of features to select
-
-    Returns:
-        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: dataframe with features, target and window_nbr, respectively
-    """
-
-    y = df[["window_nbr", "label"]].set_index("window_nbr")
-    X = df.drop(columns=["close_time", "label"]).set_index("window_nbr")
-
-    # shape of X after split must be the same as the amount of selected features
-    assert X.shape[1] == topN_features, "Wrong number of features in master table split, review"
-
-    return X, y, df[["window_nbr", "close_time"]].set_index("window_nbr")

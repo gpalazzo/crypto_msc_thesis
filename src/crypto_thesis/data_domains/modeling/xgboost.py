@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix
 from xgboost import XGBClassifier
 
-from crypto_thesis.utils import mt_split_train_test, optimize_params
+from crypto_thesis.utils import optimize_params, split_window_nbr
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,6 @@ INDEX_COL = "window_nbr"
 
 
 def xgboost_model_fit(master_table: pd.DataFrame,
-                    train_test_cutoff_date: str,
                     model_params: Dict[str, Any],
                     xgboost_optimize_params: bool,
                     xgboost_default_params: Dict[str, Any]) -> Tuple[XGBClassifier,
@@ -37,10 +36,10 @@ def xgboost_model_fit(master_table: pd.DataFrame,
         best model parameters, features train, target train, features test and target test, respectively
     """
 
-    X_train, y_train, X_test, y_test = mt_split_train_test(master_table=master_table,
-                                                            index_col=INDEX_COL,
-                                                            train_test_cutoff_date=train_test_cutoff_date,
-                                                            target_col=TARGET_COL)
+    df_train, df_test = split_window_nbr(df=master_table, index_col=INDEX_COL)
+
+    X_train, y_train = df_train.drop(columns=TARGET_COL), df_train[TARGET_COL]
+    X_test, y_test = df_test.drop(columns=TARGET_COL), df_test[TARGET_COL]
 
     # default parameter
     model = XGBClassifier(**xgboost_default_params)
@@ -88,7 +87,6 @@ def xgboost_model_reporting(model: XGBClassifier,
                             X_test: pd.DataFrame,
                             y_test: pd.DataFrame,
                             y_pred: pd.DataFrame,
-                            master_table: pd.DataFrame,
                             model_data_interval: str,
                             spine_preproc_params: Dict[str, Any],
                             spine_label_params: Dict[str, Any],
@@ -129,11 +127,11 @@ def xgboost_model_reporting(model: XGBClassifier,
     fte_imps = model.get_booster().get_score(importance_type="weight")
 
     # get label class balance
-    label_class_balance = (master_table["label"].value_counts() / master_table.shape[0]).to_dict()
+    label_class_balance = (y_test["label"].value_counts() / y_test.shape[0]).to_dict()
 
     # get selected tickers
     tickers = []
-    for col in master_table.columns.tolist():
+    for col in X_test.columns.tolist():
         splitted = col.split("__")
         try:
             tickers.append(splitted[1])
