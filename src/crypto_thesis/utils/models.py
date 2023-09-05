@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import math
 from typing import Any, Dict, List, Tuple, Union
 
 import pandas as pd
@@ -46,12 +47,10 @@ def mt_split_train_test(master_table: pd.DataFrame,
     X_test = master_table_test.drop(columns=target_col)
     y_test = master_table_test[target_col]
 
-    X_train, X_test = _scale_train_test(X_train=X_train, X_test=X_test)
-
     return X_train, y_train, X_test, y_test
 
 
-def _scale_train_test(X_train: pd.DataFrame,
+def scale_train_test(X_train: pd.DataFrame,
                       X_test: pd.DataFrame,
                       scaler: Union[MinMaxScaler, StandardScaler] = None) \
                         -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -108,3 +107,22 @@ def optimize_params(model: Union[LogisticRegression, XGBClassifier],
     grid_result = grid_search.fit(X_train, y_train)
 
     return grid_result
+
+
+def split_window_nbr(df: pd.DataFrame, index_col: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Essa função é provisória e será deletada com o ajuste de balanceamento entre treino e teste
+    """
+
+    df = df.sort_values(by=index_col) \
+            .reset_index(drop=True)
+    df.index += 1
+
+    idx_threshold = math.floor(df.shape[0] * 0.7)
+
+    train_df = df[df.index <= idx_threshold]
+    test_df = df[df.index > idx_threshold]
+
+    train_df = train_df.set_index(index_col)
+    test_df = test_df.set_index(index_col)
+
+    return train_df, test_df

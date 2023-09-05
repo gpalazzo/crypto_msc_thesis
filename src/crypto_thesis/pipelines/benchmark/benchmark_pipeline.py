@@ -31,7 +31,6 @@ def benchmark_pipeline() -> pipeline:
             node(func=trend_following_strategy,
                 inputs=["spine_preprocessing",
                         "window_nbr_lookup_multic",
-                        "params:train_test_cutoff_date",
                         "master_table_multic"],
                 outputs="benchmark_trendfollowing_strat",
                 name="run_benchmark_trendfollowing_strat",

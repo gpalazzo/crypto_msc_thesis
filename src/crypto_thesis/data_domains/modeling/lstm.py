@@ -14,7 +14,7 @@ from keras.optimizers import Adam
 from keras.regularizers import l2
 from sklearn.metrics import accuracy_score, confusion_matrix
 
-from crypto_thesis.utils import mt_split_train_test
+from crypto_thesis.utils import split_window_nbr
 
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
@@ -29,7 +29,6 @@ tf.random.set_seed(0)
 SHUFFLE = False
 
 def lstm_model_fit(master_table: pd.DataFrame,
-                    train_test_cutoff_date: str,
                     seq_length: int) -> Tuple[Sequential, pd.DataFrame,
                                                 pd.DataFrame, pd.DataFrame,
                                                 pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -45,15 +44,15 @@ def lstm_model_fit(master_table: pd.DataFrame,
         model object, train epoch's history, features train, target train, features test and target test, respectively
     """
 
-    X_train_scaled, y_train, X_test_scaled, y_test = mt_split_train_test(master_table=master_table,
-                                                            index_col=INDEX_COL,
-                                                            train_test_cutoff_date=train_test_cutoff_date,
-                                                            target_col=TARGET_COL)
+    df_train, df_test = split_window_nbr(df=master_table, index_col=INDEX_COL)
 
-    X_train_scaled_seq, y_train_scaled_seq = _build_lstm_timestamps_seq(X=X_train_scaled,
+    X_train, y_train = df_train.drop(columns=TARGET_COL), df_train[TARGET_COL]
+    X_test, y_test = df_test.drop(columns=TARGET_COL), df_test[TARGET_COL]
+
+    X_train_scaled_seq, y_train_scaled_seq = _build_lstm_timestamps_seq(X=X_train,
                                                                         y=y_train,
                                                                         seq_length=seq_length)
-    X_test_scaled_seq, y_test_scaled_seq = _build_lstm_timestamps_seq(X=X_test_scaled,
+    X_test_scaled_seq, y_test_scaled_seq = _build_lstm_timestamps_seq(X=X_test,
                                                                         y=y_test,
                                                                         seq_length=seq_length)
 
@@ -152,7 +151,7 @@ def lstm_model_fit(master_table: pd.DataFrame,
     # saving X_train_scaled instead of X_train_scaled_seq because the first one is easy to interpret
     # changing from the first to the second one is as simple as applying the
     # function `_build_lstm_timestamps_seq`
-    return model, lstm_epoch_train_history, X_train_scaled, y_train, X_test_scaled, y_test
+    return model, lstm_epoch_train_history, X_train, y_train, X_test, y_test
 
 
 def lstm_model_predict(model: Sequential,
@@ -191,7 +190,6 @@ def lstm_model_reporting(model: Sequential,
                             X_test: pd.DataFrame,
                             y_test: pd.DataFrame,
                             y_pred: pd.DataFrame,
-                            master_table: pd.DataFrame,
                             model_data_interval: str,
                             spine_preproc_params: Dict[str, Any],
                             spine_label_params: Dict[str, Any],
@@ -232,11 +230,11 @@ def lstm_model_reporting(model: Sequential,
     # fte_imps = model.get_booster().get_score(importance_type="weight")
 
     # get label class balance
-    label_class_balance = (master_table["label"].value_counts() / master_table.shape[0]).to_dict()
+    label_class_balance = (y_test["label"].value_counts() / y_test.shape[0]).to_dict()
 
     # get selected tickers
     tickers = []
-    for col in master_table.columns.tolist():
+    for col in X_test.columns.tolist():
         splitted = col.split("__")
         try:
             tickers.append(splitted[1])

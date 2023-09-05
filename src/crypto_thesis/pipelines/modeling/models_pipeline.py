@@ -29,7 +29,6 @@ def ml_models_pipeline() -> pipeline:
             # model fit
             node(func=xgboost_model_fit,
                 inputs=["master_table_multic",
-                        "params:train_test_cutoff_date",
                         "params:xgboost_model_params",
                         "params:xgboost_optimize_params",
                         "params:xgboost_default_params"],
@@ -52,7 +51,6 @@ def ml_models_pipeline() -> pipeline:
                         "xgboost_features_test",
                         "xgboost_target_test",
                         "xgboost_model_predict",
-                        "master_table_multic",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
                         "params:spine_labeling",
@@ -70,7 +68,6 @@ def ml_models_pipeline() -> pipeline:
             # model fit
             node(func=lstm_model_fit,
                 inputs=["master_table_multic",
-                        "params:train_test_cutoff_date",
                         "params:lstm_timestamp_seq_length"],
                 outputs=["lstm_fitted_model", "lstm_epoch_train_history",
                         "lstm_features_train", "lstm_target_train",
@@ -94,7 +91,6 @@ def ml_models_pipeline() -> pipeline:
                         "lstm_features_test",
                         "lstm_target_test",
                         "lstm_model_predict",
-                        "master_table_multic",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
                         "params:spine_labeling",
@@ -112,7 +108,6 @@ def ml_models_pipeline() -> pipeline:
             # model fit
             node(func=logreg_model_fit,
                 inputs=["master_table_nonmultic",
-                        "params:train_test_cutoff_date",
                         "params:logreg_model_params",
                         "params:logreg_optimize_params",
                         "params:logreg_default_params"],
@@ -136,7 +131,6 @@ def ml_models_pipeline() -> pipeline:
                         "logreg_features_test",
                         "logreg_target_test",
                         "logreg_model_predict",
-                        "master_table_nonmultic",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
                         "params:spine_labeling",
