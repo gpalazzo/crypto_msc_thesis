@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import Dict
+from typing import Dict, Tuple
 
 import pandas as pd
 from imblearn.under_sampling import NearMiss
@@ -16,7 +16,8 @@ def build_master_table(fte_df: pd.DataFrame,
                         spine: pd.DataFrame,
                         class_bounds: Dict[str, float],
                         topN_features: int,
-                        train_test_cutoff_date: str) -> pd.DataFrame:
+                        train_test_cutoff_date: str) -> Tuple[pd.DataFrame, pd.DataFrame,
+                                                              pd.DataFrame, pd.DataFrame]:
     """Builds master table (features and target)
 
     Args:
@@ -59,23 +60,25 @@ def build_master_table(fte_df: pd.DataFrame,
                                                             target_col=TARGET_COL)
     X_train, X_test = scale_train_test(X_train=X_train, X_test=X_test)
     train_df = X_train.merge(y_train, left_index=True, right_index=True, how="inner")
+
     test_df = X_test.merge(y_test, left_index=True, right_index=True, how="inner")
-    master_table_numbered = pd.concat([train_df, test_df])
+    test_df = test_df.reset_index()
 
     logger.info("Checking for class unbalancing")
-    master_table_numbered = mt_balance_classes(df=master_table_numbered,
+    train_df_bal = mt_balance_classes(df=train_df,
                                                class_bounds=class_bounds,
                                                topN_features=topN_features)
-    master_table_numbered = master_table_numbered.reset_index()
+    train_df_bal = train_df_bal.reset_index()
 
     # retrieve window_nbr after class balancing
-    window_nbr_lookup = window_nbr_lookup[window_nbr_lookup["window_nbr"].isin(master_table_numbered["window_nbr"])]
+    window_nbr_lookup_train = window_nbr_lookup[window_nbr_lookup["window_nbr"].isin(train_df_bal["window_nbr"])]
+    window_nbr_lookup_test = window_nbr_lookup[window_nbr_lookup["window_nbr"].isin(test_df["window_nbr"])]
 
     logger.info("Checking master table quality")
-    _check_master_table_quality(df=master_table_numbered,
+    _check_master_table_quality(df=train_df_bal,
                                 class_bounds=class_bounds)
 
-    return master_table_numbered, window_nbr_lookup
+    return train_df_bal, window_nbr_lookup_train, test_df, window_nbr_lookup_test
 
 
 def _build_window_numbers(df: pd.DataFrame) -> pd.DataFrame:

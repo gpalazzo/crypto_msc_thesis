@@ -28,19 +28,17 @@ def ml_models_pipeline() -> pipeline:
         Pipeline([
             # model fit
             node(func=xgboost_model_fit,
-                inputs=["master_table_multic",
+                inputs=["master_table_train_multic",
                         "params:xgboost_model_params",
                         "params:xgboost_optimize_params",
                         "params:xgboost_default_params"],
-                outputs=["xgboost_fitted_model", "xgboost_optimized_params",
-                        "xgboost_features_train", "xgboost_target_train",
-                        "xgboost_features_test", "xgboost_target_test"],
+                outputs=["xgboost_fitted_model", "xgboost_optimized_params"],
                 name="run_xgboost_fitting",
                 tags=["all_except_raw", "all_except_binance"])
 
             # model predict
             , node(func=xgboost_model_predict,
-                inputs=["xgboost_fitted_model", "xgboost_features_test"],
+                inputs=["xgboost_fitted_model", "master_table_test_multic"],
                 outputs="xgboost_model_predict",
                 name="run_xgboost_predicting",
                 tags=["all_except_raw", "all_except_binance"])
@@ -48,8 +46,7 @@ def ml_models_pipeline() -> pipeline:
             # model evaluate
             , node(func=xgboost_model_reporting,
                 inputs=["xgboost_fitted_model",
-                        "xgboost_features_test",
-                        "xgboost_target_test",
+                        "master_table_test_multic",
                         "xgboost_model_predict",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
@@ -67,19 +64,17 @@ def ml_models_pipeline() -> pipeline:
         Pipeline([
             # model fit
             node(func=lstm_model_fit,
-                inputs=["master_table_multic",
+                inputs=["master_table_train_multic",
+                        "master_table_test_multic",
                         "params:lstm_timestamp_seq_length"],
-                outputs=["lstm_fitted_model", "lstm_epoch_train_history",
-                        "lstm_features_train", "lstm_target_train",
-                        "lstm_features_test", "lstm_target_test"],
+                outputs=["lstm_fitted_model", "lstm_epoch_train_history"],
                 name="run_lstm_fitting",
                 tags=["all_except_raw", "all_except_binance"])
 
             # model predict
             , node(func=lstm_model_predict,
                 inputs=["lstm_fitted_model",
-                        "lstm_features_test",
-                        "lstm_target_test",
+                        "master_table_test_multic",
                         "params:lstm_timestamp_seq_length"],
                 outputs="lstm_model_predict",
                 name="run_lstm_predicting",
@@ -88,8 +83,7 @@ def ml_models_pipeline() -> pipeline:
             # model evaluate
             , node(func=lstm_model_reporting,
                 inputs=["lstm_fitted_model",
-                        "lstm_features_test",
-                        "lstm_target_test",
+                        "master_table_test_multic",
                         "lstm_model_predict",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
@@ -107,20 +101,18 @@ def ml_models_pipeline() -> pipeline:
         Pipeline([
             # model fit
             node(func=logreg_model_fit,
-                inputs=["master_table_nonmultic",
+                inputs=["master_table_train_nonmultic",
                         "params:logreg_model_params",
                         "params:logreg_optimize_params",
                         "params:logreg_default_params"],
-                outputs=["logreg_fitted_model", "logreg_optimized_params",
-                        "logreg_features_train", "logreg_target_train",
-                        "logreg_features_test", "logreg_target_test"],
+                outputs=["logreg_fitted_model", "logreg_optimized_params"],
                 name="run_logreg_fitting",
                 tags=["all_except_raw", "all_except_binance"])
 
             # model predict
             , node(func=logreg_model_predict,
                 inputs=["logreg_fitted_model",
-                        "logreg_features_test"],
+                        "master_table_test_nonmultic"],
                 outputs="logreg_model_predict",
                 name="run_logreg_predicting",
                 tags=["all_except_raw", "all_except_binance"])
@@ -128,8 +120,7 @@ def ml_models_pipeline() -> pipeline:
             # model evaluate
             , node(func=logreg_model_reporting,
                 inputs=["logreg_fitted_model",
-                        "logreg_features_test",
-                        "logreg_target_test",
+                        "master_table_test_nonmultic",
                         "logreg_model_predict",
                         "params:model_data_interval",
                         "params:spine_preprocessing",
