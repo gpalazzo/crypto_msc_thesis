@@ -14,8 +14,6 @@ from keras.optimizers import Adam
 from keras.regularizers import l2
 from sklearn.metrics import accuracy_score, confusion_matrix
 
-from crypto_thesis.utils import split_window_nbr
-
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
 INDEX_COL = "window_nbr"
@@ -28,10 +26,9 @@ np.random.seed(0)
 tf.random.set_seed(0)
 SHUFFLE = False
 
-def lstm_model_fit(master_table: pd.DataFrame,
-                    seq_length: int) -> Tuple[Sequential, pd.DataFrame,
-                                                pd.DataFrame, pd.DataFrame,
-                                                pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def lstm_model_fit(master_table_train: pd.DataFrame,
+                master_table_test: pd.DataFrame,
+                seq_length: int) -> Tuple[Sequential, pd.DataFrame]:
     """Fits the LSTM model classifier
 
     Args:
@@ -44,10 +41,11 @@ def lstm_model_fit(master_table: pd.DataFrame,
         model object, train epoch's history, features train, target train, features test and target test, respectively
     """
 
-    df_train, df_test = split_window_nbr(df=master_table, index_col=INDEX_COL)
+    master_table_train = master_table_train.set_index(INDEX_COL)
+    master_table_test = master_table_test.set_index(INDEX_COL)
 
-    X_train, y_train = df_train.drop(columns=TARGET_COL), df_train[TARGET_COL]
-    X_test, y_test = df_test.drop(columns=TARGET_COL), df_test[TARGET_COL]
+    X_train, y_train = master_table_train.drop(columns=TARGET_COL), master_table_train[TARGET_COL]
+    X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
 
     X_train_scaled_seq, y_train_scaled_seq = _build_lstm_timestamps_seq(X=X_train,
                                                                         y=y_train,
@@ -151,12 +149,11 @@ def lstm_model_fit(master_table: pd.DataFrame,
     # saving X_train_scaled instead of X_train_scaled_seq because the first one is easy to interpret
     # changing from the first to the second one is as simple as applying the
     # function `_build_lstm_timestamps_seq`
-    return model, lstm_epoch_train_history, X_train, y_train, X_test, y_test
+    return model, lstm_epoch_train_history
 
 
 def lstm_model_predict(model: Sequential,
-                        X_test_scaled: pd.DataFrame,
-                        y_test: pd.DataFrame,
+                        master_table_test: pd.DataFrame,
                         seq_length: int) -> pd.DataFrame:
     """LSTM model prediction
 
@@ -170,15 +167,18 @@ def lstm_model_predict(model: Sequential,
         pd.DataFrame: dataframe with model's prediction
     """
 
-    idxs = X_test_scaled.index.tolist()
-    X_test_scaled_seq, _ = _build_lstm_timestamps_seq(X=X_test_scaled, y=y_test, seq_length=seq_length)
+    master_table_test = master_table_test.set_index(INDEX_COL)
+    X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
+
+    idxs = X_test.index.tolist()
+    X_test_scaled_seq, _ = _build_lstm_timestamps_seq(X=X_test, y=y_test, seq_length=seq_length)
     M_TEST = X_test_scaled_seq.shape[0]
 
     predict_probas = model.predict(x=X_test_scaled_seq, batch_size=M_TEST, verbose=1)
 
     y_pred = []
     for predict_proba in predict_probas:
-        if predict_proba > 0.6:
+        if predict_proba > 0.5:
             y_pred.append(1)
         else:
             y_pred.append(0)
@@ -187,15 +187,14 @@ def lstm_model_predict(model: Sequential,
 
 
 def lstm_model_reporting(model: Sequential,
-                            X_test: pd.DataFrame,
-                            y_test: pd.DataFrame,
-                            y_pred: pd.DataFrame,
-                            model_data_interval: str,
-                            spine_preproc_params: Dict[str, Any],
-                            spine_label_params: Dict[str, Any],
-                            train_test_cutoff_date: str,
-                            slct_topN_features: int,
-                            min_years_existence: int) -> pd.DataFrame:
+                        master_table_test: pd.DataFrame,
+                        y_pred: pd.DataFrame,
+                        model_data_interval: str,
+                        spine_preproc_params: Dict[str, Any],
+                        spine_label_params: Dict[str, Any],
+                        train_test_cutoff_date: str,
+                        slct_topN_features: int,
+                        min_years_existence: int) -> pd.DataFrame:
     """LSTM model reporting
 
     Args:
@@ -214,6 +213,9 @@ def lstm_model_reporting(model: Sequential,
     Returns:
         pd.DataFrame: dataframe with model's metrics
     """
+
+    master_table_test = master_table_test.set_index(INDEX_COL)
+    X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
 
     # get model's accuracy
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)

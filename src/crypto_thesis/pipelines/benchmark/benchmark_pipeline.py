@@ -21,7 +21,7 @@ def benchmark_pipeline() -> pipeline:
     _benchmark_strategies = pipeline(
         Pipeline([
             node(func=buy_and_hold_strategy,
-                inputs=["window_nbr_lookup_multic",
+                inputs=["window_nbr_lookup_test_multic",
                         "prm_binance",
                         "params:spine_preprocessing.target_name"],
                 outputs="benchmark_buyhold_strat",
@@ -30,8 +30,8 @@ def benchmark_pipeline() -> pipeline:
 
             node(func=trend_following_strategy,
                 inputs=["spine_preprocessing",
-                        "window_nbr_lookup_multic",
-                        "master_table_multic"],
+                        "window_nbr_lookup_test_multic",
+                        "master_table_test_multic"],
                 outputs="benchmark_trendfollowing_strat",
                 name="run_benchmark_trendfollowing_strat",
                 tags=["all_except_raw", "all_except_raw_prm"]),
@@ -43,7 +43,7 @@ def benchmark_pipeline() -> pipeline:
         Pipeline([
             node(func=build_portfolio_metrics,
                 inputs=["benchmark_trendfollowing_strat",
-                        "window_nbr_lookup_multic",
+                        "window_nbr_lookup_test_multic",
                         "prm_binance",
                         "params:spine_preprocessing.target_name",
                         "params:portfolio_initial_money"],

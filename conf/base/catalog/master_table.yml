@@ -1,19 +1,39 @@
-master_table_multic:
+master_table_train_multic:
   type: pandas.ParquetDataSet
-  filepath: data/05_model_input/${binance_data_interval}/master_table_multic.parquet
+  filepath: data/05_model_input/${binance_data_interval}/master_table_train_multic.parquet
   versioned: true
 
-window_nbr_lookup_multic:
+master_table_test_multic:
   type: pandas.ParquetDataSet
-  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_multic.parquet
+  filepath: data/05_model_input/${binance_data_interval}/master_table_test_multic.parquet
   versioned: true
 
-master_table_nonmultic:
+window_nbr_lookup_train_multic:
   type: pandas.ParquetDataSet
-  filepath: data/05_model_input/${binance_data_interval}/master_table_nonmultic.parquet
+  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_train_multic.parquet
   versioned: true
 
-window_nbr_lookup_nonmultic:
+window_nbr_lookup_test_multic:
   type: pandas.ParquetDataSet
-  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_nonmultic.parquet
+  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_test_multic.parquet
+  versioned: true
+
+master_table_train_nonmultic:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/${binance_data_interval}/master_table_train_nonmultic.parquet
+  versioned: true
+
+master_table_test_nonmultic:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/${binance_data_interval}/master_table_test_nonmultic.parquet
+  versioned: true
+
+window_nbr_lookup_train_nonmultic:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_train_nonmultic.parquet
+  versioned: true
+
+window_nbr_lookup_test_nonmultic:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_test_nonmultic.parquet
   versioned: true

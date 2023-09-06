@@ -2,8 +2,6 @@
 import numpy as np
 import pandas as pd
 
-from crypto_thesis.utils import split_window_nbr
-
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
 INDEX_COL = "window_nbr"
@@ -43,8 +41,8 @@ def buy_and_hold_strategy(df_window_nbr: pd.DataFrame,
 
 
 def trend_following_strategy(spine_preproc: pd.DataFrame,
-                             df_window_nbr: pd.DataFrame,
-                             master_table: pd.DataFrame) -> pd.DataFrame:
+                             df_window_nbr_test: pd.DataFrame,
+                             master_table_test: pd.DataFrame) -> pd.DataFrame:
     """Create positions based on trend following strategy
 
     Args:
@@ -57,17 +55,16 @@ def trend_following_strategy(spine_preproc: pd.DataFrame,
         pd.DataFrame: dataframe with defined positions for the strategy
     """
 
-    _, df_test = split_window_nbr(df=master_table, index_col=INDEX_COL)
-    X_test = df_test.drop(columns=TARGET_COL)
+    X_test = master_table_test.drop(columns=TARGET_COL)
 
     spine_preproc = spine_preproc[["open_time", "close_time", "logret_cumsum"]]
-    df = spine_preproc.merge(df_window_nbr,
+    df = spine_preproc.merge(df_window_nbr_test,
                              on=["open_time", "close_time"],
                              how="inner")
-    df = df[df["window_nbr"].isin(X_test.index)]
-    assert df.shape[0] == len(X_test.index), "Mismatch between spine preproc, window numbers and X_test index"
+    df = df[df["window_nbr"].isin(X_test["window_nbr"])]
+    assert df.shape[0] == X_test.shape[0], "Mismatch between spine preproc, window numbers and X_test index"
 
-    df = df.drop(columns=["open_time", "close_time", "target_time"]).set_index("window_nbr").sort_index()
+    df = df.drop(columns=["open_time", "close_time", "target_time"]).set_index(INDEX_COL).sort_index()
 
     df.loc[:, "prev_logret_cumsum"] = df["logret_cumsum"].shift()
     df_drop = df.dropna() #drop first data point due to shift null

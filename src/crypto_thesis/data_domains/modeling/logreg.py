@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
 
-from crypto_thesis.utils import optimize_params, split_window_nbr
+from crypto_thesis.utils import optimize_params
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore")
@@ -19,13 +19,11 @@ TARGET_COL = ["label"]
 INDEX_COL = "window_nbr"
 
 
-def logreg_model_fit(master_table: pd.DataFrame,
+def logreg_model_fit(master_table_train: pd.DataFrame,
                     model_params: Dict[str, Any],
                     logreg_optimize_params: bool,
                     logreg_default_params: Dict[str, Any]
-                    ) -> Tuple[LogisticRegression,
-                                pd.DataFrame, pd.DataFrame,
-                                pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+                    ) -> Tuple[LogisticRegression, pd.DataFrame]:
     """_summary_
 
     Args:
@@ -40,10 +38,8 @@ def logreg_model_fit(master_table: pd.DataFrame,
         best model parameters, features train, target train, features test and target test, respectively
     """
 
-    df_train, df_test = split_window_nbr(df=master_table, index_col=INDEX_COL)
-
-    X_train, y_train = df_train.drop(columns=TARGET_COL), df_train[TARGET_COL]
-    X_test, y_test = df_test.drop(columns=TARGET_COL), df_test[TARGET_COL]
+    master_table_train = master_table_train.set_index(INDEX_COL)
+    X_train, y_train = master_table_train.drop(columns=TARGET_COL), master_table_train[TARGET_COL]
 
     model = LogisticRegression(**logreg_default_params)
 
@@ -67,10 +63,10 @@ def logreg_model_fit(master_table: pd.DataFrame,
 
     df_params_opt = pd.DataFrame(params_opt, index=[0])
 
-    return model, df_params_opt, X_train, y_train, X_test, y_test
+    return model, df_params_opt
 
 
-def logreg_model_predict(model: LogisticRegression, X_test: pd.DataFrame) -> pd.DataFrame:
+def logreg_model_predict(model: LogisticRegression, master_table_test: pd.DataFrame) -> pd.DataFrame:
     """LogReg model prediction
 
     Args:
@@ -81,6 +77,9 @@ def logreg_model_predict(model: LogisticRegression, X_test: pd.DataFrame) -> pd.
         pd.DataFrame: dataframe with model's prediction
     """
 
+    master_table_test = master_table_test.set_index(INDEX_COL)
+    X_test = master_table_test.drop(columns=TARGET_COL)
+
     idxs = X_test.index.tolist()
     y_pred = model.predict(X_test)
 
@@ -88,8 +87,7 @@ def logreg_model_predict(model: LogisticRegression, X_test: pd.DataFrame) -> pd.
 
 
 def logreg_model_reporting(model: LogisticRegression,
-                            X_test: pd.DataFrame,
-                            y_test: pd.DataFrame,
+                            master_table_test: pd.DataFrame,
                             y_pred: pd.DataFrame,
                             model_data_interval: str,
                             spine_preproc_params: Dict[str, Any],
@@ -115,6 +113,9 @@ def logreg_model_reporting(model: LogisticRegression,
     Returns:
         pd.DataFrame: dataframe with model's metrics
     """
+
+    master_table_test = master_table_test.set_index(INDEX_COL)
+    X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
 
     # get model's accuracy
     acc = accuracy_score(y_true=y_test, y_pred=y_pred)

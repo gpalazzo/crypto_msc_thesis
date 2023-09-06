@@ -23,7 +23,8 @@ def master_table_pipeline() -> pipeline:
                         "params:mt_class_bounds",
                         "params:slct_topN_features",
                         "params:train_test_cutoff_date"],
-                outputs=["master_table_multic", "window_nbr_lookup_multic"],
+                outputs=["master_table_train_multic", "window_nbr_lookup_train_multic",
+                        "master_table_test_multic", "window_nbr_lookup_test_multic"],
                 name="run_master_table_multic",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
 
@@ -34,7 +35,8 @@ def master_table_pipeline() -> pipeline:
                         "params:mt_class_bounds",
                         "params:slct_topN_features",
                         "params:train_test_cutoff_date"],
-                outputs=["master_table_nonmultic", "window_nbr_lookup_nonmultic"],
+                outputs=["master_table_train_nonmultic", "window_nbr_lookup_train_nonmultic",
+                        "master_table_test_nonmultic", "window_nbr_lookup_test_nonmultic"],
                 name="run_master_table_nonmultic",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
