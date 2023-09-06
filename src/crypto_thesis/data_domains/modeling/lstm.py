@@ -41,6 +41,9 @@ def lstm_model_fit(master_table_train: pd.DataFrame,
         model object, train epoch's history, features train, target train, features test and target test, respectively
     """
 
+    master_table_train = master_table_train.set_index(INDEX_COL)
+    master_table_test = master_table_test.set_index(INDEX_COL)
+
     X_train, y_train = master_table_train.drop(columns=TARGET_COL), master_table_train[TARGET_COL]
     X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
 
@@ -164,6 +167,7 @@ def lstm_model_predict(model: Sequential,
         pd.DataFrame: dataframe with model's prediction
     """
 
+    master_table_test = master_table_test.set_index(INDEX_COL)
     X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
 
     idxs = X_test.index.tolist()
@@ -174,7 +178,7 @@ def lstm_model_predict(model: Sequential,
 
     y_pred = []
     for predict_proba in predict_probas:
-        if predict_proba > 0.6:
+        if predict_proba > 0.5:
             y_pred.append(1)
         else:
             y_pred.append(0)
@@ -210,6 +214,7 @@ def lstm_model_reporting(model: Sequential,
         pd.DataFrame: dataframe with model's metrics
     """
 
+    master_table_test = master_table_test.set_index(INDEX_COL)
     X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
 
     # get model's accuracy

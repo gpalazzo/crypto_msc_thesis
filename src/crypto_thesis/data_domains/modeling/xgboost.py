@@ -34,6 +34,7 @@ def xgboost_model_fit(master_table_train: pd.DataFrame,
         best model parameters, features train, target train, features test and target test, respectively
     """
 
+    master_table_train = master_table_train.set_index(INDEX_COL)
     X_train, y_train = master_table_train.drop(columns=TARGET_COL), master_table_train[TARGET_COL]
 
     # default parameter
@@ -73,10 +74,12 @@ def xgboost_model_predict(model: XGBClassifier, master_table_test: pd.DataFrame)
         pd.DataFrame: dataframe with model's prediction
     """
 
+    master_table_test = master_table_test.set_index(INDEX_COL)
     X_test = master_table_test.drop(columns=TARGET_COL)
 
     idxs = X_test.index.tolist()
     y_pred = model.predict(X_test)
+
     return pd.DataFrame(data={"y_pred": y_pred}, index=idxs)
 
 
@@ -108,6 +111,7 @@ def xgboost_model_reporting(model: XGBClassifier,
         pd.DataFrame: dataframe with model's metrics
     """
 
+    master_table_test = master_table_test.set_index(INDEX_COL)
     X_test, y_test = master_table_test.drop(columns=TARGET_COL), master_table_test[TARGET_COL]
 
     # get model's accuracy
