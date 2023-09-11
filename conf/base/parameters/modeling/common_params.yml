@@ -1,5 +1,4 @@
 # parameters used for all models
-
 model_data_interval: "${binance_data_interval}"
 
 # date to divide train and test datasets

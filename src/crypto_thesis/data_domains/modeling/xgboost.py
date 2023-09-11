@@ -47,8 +47,7 @@ def xgboost_model_fit(master_table_train: pd.DataFrame,
                                     grid=model_params,
                                     X_train=X_train,
                                     y_train=y_train,
-                                    n_splits=10,
-                                    n_repeats=3)
+                                    n_splits=10)
         params_opt = params_opt.best_params_
 
     else:

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Dict, List, Tuple, Union
 
+import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
+from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from xgboost import XGBClassifier
 
@@ -76,8 +77,6 @@ def optimize_params(model: Union[LogisticRegression, XGBClassifier],
                     X_train: pd.DataFrame,
                     y_train: pd.DataFrame,
                     n_splits: int,
-                    n_repeats: int,
-                    random_state: int = 1,
                     grid_search_scoring: str = "accuracy") -> Dict[str, str]:
     """Optimize parameters using GridSearchCV method
 
@@ -87,19 +86,22 @@ def optimize_params(model: Union[LogisticRegression, XGBClassifier],
         X_train (pd.DataFrame): dataframe with train features
         y_train (pd.DataFrame): dataframe with train target
         n_splits (int): number of splits for K-fold
-        n_repeats (int): number of repeats for K-fold
-        random_state (int, optional): random state for K-fold. Defaults to 1.
         grid_search_scoring (str, optional): method for scoring the grid search results. Defaults to "accuracy".
 
     Returns:
         Dict[str, str]: grid with chosen parameters
     """
 
-    cv = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
+    tss = TimeSeriesSplit(n_splits=n_splits)
+    custom_cv = []
+
+    for train_index, test_index in tss.split(X_train):
+        custom_cv.append((np.array(train_index), np.array(test_index)))
+
     grid_search = GridSearchCV(estimator=model,
                                 param_grid=grid,
                                 n_jobs=-1,
-                                cv=cv,
+                                cv=custom_cv,
                                 scoring=grid_search_scoring,
                                 error_score=0)
 
