@@ -54,13 +54,48 @@ def lstm_model_fit(master_table_train: pd.DataFrame,
                                                                         y=y_test,
                                                                         seq_length=seq_length)
 
-    # parameters
-    LAYERS = [20, 20, 20, 1] #[10, 10, 10, 1]                # number of units in hidden and output layers
     M_TRAIN = X_train_scaled_seq.shape[0]           # number of training examples (2D)
     M_TEST = X_test_scaled_seq.shape[0]             # number of test examples (2D),full=X_test.shape[0]
-    N = X_train_scaled_seq.shape[2]                 # number of features
     BATCH = M_TRAIN                          # batch size
     EPOCH = 1000 #100                   # number of epochs
+    model = _create_lstm_model(X_train_scaled_seq=X_train_scaled_seq, seq_length=seq_length)
+
+    # Define a learning rate decay method:
+    lr_decay = ReduceLROnPlateau(
+                monitor='loss',
+                patience=1,
+                verbose=0,
+                factor=0.5,
+                min_lr=1e-8)
+
+    # Define Early Stopping:
+    early_stop = EarlyStopping(monitor='val_loss', min_delta=0,
+                            patience=EPOCH, verbose=1, mode='auto',
+                            baseline=0, restore_best_weights=True)
+
+    train_history = model.fit(X_train_scaled_seq, y_train_scaled_seq,
+                        epochs=EPOCH,
+                        batch_size=BATCH,
+                        validation_split=0.0,
+                        validation_data=(X_test_scaled_seq[:M_TEST], y_test_scaled_seq[:M_TEST]),
+                        shuffle=SHUFFLE, verbose=0,
+                        callbacks=[lr_decay, early_stop])
+
+    lstm_epoch_train_history = pd.DataFrame.from_dict(train_history.history)
+    lstm_epoch_train_history.index = list(range(1, EPOCH+1))
+    lstm_epoch_train_history.index.name = "epoch"
+
+    # saving X_train_scaled instead of X_train_scaled_seq because the first one is easy to interpret
+    # changing from the first to the second one is as simple as applying the
+    # function `_build_lstm_timestamps_seq`
+    return model, lstm_epoch_train_history
+
+
+def _create_lstm_model(X_train_scaled_seq: pd.DataFrame, seq_length: int) -> Sequential:
+
+    # parameters
+    LAYERS = [20, 20, 20, 1] #[10, 10, 10, 1]                # number of units in hidden and output layers
+    N = X_train_scaled_seq.shape[2]                 # number of features
     LR = 0.0005 #0.0005                            # learning rate of the gradient descent
     LAMBD = 0.005 #0.001                         # lambda in L2 regularizaion
     DP = 0.0 #0.0                             # dropout rate
@@ -121,35 +156,7 @@ def lstm_model_fit(master_table_train: pd.DataFrame,
         metrics=['accuracy'],
         optimizer=Adam(lr=LR))
 
-    # Define a learning rate decay method:
-    lr_decay = ReduceLROnPlateau(
-                monitor='loss',
-                patience=1,
-                verbose=0,
-                factor=0.5,
-                min_lr=1e-8)
-
-    # Define Early Stopping:
-    early_stop = EarlyStopping(monitor='val_loss', min_delta=0,
-                            patience=EPOCH, verbose=1, mode='auto',
-                            baseline=0, restore_best_weights=True)
-
-    train_history = model.fit(X_train_scaled_seq, y_train_scaled_seq,
-                        epochs=EPOCH,
-                        batch_size=BATCH,
-                        validation_split=0.0,
-                        validation_data=(X_test_scaled_seq[:M_TEST], y_test_scaled_seq[:M_TEST]),
-                        shuffle=SHUFFLE, verbose=0,
-                        callbacks=[lr_decay, early_stop])
-
-    lstm_epoch_train_history = pd.DataFrame.from_dict(train_history.history)
-    lstm_epoch_train_history.index = list(range(1, EPOCH+1))
-    lstm_epoch_train_history.index.name = "epoch"
-
-    # saving X_train_scaled instead of X_train_scaled_seq because the first one is easy to interpret
-    # changing from the first to the second one is as simple as applying the
-    # function `_build_lstm_timestamps_seq`
-    return model, lstm_epoch_train_history
+    return model
 
 
 def lstm_model_predict(model: Sequential,

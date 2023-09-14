@@ -54,6 +54,7 @@ tensorflow-macos = "^2.12.0"
 ipython = "8.12.*"
 imbalanced-learn = "^0.10.1"
 virtualenv = "^20.23.0"
+scikeras = "^0.11.0"
 
 [tool.poetry.group.dev.dependencies]
 plotly = "^5.13.0"
