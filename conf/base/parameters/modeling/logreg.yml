@@ -8,10 +8,11 @@ logreg_default_params:
 
 # if `logreg_optimize_params` is false, then use the parameters defined below
 logreg_model_params:
-  solver: "newton-cholesky"
-  penalty: "l2"
-  tol: 0.07847599703514607
-  C: 0.5455594781168517
-  max_iter: 500
+  solver: "saga"
+  penalty: "elasticnet"
+  tol: 0.03162277660168379
+  C: 0.05623413251903491
+  max_iter: 100
   fit_intercept: true
   class_weight: "balanced"
+  l1_ratio: 0.1

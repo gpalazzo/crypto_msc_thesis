@@ -4996,26 +4996,6 @@ files = [
 pyasn1 = ">=0.1.3"
 
 [[package]]
-name = "scikeras"
-version = "0.11.0"
-description = "Scikit-Learn API wrapper for Keras."
-optional = false
-python-versions = ">=3.8.0,<3.12.0"
-files = [
-    {file = "scikeras-0.11.0-py3-none-any.whl", hash = "sha256:e6688bfa5d5c8050d8dfa17c01cba030a1b015b9c2d01a52a1fc5fa84105593a"},
-    {file = "scikeras-0.11.0.tar.gz", hash = "sha256:f453f03bde5f5643018b8f533cf70d89228bd9d510c4878ceb7637b178c5de1c"},
-]
-
-[package.dependencies]
-packaging = ">=0.21"
-scikit-learn = ">=1.0.0"
-tensorflow-io-gcs-filesystem = {version = ">=0.23.1,<0.32", markers = "sys_platform == \"win32\""}
-
-[package.extras]
-tensorflow = ["tensorflow (>=2.11.0)"]
-tensorflow-cpu = ["tensorflow-cpu (>=2.11.0)"]
-
-[[package]]
 name = "scikit-learn"
 version = "1.2.2"
 description = "A set of python modules for machine learning and data mining"
@@ -6594,4 +6574,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "3.8.16"
-content-hash = "357e8372f0e18483d691093aceed0ba56747f841483d02f71df24db1033f6cfc"
+content-hash = "1f3c968e95df7fc9e256e3fa13a5f8e2549c508a5d5a461c0964fb5a9de2d148"
