@@ -15,7 +15,6 @@ INDEX_COL = "window_nbr"
 def build_master_table(fte_df: pd.DataFrame,
                         spine: pd.DataFrame,
                         class_bounds: Dict[str, float],
-                        topN_features: int,
                         train_test_cutoff_date: str) -> Tuple[pd.DataFrame, pd.DataFrame,
                                                               pd.DataFrame, pd.DataFrame]:
     """Builds master table (features and target)
@@ -58,17 +57,19 @@ def build_master_table(fte_df: pd.DataFrame,
                                                             index_col=INDEX_COL,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
-    X_train, X_test = scale_train_test(X_train=X_train, X_test=X_test)
-    train_df = X_train.merge(y_train, left_index=True, right_index=True, how="inner")
-
-    test_df = X_test.merge(y_test, left_index=True, right_index=True, how="inner")
-    test_df = test_df.reset_index()
 
     logger.info("Checking for class unbalancing")
-    train_df_bal = mt_balance_classes(df=train_df,
-                                               class_bounds=class_bounds,
-                                               topN_features=topN_features)
+    train_df_bal = mt_balance_classes(X=X_train,
+                                      y=y_train,
+                                        class_bounds=class_bounds)
+    X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
+
+    X_train_bal, X_test = scale_train_test(X_train=X_train_bal, X_test=X_test)
+
+    train_df_bal = X_train_bal.merge(y_train_bal, left_index=True, right_index=True, how="inner")
     train_df_bal = train_df_bal.reset_index()
+    test_df = X_test.merge(y_test, left_index=True, right_index=True, how="inner")
+    test_df = test_df.reset_index()
 
     # retrieve window_nbr after class balancing
     window_nbr_lookup_train = window_nbr_lookup[window_nbr_lookup["window_nbr"].isin(train_df_bal["window_nbr"])]
@@ -122,9 +123,9 @@ def _check_master_table_quality(df: pd.DataFrame,
     assert df.isnull().sum().sum() == 0, "Master table contains null, review."
 
 
-def mt_balance_classes(df: pd.DataFrame,
-                        class_bounds: Dict[str, float],
-                        topN_features: int) -> pd.DataFrame:
+def mt_balance_classes(X: pd.DataFrame,
+                       y: pd.DataFrame,
+                        class_bounds: Dict[str, float]) -> pd.DataFrame:
     """Balance master table's classes
 
     Args:
@@ -137,8 +138,8 @@ def mt_balance_classes(df: pd.DataFrame,
     """
 
     logger.info("Checking for class balance")
-    label0_count, _ = df.label.value_counts()
-    label0_pct = label0_count / df.shape[0]
+    label0_count, _ = y.label.value_counts()
+    label0_pct = label0_count / y.shape[0]
 
     # check if any label is outside the desired range
     # there's no need to check both labels, if 1 is outside the range, the other will also be
@@ -147,7 +148,7 @@ def mt_balance_classes(df: pd.DataFrame,
                     class_bounds["upper"]) \
                     [0]: #pull index [0] always works because it's only 1 label
 
-        df = _balance_classes(df=df)
+        df = _balance_classes(X=X, y=y)
 
     else:
         logger.info("Class are balanced, skipping balancing method")
@@ -155,7 +156,8 @@ def mt_balance_classes(df: pd.DataFrame,
     return df
 
 
-def _balance_classes(df: pd.DataFrame) -> pd.DataFrame:
+def _balance_classes(X: pd.DataFrame,
+                     y: pd.DataFrame) -> pd.DataFrame:
     """Balance target classes using NearMiss (kNN) method
 
     Args:
@@ -165,9 +167,6 @@ def _balance_classes(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe representing balanced master table
     """
-
-    y = df[TARGET_COL]
-    X = df.drop(columns=TARGET_COL)
 
     nm = NearMiss(version=3)
     X_res, y_res = nm.fit_resample(X, y)

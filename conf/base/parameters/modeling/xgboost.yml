@@ -11,12 +11,13 @@ xgboost_default_params:
 # if not using `subsample` and `colsample_bytree` parameters the model is deterministic, but increases the chance of overfitting
 xgboost_model_params:
   eval_metric: "auc"
-  n_estimators: 500
-  max_depth: 3
-  reg_lambda: 0.05
-  gamma: 0.01
-  min_child_weight: 2.0
-  learning_rate: 0.05
+  n_estimators: 700
+  max_depth: 4
+  reg_lambda: 10
+  gamma: 10
+  min_child_weight: 10
+  learning_rate: 0.001
   objective: "binary:logistic"
   sampling_method: "uniform"
-  tree_method: "auto"
+  tree_method: "approx"
+  booster: "gbtree"
