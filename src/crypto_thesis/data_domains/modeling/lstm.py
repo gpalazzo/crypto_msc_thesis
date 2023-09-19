@@ -10,7 +10,6 @@ from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from keras.engine.sequential import Sequential
 from keras.layers import LSTM, BatchNormalization, Dense
 from keras.models import Sequential
-from keras.optimizers import Adam
 from keras.regularizers import l2
 from sklearn.metrics import accuracy_score, confusion_matrix
 
@@ -56,8 +55,8 @@ def lstm_model_fit(master_table_train: pd.DataFrame,
 
     M_TRAIN = X_train_scaled_seq.shape[0]           # number of training examples (2D)
     M_TEST = X_test_scaled_seq.shape[0]             # number of test examples (2D),full=X_test.shape[0]
-    BATCH = M_TRAIN                          # batch size
-    EPOCH = 1000 #100                   # number of epochs
+    BATCH = 4                          # batch size
+    EPOCH = 50                   # number of epochs
     model = _create_lstm_model(X_train_scaled_seq=X_train_scaled_seq, seq_length=seq_length)
 
     # Define a learning rate decay method:
@@ -154,7 +153,7 @@ def _create_lstm_model(X_train_scaled_seq: pd.DataFrame, seq_length: int) -> Seq
     model.compile(
         loss='binary_crossentropy',
         metrics=['accuracy'],
-        optimizer=Adam(lr=LR))
+        optimizer="Adam")
 
     return model
 
