@@ -55,7 +55,7 @@ def lstm_model_fit(master_table_train: pd.DataFrame,
 
     M_TRAIN = X_train_scaled_seq.shape[0]           # number of training examples (2D)
     M_TEST = X_test_scaled_seq.shape[0]             # number of test examples (2D),full=X_test.shape[0]
-    BATCH = 4                          # batch size
+    BATCH = 16                          # batch size
     EPOCH = 50                   # number of epochs
     model = _create_lstm_model(X_train_scaled_seq=X_train_scaled_seq, seq_length=seq_length)
 
@@ -153,7 +153,7 @@ def _create_lstm_model(X_train_scaled_seq: pd.DataFrame, seq_length: int) -> Seq
     model.compile(
         loss='binary_crossentropy',
         metrics=['accuracy'],
-        optimizer="SGD")
+        optimizer="Adam")
 
     return model
 
