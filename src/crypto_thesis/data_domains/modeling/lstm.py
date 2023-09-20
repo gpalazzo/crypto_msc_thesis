@@ -153,7 +153,7 @@ def _create_lstm_model(X_train_scaled_seq: pd.DataFrame, seq_length: int) -> Seq
     model.compile(
         loss='binary_crossentropy',
         metrics=['accuracy'],
-        optimizer="Adam")
+        optimizer="SGD")
 
     return model
 

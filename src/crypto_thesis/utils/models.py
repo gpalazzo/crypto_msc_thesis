@@ -103,7 +103,8 @@ def optimize_params(model: Union[LogisticRegression, XGBClassifier],
                                 n_jobs=-1,
                                 cv=custom_cv,
                                 scoring=grid_search_scoring,
-                                error_score=0)
+                                error_score=0
+                                )
 
     grid_result = grid_search.fit(X_train, y_train)
 
