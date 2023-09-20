@@ -27,12 +27,12 @@ def apply_mic_fte_slct(df_ftes: pd.DataFrame,
 
     df_ftes_aux = df_ftes.copy() # do not change original data, it will be reused
 
+    df_ftes_aux = df_ftes_aux.fillna(0).dropna()
     TARGET_COL = "label"
-    df_ftes_aux = df_ftes_aux.dropna()
 
     spine_labeled = spine_labeled[["open_time", "close_time", TARGET_COL]]
 
-    df = df_ftes_aux.merge(spine_labeled, on=["open_time", "close_time"], how="inner")
+    df = df_ftes_aux.merge(spine_labeled, on=INDEX_COL, how="inner")
     assert df.shape[0] == df_ftes_aux.shape[0], "Data loss joining spine and ftes for feature selection, review."
 
     df = df[df["close_time"] < train_test_cutoff_date]
@@ -53,7 +53,7 @@ def apply_mic_fte_slct(df_ftes: pd.DataFrame,
     df_fte_imps = pd.DataFrame({"features": fte_imps.keys(), "score": fte_imps.values()})
 
     slct_cols = X_train_ftes.iloc[:, slct_cols_idx].columns.tolist()
-    df_ftes = df_ftes[INDEX_COL + slct_cols]
+    df_ftes = df_ftes[INDEX_COL + slct_cols].fillna(0)
 
     return df_ftes, df_fte_imps
 
@@ -83,9 +83,9 @@ def apply_vif_fte_slct(df_ftes: pd.DataFrame,
     """
 
     df_ftes_aux = df_ftes.copy() # do not change original data, it will be reused
-    df_ftes_aux = df_ftes_aux.dropna()
+    df_ftes_aux = df_ftes_aux.fillna(0).dropna()
 
-    # df = df[df["close_time"] < train_test_cutoff_date]
+    df_ftes_aux = df_ftes_aux[df_ftes_aux["close_time"] < train_test_cutoff_date]
     df_ftes_aux.loc[:, "const"] = 1 #VIF requires a constant col
     df_ftes_aux = df_ftes_aux.set_index(INDEX_COL)
 

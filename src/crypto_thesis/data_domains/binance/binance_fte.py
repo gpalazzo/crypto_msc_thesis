@@ -7,6 +7,7 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 from scipy import stats
+from ta import add_momentum_ta, add_others_ta, add_volume_ta
 
 from crypto_thesis.utils import build_log_return, build_timeseries
 
@@ -43,23 +44,25 @@ def binance_fte(binance_prm: pd.DataFrame,
     df_log_ret.loc[:, "pctchg"] = df_log_ret \
                                     .groupby(IDENTIFIER_COL)["log_return"] \
                                     .apply(lambda row: np.exp(row) - 1)
-    df_log_ret = df_log_ret[["open_time", IDENTIFIER_COL, "pctchg", "log_return", "volume"]]
+    # df_log_ret = df_log_ret[["open_time", IDENTIFIER_COL, "pctchg", "log_return", "volume"]]
 
     # accumulate data within the volume bar window
     for start, end in zip(spine_labeled["open_time"], spine_labeled["close_time"]):
         df_aux = df_log_ret[df_log_ret["open_time"].between(start, end)]
 
+        df_ta_ftes = _build_technical_ftes(df=df_aux, window_start=start, window_end=end)
+        # select specific cols for the next functions
+        df_aux = df_aux[["open_time", IDENTIFIER_COL, "pctchg", "log_return", "volume"]]
         df_aux = _null_handler(df=df_aux)
-
         df_agg = _build_agg_ftes(df=df_aux, grpby_col=IDENTIFIER_COL, window_start=start, window_end=end)
         df_biz_fte = _build_business_ftes(df=df_aux, window_start=start, window_end=end)
 
         df_ftes = reduce(lambda left, right: pd.merge(left, right,
-                                                    on=["open_time", "close_time", IDENTIFIER_COL],
+                                                    on=INDEX_COL + [IDENTIFIER_COL],
                                                     how="inner"),
-                    [df_agg, df_biz_fte])
+                    [df_agg, df_biz_fte, df_ta_ftes])
 
-        df_ts = build_timeseries(df=df_ftes, index=["open_time", "close_time"], cols=[IDENTIFIER_COL])
+        df_ts = build_timeseries(df=df_ftes, index=INDEX_COL, cols=[IDENTIFIER_COL])
 
         # last feature: only dependant on the window size, regardless of the amount of securities
         df_ts.loc[:, "window_duration_sec"] = (end - start).total_seconds()
@@ -132,7 +135,7 @@ def _build_agg_ftes(df: pd.DataFrame,
 
     # join everything together
     df_agg_ftes = reduce(lambda left, right: pd.merge(left, right, on=IDENTIFIER_COL, how="inner"), dfs_agg)
-    df_agg_ftes.loc[:, ["open_time", "close_time"]] = [window_start, window_end]
+    df_agg_ftes.loc[:, INDEX_COL] = [window_start, window_end]
 
     # adjust columns to add pctchg and remove logret
     df_agg_ftes.loc[:, "pctchg_accum"] = np.exp(df_agg_ftes["log_return_accum"]) - 1
@@ -171,6 +174,46 @@ def _build_business_ftes(df: pd.DataFrame,
     df = df.sort_values(by=[IDENTIFIER_COL, "open_time"])
     df_zscore = __get_last_zscore(df=df)
 
-    df_zscore.loc[:, ["open_time", "close_time"]] = [window_start, window_end]
+    df_zscore.loc[:, INDEX_COL] = [window_start, window_end]
 
     return df_zscore
+
+
+def _build_technical_ftes(df: pd.DataFrame,
+                          window_start: pd.Timestamp,
+                          window_end: pd.Timestamp) -> pd.DataFrame:
+
+    dfs = []
+    df = df.drop(columns=["shift", "log_return", "pctchg"]) \
+            .set_index("open_time") \
+            .sort_index()
+    # cols to select
+    cols = ("symbol", "volume_", "volatility_", "trend_", "momentum_", "others_")
+
+    for symbol in df[IDENTIFIER_COL].unique():
+        dfaux = df[df[IDENTIFIER_COL] == symbol]
+        # momentum (ok), trend (não), volatility (não), volume (ok), others (ok)
+        df_ftes = add_others_ta(df=dfaux,
+                                close="close",
+                                )
+        df_ftes = add_momentum_ta(df=df_ftes,
+                        high="high",
+                        low="low",
+                        close="close",
+                        volume="volume"
+                        )
+        df_ftes = add_volume_ta(df=df_ftes,
+                        high="high",
+                        low="low",
+                        close="close",
+                        volume="volume"
+                        )
+        df_ftes = df_ftes.tail(1).reset_index()
+        df_ftes = df_ftes.loc[:, df_ftes.columns.str.startswith(cols)]
+        df_ftes.loc[:, INDEX_COL] = [window_start, window_end]
+
+        dfs.append(df_ftes)
+
+    finaldf = pd.concat(dfs)
+
+    return finaldf

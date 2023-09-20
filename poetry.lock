@@ -5424,6 +5424,20 @@ sanic = ["sanic (>=20.12.2)"]
 starlite = ["starlite (>=1.48.0)"]
 
 [[package]]
+name = "ta"
+version = "0.10.2"
+description = "Technical Analysis Library in Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "ta-0.10.2.tar.gz", hash = "sha256:e8d193dadd44d88e3c4118dc5224e2fcdc0235caba3efa758aa7a875ffba2faa"},
+]
+
+[package.dependencies]
+numpy = "*"
+pandas = "*"
+
+[[package]]
 name = "tables"
 version = "3.6.1"
 description = "Hierarchical datasets for Python"
@@ -6574,4 +6588,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "3.8.16"
-content-hash = "1f3c968e95df7fc9e256e3fa13a5f8e2549c508a5d5a461c0964fb5a9de2d148"
+content-hash = "4112c6468dc83332e5f523dc8c2e9c75cd3cfc723192a28867d17c8e8600ebf6"
