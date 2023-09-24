@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
+from functools import partial
 from typing import Tuple, Union
 
+import numpy as np
 import pandas as pd
 from sklearn.feature_selection import SelectKBest, mutual_info_classif
 from statsmodels.stats.outliers_influence import variance_inflation_factor as vif
 
 INDEX_COL = ["open_time", "close_time"]
+RANDOM_STATE = 0
+np.random.seed(RANDOM_STATE)
 
 
 def apply_mic_fte_slct(df_ftes: pd.DataFrame,
@@ -42,7 +46,7 @@ def apply_mic_fte_slct(df_ftes: pd.DataFrame,
     X_train_ftes = df.drop(columns=[TARGET_COL])
     y_train_ftes = df[[TARGET_COL]]
 
-    selector = SelectKBest(mutual_info_classif, k=topN_features)
+    selector = SelectKBest(partial(mutual_info_classif, random_state=RANDOM_STATE), k=topN_features)
     selector.fit_transform(X_train_ftes, y_train_ftes)
     slct_cols_idx = selector.get_support(indices=True)
 
