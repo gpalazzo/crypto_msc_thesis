@@ -187,11 +187,13 @@ def _build_technical_ftes(df: pd.DataFrame,
             .set_index("open_time") \
             .sort_index()
     # cols to select
-    cols = ("symbol", "volume_", "volatility_", "trend_", "momentum_", "others_")
+    cols = (IDENTIFIER_COL, "volume_", "momentum_", "others_",
+            "bb", "macd", "roc", "rsi", "stoch", "slope", "sma", "skew", "ema", "vtx", "trix")
 
     for symbol in df[IDENTIFIER_COL].unique():
         dfaux = df[df[IDENTIFIER_COL] == symbol]
-        # momentum (ok), trend (não), volatility (não), volume (ok), others (ok)
+
+        # using lib ta
         df_ftes = add_others_ta(df=dfaux,
                                 close="close",
                                 )
@@ -207,7 +209,52 @@ def _build_technical_ftes(df: pd.DataFrame,
                         close="close",
                         volume="volume"
                         )
+        df_ftes = df_ftes.set_index([df_ftes.index, IDENTIFIER_COL])
 
+        # using lib pandas_ta
+        df_bbands = df_ftes.ta.bbands()
+        df_bbands.columns = df_bbands.columns.str.lower()
+
+        df_macd = df_ftes.ta.macd(fast=1, slow=5)
+        df_macd.columns = df_macd.columns.str.lower()
+
+        df_roc = df_ftes.ta.roc().to_frame()
+        df_roc.columns = df_roc.columns.str.lower()
+
+        df_rsi = df_ftes.ta.rsi().to_frame()
+        df_rsi.columns = df_rsi.columns.str.lower()
+
+        df_stoch = df_ftes.ta.stoch()
+        df_stoch.columns = df_stoch.columns.str.lower()
+
+        df_slope = df_ftes.ta.slope().to_frame()
+        df_slope.columns = df_slope.columns.str.lower()
+
+        df_sma = df_ftes.ta.sma().to_frame()
+        df_sma.columns = df_sma.columns.str.lower()
+
+        df_skew = df_ftes.ta.skew().to_frame()
+        df_skew.columns = df_skew.columns.str.lower()
+
+        df_ema = df_ftes.ta.ema().to_frame()
+        df_ema.columns = df_ema.columns.str.lower()
+
+        df_vortex = df_ftes.ta.vortex()
+        df_vortex.columns = df_vortex.columns.str.lower()
+
+        df_trix = df_ftes.ta.trix()
+        df_trix.columns = df_trix.columns.str.lower()
+
+        df_ftes = reduce(lambda left, right: pd.merge(left, right,
+                                                    left_index=True,
+                                                    right_index=True,
+                                                    how="inner"),
+                    [df_ftes, df_bbands, df_macd,
+                     df_roc, df_rsi, df_stoch,
+                     df_slope, df_sma, df_skew,
+                     df_ema, df_vortex, df_trix])
+
+        df_ftes = df_ftes.ffill().bfill()
         #get only last data point to represent the entire window
         df_ftes = df_ftes.tail(1).reset_index()
         df_ftes = df_ftes.loc[:, df_ftes.columns.str.startswith(cols)]
@@ -216,5 +263,5 @@ def _build_technical_ftes(df: pd.DataFrame,
         dfs.append(df_ftes)
 
     finaldf = pd.concat(dfs)
-    # finaldf = finaldf.set_index([IDENTIFIER_COL] + INDEX_COL).ffill().bfill().reset_index()
+
     return finaldf
