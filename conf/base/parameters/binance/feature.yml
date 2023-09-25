@@ -1,5 +1,6 @@
 # select top N features
-slct_topN_features: 40
+# otimizar parâmetros para: 35, 65, 70, 75 e 80
+slct_topN_features: 40 #40
 
 # define VIF threshold
 vif_threshold: 10

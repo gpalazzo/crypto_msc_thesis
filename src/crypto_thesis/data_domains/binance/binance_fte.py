@@ -44,7 +44,6 @@ def binance_fte(binance_prm: pd.DataFrame,
     df_log_ret.loc[:, "pctchg"] = df_log_ret \
                                     .groupby(IDENTIFIER_COL)["log_return"] \
                                     .apply(lambda row: np.exp(row) - 1)
-    # df_log_ret = df_log_ret[["open_time", IDENTIFIER_COL, "pctchg", "log_return", "volume"]]
 
     # accumulate data within the volume bar window
     for start, end in zip(spine_labeled["open_time"], spine_labeled["close_time"]):
@@ -208,6 +207,8 @@ def _build_technical_ftes(df: pd.DataFrame,
                         close="close",
                         volume="volume"
                         )
+
+        #get only last data point to represent the entire window
         df_ftes = df_ftes.tail(1).reset_index()
         df_ftes = df_ftes.loc[:, df_ftes.columns.str.startswith(cols)]
         df_ftes.loc[:, INDEX_COL] = [window_start, window_end]
@@ -215,5 +216,5 @@ def _build_technical_ftes(df: pd.DataFrame,
         dfs.append(df_ftes)
 
     finaldf = pd.concat(dfs)
-
+    # finaldf = finaldf.set_index([IDENTIFIER_COL] + INDEX_COL).ffill().bfill().reset_index()
     return finaldf
