@@ -1,4 +1,4 @@
-# select top N features based on Random Forest feature importance
+# select top N features
 slct_topN_features: 40
 
 # define VIF threshold

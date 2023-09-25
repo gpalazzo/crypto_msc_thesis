@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import os
+import random
 from typing import Any, Dict, Tuple
 
 import numpy as np
@@ -19,11 +21,14 @@ INDEX_COL = "window_nbr"
 
 logger = logging.getLogger(__name__)
 
-# set numpy seed
-np.random.seed(0)
-# set tensorflow seed
-tf.random.set_seed(0)
+# attempt to get reproducible results
+RANDOM_STATE = 0
 SHUFFLE = False
+os.environ["PYTHONHASHSEED"] = str(RANDOM_STATE)
+random.seed(RANDOM_STATE)
+np.random.seed(RANDOM_STATE)
+tf.random.set_seed(RANDOM_STATE)
+
 
 def lstm_model_fit(master_table_train: pd.DataFrame,
                 master_table_test: pd.DataFrame,
