@@ -56,6 +56,7 @@ imbalanced-learn = "^0.10.1"
 virtualenv = "^20.23.0"
 hyperopt = "^0.2.7"
 ta = "^0.10.2"
+pandas-ta = "^0.3.14b0"
 
 [tool.poetry.group.dev.dependencies]
 plotly = "^5.13.0"

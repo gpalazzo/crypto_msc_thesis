@@ -6,6 +6,7 @@ from typing import Dict
 
 import numpy as np
 import pandas as pd
+import pandas_ta as ta  # noqa
 from scipy import stats
 from ta import add_momentum_ta, add_others_ta, add_volume_ta
 
@@ -44,7 +45,6 @@ def binance_fte(binance_prm: pd.DataFrame,
     df_log_ret.loc[:, "pctchg"] = df_log_ret \
                                     .groupby(IDENTIFIER_COL)["log_return"] \
                                     .apply(lambda row: np.exp(row) - 1)
-    # df_log_ret = df_log_ret[["open_time", IDENTIFIER_COL, "pctchg", "log_return", "volume"]]
 
     # accumulate data within the volume bar window
     for start, end in zip(spine_labeled["open_time"], spine_labeled["close_time"]):
@@ -67,6 +67,8 @@ def binance_fte(binance_prm: pd.DataFrame,
         # last feature: only dependant on the window size, regardless of the amount of securities
         df_ts.loc[:, "window_duration_sec"] = (end - start).total_seconds()
         final_df = pd.concat([final_df, df_ts])
+
+    final_df = final_df.fillna(0)
 
     return final_df
 
@@ -188,11 +190,13 @@ def _build_technical_ftes(df: pd.DataFrame,
             .set_index("open_time") \
             .sort_index()
     # cols to select
-    cols = ("symbol", "volume_", "volatility_", "trend_", "momentum_", "others_")
+    cols = (IDENTIFIER_COL, "volume_", "momentum_", "others_",
+            "bb", "macd", "roc", "rsi", "stoch", "slope", "sma", "skew", "ema", "vtx", "trix")
 
     for symbol in df[IDENTIFIER_COL].unique():
         dfaux = df[df[IDENTIFIER_COL] == symbol]
-        # momentum (ok), trend (não), volatility (não), volume (ok), others (ok)
+
+        # using lib ta
         df_ftes = add_others_ta(df=dfaux,
                                 close="close",
                                 )
@@ -208,6 +212,50 @@ def _build_technical_ftes(df: pd.DataFrame,
                         close="close",
                         volume="volume"
                         )
+        df_ftes = df_ftes.set_index([df_ftes.index, IDENTIFIER_COL])
+
+        # using lib pandas_ta
+        LENGTH = 2
+        SIGNAL = 2
+
+        df_bbands = df_ftes.ta.bbands(length=LENGTH)
+        df_bbands.columns = df_bbands.columns.str.lower()
+
+        df_roc = df_ftes.ta.roc(length=LENGTH).to_frame()
+        df_roc.columns = df_roc.columns.str.lower()
+
+        df_rsi = df_ftes.ta.rsi(length=LENGTH).to_frame()
+        df_rsi.columns = df_rsi.columns.str.lower()
+
+        df_slope = df_ftes.ta.slope(length=LENGTH).to_frame()
+        df_slope.columns = df_slope.columns.str.lower()
+
+        df_sma = df_ftes.ta.sma(length=LENGTH).to_frame()
+        df_sma.columns = df_sma.columns.str.lower()
+
+        df_skew = df_ftes.ta.skew(length=LENGTH).to_frame()
+        df_skew.columns = df_skew.columns.str.lower()
+
+        df_ema = df_ftes.ta.ema(length=LENGTH).to_frame()
+        df_ema.columns = df_ema.columns.str.lower()
+
+        df_vortex = df_ftes.ta.vortex(length=LENGTH)
+        df_vortex.columns = df_vortex.columns.str.lower()
+
+        df_trix = df_ftes.ta.trix(length=LENGTH, signal=SIGNAL)
+        df_trix.columns = df_trix.columns.str.lower()
+
+        df_ftes = reduce(lambda left, right: pd.merge(left, right,
+                                                    left_index=True,
+                                                    right_index=True,
+                                                    how="inner"),
+                    [df_ftes, df_bbands,
+                     df_roc, df_rsi,
+                     df_slope, df_sma, df_skew,
+                     df_ema, df_vortex, df_trix])
+
+        df_ftes = df_ftes.ffill().bfill()
+        #get only last data point to represent the entire window
         df_ftes = df_ftes.tail(1).reset_index()
         df_ftes = df_ftes.loc[:, df_ftes.columns.str.startswith(cols)]
         df_ftes.loc[:, INDEX_COL] = [window_start, window_end]
