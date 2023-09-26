@@ -58,11 +58,20 @@ def build_master_table(fte_df: pd.DataFrame,
                                                             train_test_cutoff_date=train_test_cutoff_date,
                                                             target_col=TARGET_COL)
 
+    df_train = X_train.merge(y_train, left_index=True, right_index=True, how="inner")
+    df_test = X_test.merge(y_test, left_index=True, right_index=True, how="inner")
+    df_all = pd.concat([df_train, df_test])
+    X_train_all, y_train_all = df_all.drop(columns=TARGET_COL), df_all[TARGET_COL]
+
     logger.info("Checking for class unbalancing")
-    train_df_bal = mt_balance_classes(X=X_train,
-                                      y=y_train,
-                                        class_bounds=class_bounds)
+    train_df_bal = mt_balance_classes(X=X_train_all,
+                                    y=y_train_all,
+                                    class_bounds=class_bounds)
+
+    train_df_bal, test_df_bal = train_df_bal[train_df_bal.index.isin(X_train.index)], train_df_bal[train_df_bal.index.isin(X_test.index)]
+
     X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
+    X_test, y_test = test_df_bal.drop(columns=TARGET_COL), test_df_bal[TARGET_COL]
 
     X_train_bal, X_test = scale_train_test(X_train=X_train_bal, X_test=X_test)
 
