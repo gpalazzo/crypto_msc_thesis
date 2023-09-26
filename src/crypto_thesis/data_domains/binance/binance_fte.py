@@ -6,6 +6,7 @@ from typing import Dict
 
 import numpy as np
 import pandas as pd
+import pandas_ta as ta  # noqa
 from scipy import stats
 from ta import add_momentum_ta, add_others_ta, add_volume_ta
 
@@ -66,6 +67,8 @@ def binance_fte(binance_prm: pd.DataFrame,
         # last feature: only dependant on the window size, regardless of the amount of securities
         df_ts.loc[:, "window_duration_sec"] = (end - start).total_seconds()
         final_df = pd.concat([final_df, df_ts])
+
+    final_df = final_df.fillna(0)
 
     return final_df
 
@@ -212,45 +215,42 @@ def _build_technical_ftes(df: pd.DataFrame,
         df_ftes = df_ftes.set_index([df_ftes.index, IDENTIFIER_COL])
 
         # using lib pandas_ta
-        df_bbands = df_ftes.ta.bbands()
+        LENGTH = 2
+        SIGNAL = 2
+
+        df_bbands = df_ftes.ta.bbands(length=LENGTH)
         df_bbands.columns = df_bbands.columns.str.lower()
 
-        df_macd = df_ftes.ta.macd(fast=1, slow=5)
-        df_macd.columns = df_macd.columns.str.lower()
-
-        df_roc = df_ftes.ta.roc().to_frame()
+        df_roc = df_ftes.ta.roc(length=LENGTH).to_frame()
         df_roc.columns = df_roc.columns.str.lower()
 
-        df_rsi = df_ftes.ta.rsi().to_frame()
+        df_rsi = df_ftes.ta.rsi(length=LENGTH).to_frame()
         df_rsi.columns = df_rsi.columns.str.lower()
 
-        df_stoch = df_ftes.ta.stoch()
-        df_stoch.columns = df_stoch.columns.str.lower()
-
-        df_slope = df_ftes.ta.slope().to_frame()
+        df_slope = df_ftes.ta.slope(length=LENGTH).to_frame()
         df_slope.columns = df_slope.columns.str.lower()
 
-        df_sma = df_ftes.ta.sma().to_frame()
+        df_sma = df_ftes.ta.sma(length=LENGTH).to_frame()
         df_sma.columns = df_sma.columns.str.lower()
 
-        df_skew = df_ftes.ta.skew().to_frame()
+        df_skew = df_ftes.ta.skew(length=LENGTH).to_frame()
         df_skew.columns = df_skew.columns.str.lower()
 
-        df_ema = df_ftes.ta.ema().to_frame()
+        df_ema = df_ftes.ta.ema(length=LENGTH).to_frame()
         df_ema.columns = df_ema.columns.str.lower()
 
-        df_vortex = df_ftes.ta.vortex()
+        df_vortex = df_ftes.ta.vortex(length=LENGTH)
         df_vortex.columns = df_vortex.columns.str.lower()
 
-        df_trix = df_ftes.ta.trix()
+        df_trix = df_ftes.ta.trix(length=LENGTH, signal=SIGNAL)
         df_trix.columns = df_trix.columns.str.lower()
 
         df_ftes = reduce(lambda left, right: pd.merge(left, right,
                                                     left_index=True,
                                                     right_index=True,
                                                     how="inner"),
-                    [df_ftes, df_bbands, df_macd,
-                     df_roc, df_rsi, df_stoch,
+                    [df_ftes, df_bbands,
+                     df_roc, df_rsi,
                      df_slope, df_sma, df_skew,
                      df_ema, df_vortex, df_trix])
 
