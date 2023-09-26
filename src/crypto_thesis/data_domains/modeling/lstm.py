@@ -18,6 +18,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 TARGET_COL = ["label"]
 # these cols were useful so far, but not anymore
 INDEX_COL = "window_nbr"
+BATCH = 16
+EPOCH = 50
+OPTIMIZER = "SGD"
 
 logger = logging.getLogger(__name__)
 
@@ -58,10 +61,7 @@ def lstm_model_fit(master_table_train: pd.DataFrame,
                                                                         y=y_test,
                                                                         seq_length=seq_length)
 
-    M_TRAIN = X_train_scaled_seq.shape[0]           # number of training examples (2D)
     M_TEST = X_test_scaled_seq.shape[0]             # number of test examples (2D),full=X_test.shape[0]
-    BATCH = 16                          # batch size
-    EPOCH = 50                   # number of epochs
     model = _create_lstm_model(X_train_scaled_seq=X_train_scaled_seq, seq_length=seq_length)
 
     # Define a learning rate decay method:
@@ -100,7 +100,6 @@ def _create_lstm_model(X_train_scaled_seq: pd.DataFrame, seq_length: int) -> Seq
     # parameters
     LAYERS = [20, 20, 20, 1] #[10, 10, 10, 1]                # number of units in hidden and output layers
     N = X_train_scaled_seq.shape[2]                 # number of features
-    LR = 0.0005 #0.0005                            # learning rate of the gradient descent
     LAMBD = 0.005 #0.001                         # lambda in L2 regularizaion
     DP = 0.0 #0.0                             # dropout rate
     RDP = 0.0 #0.0                            # recurrent dropout rate
@@ -158,7 +157,7 @@ def _create_lstm_model(X_train_scaled_seq: pd.DataFrame, seq_length: int) -> Seq
     model.compile(
         loss='binary_crossentropy',
         metrics=['accuracy'],
-        optimizer="Adam")
+        optimizer=OPTIMIZER)
 
     return model
 
