@@ -9,10 +9,9 @@ logreg_default_params:
 # if `logreg_optimize_params` is false, then use the parameters defined below
 logreg_model_params:
   solver: "saga"
-  penalty: "elasticnet"
+  penalty: "l2"
   tol: 0.03162277660168379
   C: 0.01
   max_iter: 100
   fit_intercept: true
   class_weight: "balanced"
-  l1_ratio: 0.03162277660168379
