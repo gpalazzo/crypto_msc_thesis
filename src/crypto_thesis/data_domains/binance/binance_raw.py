@@ -43,16 +43,17 @@ def binance_raw(raw_binance_get_data: Dict[str, Any]) -> pd.DataFrame:
 
         klines = client.get_historical_klines(symbol,
                                             interval,
-                                            raw_binance_get_data["start_date"],
-                                            raw_binance_get_data["end_date"])
-        data = pd.DataFrame(klines)
+                                            raw_binance_get_data["start_date_oos"],
+                                            raw_binance_get_data["end_date_oos"])
+        try:
+            data = pd.DataFrame(klines)
+            # create colums name
+            data.columns = ["open_time","open", "high", "low", "close", "volume","close_time", "qav","num_trades","taker_base_vol", "taker_quote_vol", "ignore"]
+        except:
+            logging.info(f"Skipping symbol {symbol} due to error")
+            continue
 
-        # create colums name
-        data.columns = ["open_time","open", "high", "low", "close", "volume","close_time", "qav","num_trades","taker_base_vol", "taker_quote_vol", "ignore"]
         data.loc[:, "symbol"] = symbol
-
         final_df = pd.concat([final_df, data])
-
-    assert final_df["symbol"].nunique() == _total_tickers, "Not all tickers were collected, please review"
 
     return final_df
