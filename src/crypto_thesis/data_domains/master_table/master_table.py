@@ -91,6 +91,8 @@ def build_master_table_oos(fte_df: pd.DataFrame,
 
     master_table_dropped = master_table.dropna()
     master_table_numbered = _build_window_numbers(df=master_table_dropped)
+    window_nbr_lookup = master_table_numbered[["window_nbr", "open_time", "close_time", "target_time"]]
+
     # drop useless columns (they're in spine layer if any troubleshooting needed)
     master_table_numbered = master_table_numbered.drop(columns=["target_time_log_return",
                                                                 "std",
@@ -112,9 +114,9 @@ def build_master_table_oos(fte_df: pd.DataFrame,
     X_train_bal, _ = scale_train_test(X_train=X_train_bal, X_test=X_test)
 
     mt = X_train_bal.merge(y_train_bal, left_index=True, right_index=True, how="inner")
-    mt = mt.replace({"top": 1, "bottom": 0})
+    mt = mt.replace({"top": 1, "bottom": 0}).reset_index()
 
-    return mt
+    return mt, window_nbr_lookup
 
 
 def _build_window_numbers(df: pd.DataFrame) -> pd.DataFrame:

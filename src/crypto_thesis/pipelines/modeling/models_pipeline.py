@@ -135,3 +135,45 @@ def ml_models_pipeline() -> pipeline:
         tags=["logreg_pipeline"]))
 
     return xgboost_pipeline + lstm_pipeline + logreg_pipeline
+
+
+def ml_models_pipeline_oos() -> pipeline:
+
+    xgboost_pipeline_oos = pipeline(
+        Pipeline([
+            # model predict
+            node(func=xgboost_model_predict,
+                inputs=["xgboost_fitted_model",
+                        "master_table_multic_oos"],
+                outputs="xgboost_model_predict_oos",
+                name="run_xgboost_predicting_oos",
+                tags=["all_except_raw", "all_except_binance"])
+        ],
+        tags=["xgboost_pipeline_oos"]))
+
+    lstm_pipeline_oos = pipeline(
+        Pipeline([
+            # model predict
+            node(func=lstm_model_predict,
+                inputs=["lstm_fitted_model",
+                        "master_table_multic_oos",
+                        "params:lstm_timestamp_seq_length"],
+                outputs="lstm_model_predict_oos",
+                name="run_lstm_predicting_oos",
+                tags=["all_except_raw", "all_except_binance"])
+        ],
+        tags=["lstm_pipeline_oos"]))
+
+    logreg_pipeline_oos = pipeline(
+        Pipeline([
+            # model predict
+            node(func=logreg_model_predict,
+                inputs=["logreg_fitted_model",
+                        "master_table_nonmultic_oos"],
+                outputs="logreg_model_predict_oos",
+                name="run_logreg_predicting_oos",
+                tags=["all_except_raw", "all_except_binance"])
+        ],
+        tags=["logreg_pipeline_oos"]))
+
+    return xgboost_pipeline_oos + lstm_pipeline_oos + logreg_pipeline_oos

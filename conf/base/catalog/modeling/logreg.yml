@@ -16,6 +16,13 @@ logreg_model_predict:
   save_args:
     index: True
 
+logreg_model_predict_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/07_model_output/${binance_data_interval}/logreg/logreg_model_predict_oos.parquet
+  versioned: true
+  save_args:
+    index: True
+
 logreg_model_reporting:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/logreg/logreg_model_reporting.parquet

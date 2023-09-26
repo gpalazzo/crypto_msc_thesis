@@ -8,6 +8,16 @@ xgboost_portfolio_metrics:
   filepath: data/08_reporting/${binance_data_interval}/xgboost_portfolio_metrics.parquet
   versioned: true
 
+xgboost_portfolio_pnl_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/xgboost_portfolio_pnl_oos.parquet
+  versioned: true
+
+xgboost_portfolio_metrics_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/xgboost_portfolio_metrics_oos.parquet
+  versioned: true
+
 lstm_portfolio_pnl:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/lstm_portfolio_pnl.parquet
@@ -18,6 +28,16 @@ lstm_portfolio_metrics:
   filepath: data/08_reporting/${binance_data_interval}/lstm_portfolio_metrics.parquet
   versioned: true
 
+lstm_portfolio_pnl_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/lstm_portfolio_pnl_oos.parquet
+  versioned: true
+
+lstm_portfolio_metrics_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/lstm_portfolio_metrics_oos.parquet
+  versioned: true
+
 logreg_portfolio_pnl:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/logreg_portfolio_pnl.parquet
@@ -26,6 +46,16 @@ logreg_portfolio_pnl:
 logreg_portfolio_metrics:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/logreg_portfolio_metrics.parquet
+  versioned: true
+
+logreg_portfolio_pnl_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/logreg_portfolio_pnl_oos.parquet
+  versioned: true
+
+logreg_portfolio_metrics_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/logreg_portfolio_metrics_oos.parquet
   versioned: true
 
 portfolio_regression_data:

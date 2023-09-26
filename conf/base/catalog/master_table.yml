@@ -43,7 +43,17 @@ master_table_multic_oos:
   filepath: data/05_model_input/${binance_data_interval}/master_table_multic_oos.parquet
   versioned: true
 
+window_nbr_lookup_multic_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_multic_oos.parquet
+  versioned: true
+
 master_table_nonmultic_oos:
   type: pandas.ParquetDataSet
   filepath: data/05_model_input/${binance_data_interval}/master_table_nonmultic_oos.parquet
+  versioned: true
+
+window_nbr_lookup_nonmultic_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/${binance_data_interval}/window_nbr_lookup_nonmultic_oos.parquet
   versioned: true
