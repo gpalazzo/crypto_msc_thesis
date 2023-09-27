@@ -148,6 +148,21 @@ def ml_models_pipeline_oos() -> pipeline:
                 outputs="xgboost_model_predict_oos",
                 name="run_xgboost_predicting_oos",
                 tags=["all_except_raw", "all_except_binance"])
+
+            # model evaluate
+            , node(func=xgboost_model_reporting,
+                inputs=["xgboost_fitted_model",
+                        "master_table_multic_oos",
+                        "xgboost_model_predict_oos",
+                        "params:model_data_interval",
+                        "params:spine_preprocessing",
+                        "params:spine_labeling",
+                        "params:train_test_cutoff_date",
+                        "params:slct_topN_features",
+                        "params:min_years_existence"],
+                outputs="xgboost_model_reporting_oos",
+                name="run_xgboost_reporting_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["xgboost_pipeline_oos"]))
 
@@ -161,6 +176,21 @@ def ml_models_pipeline_oos() -> pipeline:
                 outputs="lstm_model_predict_oos",
                 name="run_lstm_predicting_oos",
                 tags=["all_except_raw", "all_except_binance"])
+
+            # model evaluate
+            , node(func=lstm_model_reporting,
+                inputs=["lstm_fitted_model",
+                        "master_table_multic_oos",
+                        "lstm_model_predict_oos",
+                        "params:model_data_interval",
+                        "params:spine_preprocessing",
+                        "params:spine_labeling",
+                        "params:train_test_cutoff_date",
+                        "params:slct_topN_features",
+                        "params:min_years_existence"],
+                outputs="lstm_model_reporting_oos",
+                name="run_lstm_reporting_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["lstm_pipeline_oos"]))
 
@@ -173,6 +203,21 @@ def ml_models_pipeline_oos() -> pipeline:
                 outputs="logreg_model_predict_oos",
                 name="run_logreg_predicting_oos",
                 tags=["all_except_raw", "all_except_binance"])
+
+            # model evaluate
+            , node(func=logreg_model_reporting,
+                inputs=["logreg_fitted_model",
+                        "master_table_nonmultic_oos",
+                        "logreg_model_predict_oos",
+                        "params:model_data_interval",
+                        "params:spine_preprocessing",
+                        "params:spine_labeling",
+                        "params:train_test_cutoff_date",
+                        "params:slct_topN_features",
+                        "params:min_years_existence"],
+                outputs="logreg_model_reporting_oos",
+                name="run_logreg_reporting_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
         ],
         tags=["logreg_pipeline_oos"]))
 

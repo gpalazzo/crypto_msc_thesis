@@ -4,7 +4,7 @@ from typing import Dict
 
 from kedro.pipeline import Pipeline, pipeline
 
-from crypto_thesis.pipelines.benchmark import benchmark_pipeline
+from crypto_thesis.pipelines.benchmark import benchmark_pipeline, benchmark_pipeline_oos
 from crypto_thesis.pipelines.binance import binance_pipeline, binance_pipeline_oos
 from crypto_thesis.pipelines.master_table import (
     master_table_pipeline,
@@ -28,6 +28,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
                                     master_table_pipeline() +
                                     master_table_pipeline_oos() +
                                     benchmark_pipeline() +
+                                    benchmark_pipeline_oos() +
                                     ml_models_pipeline() +
                                     ml_models_pipeline_oos() +
                                     portfolio_pipeline() +

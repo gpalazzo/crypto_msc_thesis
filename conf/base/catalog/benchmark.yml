@@ -3,9 +3,19 @@ benchmark_buyhold_strat:
   filepath: data/07_model_output/${binance_data_interval}/benchmark/benchmark_buyhold_strategy.parquet
   versioned: true
 
+benchmark_buyhold_strat_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/07_model_output/${binance_data_interval}/benchmark/benchmark_buyhold_strat_oos.parquet
+  versioned: true
+
 benchmark_trendfollowing_strat:
   type: pandas.ParquetDataSet
   filepath: data/07_model_output/${binance_data_interval}/benchmark/benchmark_trendfollowing_strategy.parquet
+  versioned: true
+
+benchmark_trendfollowing_strat_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/07_model_output/${binance_data_interval}/benchmark/benchmark_trendfollowing_strat_oos.parquet
   versioned: true
 
 benchmark_trendfollowing_pnl:
@@ -13,7 +23,17 @@ benchmark_trendfollowing_pnl:
   filepath: data/08_reporting/${binance_data_interval}/benchmark/benchmark_trendfollowing_pnl.parquet
   versioned: true
 
+benchmark_trendfollowing_pnl_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/benchmark/benchmark_trendfollowing_pnl_oos.parquet
+  versioned: true
+
 benchmark_trendfollowing_metrics:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/benchmark/benchmark_trendfollowing_metrics.parquet
+  versioned: true
+
+benchmark_trendfollowing_metrics_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/benchmark/benchmark_trendfollowing_metrics_oos.parquet
   versioned: true
