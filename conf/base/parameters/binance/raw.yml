@@ -35,4 +35,7 @@ raw_binance_get_data:
     - XLMUSDT #Stellar
   start_date: "${start_date}"
   end_date: "${end_date}"
+  # out of sample
+  start_date_oos: "${start_date_oos}"
+  end_date_oos: "${end_date_oos}"
   binance_data_interval: "${binance_data_interval}"

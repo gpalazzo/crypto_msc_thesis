@@ -42,6 +42,34 @@ def binance_prm(binance_raw: pd.DataFrame,
     return binance_prm_excl
 
 
+def binance_prm_oos(binance_raw_oos: pd.DataFrame,
+                    binance_prm_is: pd.DataFrame) -> pd.DataFrame:
+    """Standardize data acquired in the raw layer, so all other tasks can use the same data
+
+    Args:
+        binance_raw (pd.DataFrame): dataframe with raw data
+        min_years_existence (int): minimum number, in years, for ticker existence
+        end_date (str): upper bound date to start counting the lookback window
+
+    Returns:
+        pd.DataFrame: dataframe with standardized data
+    """
+
+    # in this case it's indifferent to get `open_time` or `close_time`
+    binance_prm = binance_raw_oos[["open_time", "open", "high", "low", "close", "volume", "symbol"]]
+    binance_prm.loc[:, "open_time"] = pd.to_datetime(binance_prm["open_time"], unit="ms")
+
+    binance_prm_excl = binance_prm[binance_prm["symbol"].isin(binance_prm_is["symbol"].unique())]
+    logger.info(f"Number of symbols excluded due to selection criteria: "\
+                f"{binance_prm['symbol'].nunique() - binance_prm_excl['symbol'].nunique()}")
+
+    # get all columns to cast as float
+    _float_cols = [col for col in binance_prm_excl.columns if col not in ["open_time", "symbol"]]
+    _float_cols_dict = {key: "float64" for key in _float_cols}
+    binance_prm_excl = binance_prm_excl.astype(_float_cols_dict)
+
+    return binance_prm_excl
+
 def _find_symbol_date_criterium(df: pd.DataFrame,
                                 max_date: str,
                                 min_years_existence: int) -> List[str]:

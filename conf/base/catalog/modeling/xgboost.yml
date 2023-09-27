@@ -16,9 +16,23 @@ xgboost_model_predict:
   save_args:
     index: True
 
+xgboost_model_predict_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/07_model_output/${binance_data_interval}/xgboost/xgboost_model_predict_oos.parquet
+  versioned: true
+  save_args:
+    index: True
+
 xgboost_model_reporting:
   type: pandas.ParquetDataSet
   filepath: data/08_reporting/${binance_data_interval}/xgboost/xgboost_model_reporting.parquet
+  versioned: true
+  save_args:
+    index: True
+
+xgboost_model_reporting_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/08_reporting/${binance_data_interval}/xgboost/xgboost_model_reporting_oos.parquet
   versioned: true
   save_args:
     index: True

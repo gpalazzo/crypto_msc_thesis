@@ -9,7 +9,10 @@
 
 from kedro.pipeline import Pipeline, node, pipeline
 
-from crypto_thesis.data_domains.master_table import build_master_table
+from crypto_thesis.data_domains.master_table import (
+    build_master_table,
+    build_master_table_oos,
+)
 
 
 def master_table_pipeline() -> pipeline:
@@ -41,3 +44,28 @@ def master_table_pipeline() -> pipeline:
         tags=["master_table_pipeline"]))
 
     return _master_table_pipeline
+
+
+def master_table_pipeline_oos() -> pipeline:
+
+    _master_table_pipeline_oos = pipeline(
+        Pipeline([
+            # build master table with multicollinear features
+            node(func=build_master_table_oos,
+                inputs=["fte_binance_multic_oos",
+                        "spine_labeled_oos"],
+                outputs=["master_table_multic_oos", "window_nbr_lookup_multic_oos"],
+                name="run_master_table_multic_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
+
+            # build master table without multicollinear features
+            node(func=build_master_table_oos,
+                inputs=["fte_binance_nonmultic_oos",
+                        "spine_labeled_oos"],
+                outputs=["master_table_nonmultic_oos", "window_nbr_lookup_nonmultic_oos"],
+                name="run_master_table_nonmultic_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
+        ],
+        tags=["master_table_pipeline_oos"]))
+
+    return _master_table_pipeline_oos

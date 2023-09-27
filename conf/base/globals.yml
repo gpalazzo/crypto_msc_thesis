@@ -4,6 +4,7 @@
 # date range to collect data
 start_date: "0000-00-00"
 end_date: "0000-00-00"
-
+start_date_oos: "0000-00-00"
+end_date_oos: "0000-00-00"
 # Binance data collection interval
 binance_data_interval: "999m"

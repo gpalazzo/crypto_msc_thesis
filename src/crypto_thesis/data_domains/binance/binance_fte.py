@@ -73,6 +73,17 @@ def binance_fte(binance_prm: pd.DataFrame,
     return final_df
 
 
+def get_all_features_oos(df_fte_oos: pd.DataFrame,
+                        df_ftes: pd.DataFrame) -> pd.DataFrame:
+
+    # select only the columns of already selected features
+    cols = df_ftes.columns.tolist()
+    df_fte_oos = df_fte_oos[cols]
+
+    assert len(df_fte_oos.columns) == len(cols), "Wrong number of columns, review"
+    return df_fte_oos
+
+
 def _null_handler(df: pd.DataFrame) -> pd.DataFrame:
     """Handles null data
     It currently defaults to replace nulls with 0

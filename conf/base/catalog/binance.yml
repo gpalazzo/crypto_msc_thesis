@@ -2,13 +2,26 @@ raw_binance:
   type: pandas.ParquetDataSet
   filepath: data/01_raw/${binance_data_interval}/binance_raw.parquet
 
+raw_binance_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/01_raw/${binance_data_interval}/raw_binance_oos.parquet
+
 prm_binance:
   type: pandas.ParquetDataSet
   filepath: data/03_primary/${binance_data_interval}/binance_prm.parquet
 
+prm_binance_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/${binance_data_interval}/prm_binance_oos.parquet
+
 fte_binance:
   type: pandas.ParquetDataSet
   filepath: data/04_feature/${binance_data_interval}/binance_fte.parquet
+  versioned: true
+
+fte_binance_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/fte_binance_oos.parquet
   versioned: true
 
 all_fte_multic_mic_binance:
@@ -31,7 +44,17 @@ fte_binance_multic:
   filepath: data/04_feature/${binance_data_interval}/binance_fte_multic.parquet
   versioned: true
 
+fte_binance_multic_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/fte_binance_multic_oos.parquet
+  versioned: true
+
 fte_binance_nonmultic:
   type: pandas.ParquetDataSet
   filepath: data/04_feature/${binance_data_interval}/binance_fte_nonmultic.parquet
+  versioned: true
+
+fte_binance_nonmultic_oos:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/${binance_data_interval}/fte_binance_nonmultic_oos.parquet
   versioned: true
