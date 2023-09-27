@@ -53,7 +53,7 @@ def mt_split_train_test(master_table: pd.DataFrame,
 def scale_train_test(X_train: pd.DataFrame,
                       X_test: pd.DataFrame,
                       scaler: Union[MinMaxScaler, StandardScaler] = None) \
-                        -> Tuple[pd.DataFrame, pd.DataFrame]:
+                        -> Tuple[pd.DataFrame, pd.DataFrame, Union[MinMaxScaler, StandardScaler]]:
 
     if not scaler:
         scaler = MinMaxScaler()
@@ -69,7 +69,7 @@ def scale_train_test(X_train: pd.DataFrame,
                                   index=X_test.index,
                                   columns=scaler.feature_names_in_)
 
-    return X_train_scaled, X_test_scaled
+    return X_train_scaled, X_test_scaled, scaler
 
 
 def optimize_params(model: Union[LogisticRegression, XGBClassifier],

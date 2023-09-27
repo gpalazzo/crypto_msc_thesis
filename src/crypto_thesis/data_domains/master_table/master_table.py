@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 import pandas as pd
 from imblearn.under_sampling import NearMiss
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from crypto_thesis.utils import mt_split_train_test, scale_train_test
 
@@ -73,7 +74,7 @@ def build_master_table(fte_df: pd.DataFrame,
     X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
     X_test, y_test = test_df_bal.drop(columns=TARGET_COL), test_df_bal[TARGET_COL]
 
-    X_train_bal, X_test = scale_train_test(X_train=X_train_bal, X_test=X_test)
+    X_train_bal, X_test, scaler = scale_train_test(X_train=X_train_bal, X_test=X_test)
 
     train_df_bal = X_train_bal.merge(y_train_bal, left_index=True, right_index=True, how="inner")
     train_df_bal = train_df_bal.reset_index()
@@ -88,11 +89,12 @@ def build_master_table(fte_df: pd.DataFrame,
     _check_master_table_quality(df=train_df_bal,
                                 class_bounds=class_bounds)
 
-    return train_df_bal, window_nbr_lookup_train, test_df, window_nbr_lookup_test
+    return train_df_bal, window_nbr_lookup_train, test_df, window_nbr_lookup_test, scaler
 
 
 def build_master_table_oos(fte_df: pd.DataFrame,
                         spine: pd.DataFrame,
+                        scaler: Union[MinMaxScaler, StandardScaler],
                         class_bounds: Dict[str, float]) -> pd.DataFrame:
 
     master_table = fte_df.merge(spine, on=["open_time", "close_time"], how="inner")
@@ -120,13 +122,13 @@ def build_master_table_oos(fte_df: pd.DataFrame,
     master_table_numbered = master_table_numbered.set_index(INDEX_COL)
     X_train_bal, y_train_bal = master_table_numbered.drop(columns=TARGET_COL), master_table_numbered[TARGET_COL]
 
-    # train_df_bal = mt_balance_classes(X=X_train_bal,
-    #                                 y=y_train_bal,
-    #                                 class_bounds=class_bounds)
-    # X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
+    train_df_bal = mt_balance_classes(X=X_train_bal,
+                                    y=y_train_bal,
+                                    class_bounds=class_bounds)
+    X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
 
     X_test = X_train_bal.copy()
-    X_train_bal, _ = scale_train_test(X_train=X_train_bal, X_test=X_test)
+    X_train_bal, _, _ = scale_train_test(X_train=X_train_bal, X_test=X_test, scaler=scaler)
 
     mt = X_train_bal.merge(y_train_bal, left_index=True, right_index=True, how="inner")
     mt = mt.replace({"top": 1, "bottom": 0}).reset_index()
