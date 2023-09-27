@@ -122,10 +122,10 @@ def build_master_table_oos(fte_df: pd.DataFrame,
     master_table_numbered = master_table_numbered.set_index(INDEX_COL)
     X_train_bal, y_train_bal = master_table_numbered.drop(columns=TARGET_COL), master_table_numbered[TARGET_COL]
 
-    train_df_bal = mt_balance_classes(X=X_train_bal,
-                                    y=y_train_bal,
-                                    class_bounds=class_bounds)
-    X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
+    # train_df_bal = mt_balance_classes(X=X_train_bal,
+    #                                 y=y_train_bal,
+    #                                 class_bounds=class_bounds)
+    # X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
 
     X_test = X_train_bal.copy()
     X_train_bal, _, _ = scale_train_test(X_train=X_train_bal, X_test=X_test, scaler=scaler)
