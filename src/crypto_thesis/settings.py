@@ -43,6 +43,9 @@ CONFIG_LOADER_ARGS = {
     "globals_dict": {
         "start_date": "2017-01-01",
         "end_date": "2023-01-31",
+        # true out of sample dates
+        "start_date_oos": "2023-02-01",
+        "end_date_oos": "2023-06-30",
         "binance_data_interval": selected_interval
     }
 }

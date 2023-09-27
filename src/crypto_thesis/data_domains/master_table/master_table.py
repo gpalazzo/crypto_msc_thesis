@@ -82,6 +82,43 @@ def build_master_table(fte_df: pd.DataFrame,
     return train_df_bal, window_nbr_lookup_train, test_df, window_nbr_lookup_test
 
 
+def build_master_table_oos(fte_df: pd.DataFrame,
+                        spine: pd.DataFrame) -> pd.DataFrame:
+
+    master_table = fte_df.merge(spine, on=["open_time", "close_time"], how="inner")
+    assert master_table.shape[0] == fte_df.shape[0] == spine.shape[0], \
+            "Mismatch of dates between features and spine, review."
+
+    master_table_dropped = master_table.dropna()
+    master_table_numbered = _build_window_numbers(df=master_table_dropped)
+    window_nbr_lookup = master_table_numbered[["window_nbr", "open_time", "close_time", "target_time"]]
+
+    # drop useless columns (they're in spine layer if any troubleshooting needed)
+    master_table_numbered = master_table_numbered.drop(columns=["target_time_log_return",
+                                                                "std",
+                                                                "logret_cumsum",
+                                                                "target_time_close",
+                                                                "close_time_close",
+                                                                "close_to_tgt_time_logret",
+                                                                "pctchg_cumsum",
+                                                                "close_to_tgt_time_pctchg",
+                                                                "open_time",
+                                                                "target_time",
+                                                                "close_time",
+                                                                "volume_cumsum"])
+
+    master_table_numbered = master_table_numbered.set_index(INDEX_COL)
+    X_train_bal, y_train_bal = master_table_numbered.drop(columns=TARGET_COL), master_table_numbered[TARGET_COL]
+    X_test = X_train_bal.copy()
+
+    X_train_bal, _ = scale_train_test(X_train=X_train_bal, X_test=X_test)
+
+    mt = X_train_bal.merge(y_train_bal, left_index=True, right_index=True, how="inner")
+    mt = mt.replace({"top": 1, "bottom": 0}).reset_index()
+
+    return mt, window_nbr_lookup
+
+
 def _build_window_numbers(df: pd.DataFrame) -> pd.DataFrame:
     """Build incremental value representing the index for each window number
 

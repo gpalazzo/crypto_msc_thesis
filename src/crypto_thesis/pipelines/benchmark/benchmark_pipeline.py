@@ -54,3 +54,43 @@ def benchmark_pipeline() -> pipeline:
         tags=["benchmark_metrics_pipeline"]))
 
     return _benchmark_strategies + _benchmark_metrics
+
+
+def benchmark_pipeline_oos() -> pipeline:
+
+    _benchmark_strategies_oos = pipeline(
+        Pipeline([
+            node(func=buy_and_hold_strategy,
+                inputs=["window_nbr_lookup_multic_oos",
+                        "prm_binance_oos",
+                        "params:spine_preprocessing.target_name"],
+                outputs="benchmark_buyhold_strat_oos",
+                name="run_benchmark_buyhold_strat_oos",
+                tags=["all_except_raw", "all_except_raw_prm"]),
+
+            node(func=trend_following_strategy,
+                inputs=["spine_preprocessing_oos",
+                        "window_nbr_lookup_multic_oos",
+                        "master_table_multic_oos"],
+                outputs="benchmark_trendfollowing_strat_oos",
+                name="run_benchmark_trendfollowing_strat_oos",
+                tags=["all_except_raw", "all_except_raw_prm"]),
+            ],
+        tags=["benchmark_strategies_pipeline_oos"]))
+
+    _benchmark_metrics_oos = pipeline(
+        # buy and hold strategy doesn't have calculated metrics here, only in the notebook
+        Pipeline([
+            node(func=build_portfolio_metrics,
+                inputs=["benchmark_trendfollowing_strat_oos",
+                        "window_nbr_lookup_multic_oos",
+                        "prm_binance_oos",
+                        "params:spine_preprocessing.target_name",
+                        "params:portfolio_initial_money"],
+                outputs=["benchmark_trendfollowing_pnl_oos", "benchmark_trendfollowing_metrics_oos"],
+                name="run_benchmark_trendfollowing_portfolio_oss",
+                tags=["all_except_raw", "all_except_raw_prm"])
+            ],
+        tags=["benchmark_metrics_pipeline_oos"]))
+
+    return _benchmark_strategies_oos + _benchmark_metrics_oos

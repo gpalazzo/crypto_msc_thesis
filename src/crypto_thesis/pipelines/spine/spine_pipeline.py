@@ -39,3 +39,29 @@ def spine_pipeline() -> pipeline:
         tags=["spine_pipeline"]))
 
     return _spine_pipeline
+
+
+def spine_pipeline_oos() -> pipeline:
+
+    _spine_pipeline_oos = pipeline(
+        Pipeline([
+            # prepare the dataset
+            node(func=spine_preprocessing,
+                inputs=["prm_binance_oos",
+                        "params:spine_preprocessing"],
+                outputs=["spine_preprocessing_oos", "spine_log_ret_oos"],
+                name="run_spine_preprocessing_oos",
+                tags=["all_except_raw", "all_except_binance"]),
+
+            # generate the labels
+            node(func=spine_build_target_labels,
+                inputs=["spine_preprocessing_oos",
+                        "spine_log_ret_oos",
+                        "params:spine_labeling"],
+                outputs="spine_labeled_oos",
+                name="run_spine_label_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+        ],
+        tags=["spine_pipeline"]))
+
+    return _spine_pipeline_oos

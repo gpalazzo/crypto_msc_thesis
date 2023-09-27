@@ -79,3 +79,45 @@ def portfolio_pipeline() -> pipeline:
         tags=["portfolios_regr_pipeline"]))
 
     return _portfolio_pipeline + _portfolios_regr_pipeline
+
+
+def portfolio_pipeline_oos() -> pipeline:
+
+    _portfolio_pipeline_oos = pipeline(
+        Pipeline([
+            # XGBoost
+            node(func=build_portfolio_metrics,
+                inputs=["xgboost_model_predict_oos",
+                        "window_nbr_lookup_multic_oos",
+                        "prm_binance_oos",
+                        "params:spine_preprocessing.target_name",
+                        "params:portfolio_initial_money"],
+                outputs=["xgboost_portfolio_pnl_oos", "xgboost_portfolio_metrics_oos"],
+                name="run_xgboost_portfolio_metrics_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+
+            # LSTM
+            , node(func=build_portfolio_metrics,
+                inputs=["lstm_model_predict_oos",
+                        "window_nbr_lookup_multic_oos",
+                        "prm_binance_oos",
+                        "params:spine_preprocessing.target_name",
+                        "params:portfolio_initial_money"],
+                outputs=["lstm_portfolio_pnl_oos", "lstm_portfolio_metrics_oos"],
+                name="run_lstm_portfolio_metrics_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+
+            # Logistic Regression
+            , node(func=build_portfolio_metrics,
+                inputs=["logreg_model_predict_oos",
+                        "window_nbr_lookup_multic_oos",
+                        "prm_binance_oos",
+                        "params:spine_preprocessing.target_name",
+                        "params:portfolio_initial_money"],
+                outputs=["logreg_portfolio_pnl_oos", "logreg_portfolio_metrics_oos"],
+                name="run_logreg_portfolio_metrics_oos",
+                tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"])
+        ],
+        tags=["portfolio_pipeline_oos"]))
+
+    return _portfolio_pipeline_oos
