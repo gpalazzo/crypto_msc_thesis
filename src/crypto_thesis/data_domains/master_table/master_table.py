@@ -92,7 +92,8 @@ def build_master_table(fte_df: pd.DataFrame,
 
 
 def build_master_table_oos(fte_df: pd.DataFrame,
-                        spine: pd.DataFrame) -> pd.DataFrame:
+                        spine: pd.DataFrame,
+                        class_bounds: Dict[str, float]) -> pd.DataFrame:
 
     master_table = fte_df.merge(spine, on=["open_time", "close_time"], how="inner")
     assert master_table.shape[0] == fte_df.shape[0] == spine.shape[0], \
@@ -118,8 +119,13 @@ def build_master_table_oos(fte_df: pd.DataFrame,
 
     master_table_numbered = master_table_numbered.set_index(INDEX_COL)
     X_train_bal, y_train_bal = master_table_numbered.drop(columns=TARGET_COL), master_table_numbered[TARGET_COL]
-    X_test = X_train_bal.copy()
 
+    train_df_bal = mt_balance_classes(X=X_train_bal,
+                                    y=y_train_bal,
+                                    class_bounds=class_bounds)
+    X_train_bal, y_train_bal = train_df_bal.drop(columns=TARGET_COL), train_df_bal[TARGET_COL]
+
+    X_test = X_train_bal.copy()
     X_train_bal, _ = scale_train_test(X_train=X_train_bal, X_test=X_test)
 
     mt = X_train_bal.merge(y_train_bal, left_index=True, right_index=True, how="inner")

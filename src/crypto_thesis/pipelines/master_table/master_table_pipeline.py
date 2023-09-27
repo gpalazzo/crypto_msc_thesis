@@ -53,7 +53,8 @@ def master_table_pipeline_oos() -> pipeline:
             # build master table with multicollinear features
             node(func=build_master_table_oos,
                 inputs=["fte_binance_multic_oos",
-                        "spine_labeled_oos"],
+                        "spine_labeled_oos",
+                        "params:mt_class_bounds"],
                 outputs=["master_table_multic_oos", "window_nbr_lookup_multic_oos"],
                 name="run_master_table_multic_oos",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
@@ -61,7 +62,8 @@ def master_table_pipeline_oos() -> pipeline:
             # build master table without multicollinear features
             node(func=build_master_table_oos,
                 inputs=["fte_binance_nonmultic_oos",
-                        "spine_labeled_oos"],
+                        "spine_labeled_oos",
+                        "params:mt_class_bounds"],
                 outputs=["master_table_nonmultic_oos", "window_nbr_lookup_nonmultic_oos"],
                 name="run_master_table_nonmultic_oos",
                 tags=["all_except_raw", "all_except_binance", "all_except_raw_prm"]),
